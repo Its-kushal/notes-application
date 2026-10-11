@@ -1,0 +1,15 @@
+node_modules/
+.expo/
+dist/
+build/
+android/.gradle/
+android/app/build/
+android/build/
+*.log
+.DS_Store
+*.tsbuildinfo
+coverage/
+.env
+.env.local
+
+to_commits.txt

@@ -1,0 +1,30 @@
+{
+  "name": "notes-application-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "test": "npm run test --workspaces --if-present",
+    "test:core": "npm run test --workspace=@notes/core",
+    "test:ui": "npm run test --workspace=@notes/ui",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "dev:android": "npm run android --workspace=@notes/app",
+    "build:web": "npm run export --workspace=@notes/app",
+    "dev:linux": "npm run dev --workspace=@notes/desktop-shell"
+  },
+  "overrides": {
+    "react-test-renderer": "19.2.3",
+    "react-native-safe-area-context": "5.7.0",
+    "react-native-screens": "4.26.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.3.0",
+    "typescript": "^5.6.0"
+  }
+}
