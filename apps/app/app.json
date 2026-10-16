@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Privacy Notes",
+    "slug": "notes-application",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "scheme": "privacynotes",
+    "android": {
+      "package": "com.privacynotes.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#121212"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-sqlite",
+        {
+          "useSQLCipher": true,
+          "enableFTS": true
+        }
+      ],
+      "./plugins/withAndroidSecurityConfig.js"
+    ]
+  }
+}
