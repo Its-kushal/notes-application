@@ -1,15 +1,54 @@
-node_modules/
-.expo/
-dist/
-build/
-android/.gradle/
-android/app/build/
-android/build/
+# Miscellaneous
+*.class
 *.log
+*.pyc
+*.swp
 .DS_Store
-*.tsbuildinfo
-coverage/
-.env
-.env.local
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
 
-to_commits.txt
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VSCode related
+.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+# Android related
+**/android/**/gradle-wrapper.jar
+**/android/.gradle
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+
+# Release signing keys and credentials (CRITICAL)
+**/android/key.properties
+*.jks
+*.keystore
+
+# Legacy Expo / Electron artifacts
+node_modules/
+**/node_modules/
+**/.expo/
+**/dist/
+*.tsbuildinfo
+.metadata
+**/to_commits.txt
