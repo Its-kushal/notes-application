@@ -11,6 +11,7 @@ import '../controllers/notes_providers.dart';
 import '../widgets/note_card.dart';
 import '../widgets/notes_empty_view.dart';
 import '../widgets/notes_search_bar.dart';
+import '../../../locked_notes/presentation/controllers/vault_providers.dart';
 
 class NotesListScreen extends ConsumerStatefulWidget {
   const NotesListScreen({super.key});
@@ -344,6 +345,30 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                       onTap: () {
                         notifier.setSelectedFolder(null);
                         Navigator.of(context).pop();
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.lock_outline),
+                      title: const Text('Locked notes'),
+                      onTap: () async {
+                        Navigator.of(context).pop();
+                        final vaultNotifier = ref.read(vaultProvider);
+                        await vaultNotifier.loadVaultState();
+                        if (!context.mounted) return;
+                        final vault = vaultNotifier.state;
+                        if (!vault.hasVault) {
+                          final ok = await context.push<bool>('/setup');
+                          if (ok == true && context.mounted) {
+                            context.push('/locked');
+                          }
+                        } else if (!vault.isUnlocked) {
+                          final ok = await context.push<bool>('/unlock');
+                          if (ok == true && context.mounted) {
+                            context.push('/locked');
+                          }
+                        } else {
+                          context.push('/locked');
+                        }
                       },
                     ),
                     ListTile(
