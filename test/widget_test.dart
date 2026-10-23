@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -177,6 +178,13 @@ class FakeNotesRepository implements NotesRepository {
   Future<int> purgeExpiredTrash({int retentionDays = 30}) async => 0;
 
   @override
+  Future<int> purgeEmptyNotes() async {
+    final before = notes.length;
+    notes.removeWhere((n) => n.title.trim().isEmpty && n.body.trim().isEmpty && !n.isLocked);
+    return before - notes.length;
+  }
+
+  @override
   Future<void> setPinned(String id, bool isPinned) async {
     final note = await getNoteById(id);
     if (note != null) {
@@ -270,6 +278,34 @@ class FakeNotesRepository implements NotesRepository {
         notes[i] = notes[i].copyWith(folderId: null);
       }
     }
+  }
+
+  @override
+  Future<void> lockNote(String noteId, Uint8List vaultKey) async {}
+
+  @override
+  Future<void> unlockNote(String noteId, Uint8List vaultKey) async {}
+
+  @override
+  Future<void> updateLockedNoteContent({
+    required String id,
+    required String title,
+    required String body,
+    String? checklistJson,
+    bool? isChecklistMode,
+    required Uint8List vaultKey,
+    int? updatedAt,
+  }) async {}
+
+  @override
+  Future<List<Note>> getLockedNotes(Uint8List vaultKey) async => [];
+
+  @override
+  Future<Note?> getLockedNoteById(String id, Uint8List vaultKey) async => null;
+
+  @override
+  Future<void> deleteLockedNotePermanently(String id) async {
+    notes.removeWhere((n) => n.id == id && n.isLocked);
   }
 }
 
