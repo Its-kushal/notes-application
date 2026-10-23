@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import '../../../../core/crypto/id_generator.dart';
 import '../../../../core/database/app_database.dart';
+import '../../../locked_notes/presentation/controllers/vault_providers.dart';
 import '../../data/notes_repository.dart';
 import '../../domain/checklist_item.dart';
 import '../../domain/folder.dart';
@@ -439,13 +440,18 @@ final archiveProvider =
 // Note Editor Notifier with Partial Update and Checklist Support
 class NoteEditorNotifier extends ChangeNotifier {
   final NotesRepository _repository;
+  final Uint8List? Function()? getVaultKey;
   Note _note;
   List<ChecklistItem> _checklistItems = const [];
   bool _isDirty = false;
   bool _isSaving = false;
   Timer? _debounceTimer;
 
-  NoteEditorNotifier(this._repository, this._note) {
+  NoteEditorNotifier(
+    this._repository,
+    this._note, {
+    this.getVaultKey,
+  }) {
     if (_note.checklistJson != null) {
       _checklistItems = ChecklistItem.parseList(_note.checklistJson);
     }
@@ -473,6 +479,16 @@ class NoteEditorNotifier extends ChangeNotifier {
   int get checklistCompletedCount =>
       _checklistItems.where((i) => i.isChecked).length;
   int get checklistTotalCount => _checklistItems.length;
+
+  /// Returns true if the note has neither title nor body/checklist content.
+  bool get isEmptyContent {
+    if (_note.title.trim().isNotEmpty) return false;
+    if (_note.isChecklistMode) {
+      if (_checklistItems.isEmpty) return true;
+      return _checklistItems.every((item) => item.text.trim().isEmpty);
+    }
+    return _note.body.trim().isEmpty;
+  }
 
   bool _isDisposed = false;
 
@@ -509,8 +525,10 @@ class NoteEditorNotifier extends ChangeNotifier {
       _checklistItems = items;
       final encoded = ChecklistItem.encodeList(_checklistItems);
       final count = ChecklistItem.calculateWordCount(_checklistItems);
+      final plainText = _checklistItems.map((i) => i.text).join('\n');
       _note = _note.copyWith(
         isChecklistMode: true,
+        body: plainText,
         checklistJson: encoded,
         wordCount: count,
       );
@@ -561,7 +579,8 @@ class NoteEditorNotifier extends ChangeNotifier {
     _checklistItems = mutable;
     final encoded = ChecklistItem.encodeList(_checklistItems);
     final count = ChecklistItem.calculateWordCount(_checklistItems);
-    _note = _note.copyWith(checklistJson: encoded, wordCount: count);
+    final plainText = mutable.map((i) => i.text).join('\n');
+    _note = _note.copyWith(body: plainText, checklistJson: encoded, wordCount: count);
     _isDirty = true;
     notifyListeners();
     _triggerAutosave();
@@ -579,7 +598,8 @@ class NoteEditorNotifier extends ChangeNotifier {
     _checklistItems = mutable;
     final encoded = ChecklistItem.encodeList(_checklistItems);
     final count = ChecklistItem.calculateWordCount(_checklistItems);
-    _note = _note.copyWith(checklistJson: encoded, wordCount: count);
+    final plainText = mutable.map((i) => i.text).join('\n');
+    _note = _note.copyWith(body: plainText, checklistJson: encoded, wordCount: count);
     _isDirty = true;
     notifyListeners();
     _triggerAutosave();
@@ -593,7 +613,8 @@ class NoteEditorNotifier extends ChangeNotifier {
     _checklistItems = mutable;
     final encoded = ChecklistItem.encodeList(_checklistItems);
     final count = ChecklistItem.calculateWordCount(_checklistItems);
-    _note = _note.copyWith(checklistJson: encoded, wordCount: count);
+    final plainText = mutable.map((i) => i.text).join('\n');
+    _note = _note.copyWith(body: plainText, checklistJson: encoded, wordCount: count);
     _isDirty = true;
     notifyListeners();
     _triggerAutosave();
@@ -608,7 +629,8 @@ class NoteEditorNotifier extends ChangeNotifier {
     mutable.insert(newIndex, item);
     _checklistItems = mutable;
     final encoded = ChecklistItem.encodeList(_checklistItems);
-    _note = _note.copyWith(checklistJson: encoded);
+    final plainText = mutable.map((i) => i.text).join('\n');
+    _note = _note.copyWith(body: plainText, checklistJson: encoded);
     _isDirty = true;
     notifyListeners();
     _triggerAutosave();
@@ -638,10 +660,44 @@ class NoteEditorNotifier extends ChangeNotifier {
     _debounceTimer?.cancel();
     if (!_isDirty || _isSaving) return;
 
+    if (isEmptyContent) {
+      _isSaving = true;
+      notifyListeners();
+      try {
+        final existing = await _repository.getNoteById(_note.id);
+        if (existing != null) {
+          // If emptied, delete from database so no phantom empty note persists
+          await _repository.deleteNotePermanently(_note.id);
+        }
+        _isDirty = false;
+      } catch (_) {
+      } finally {
+        _isSaving = false;
+        notifyListeners();
+      }
+      return;
+    }
+
     _isSaving = true;
     notifyListeners();
 
     try {
+      if (_note.isLocked) {
+        final key = getVaultKey?.call();
+        if (key != null) {
+          await _repository.updateLockedNoteContent(
+            id: _note.id,
+            title: _note.title,
+            body: _note.body,
+            checklistJson: _note.checklistJson,
+            isChecklistMode: _note.isChecklistMode,
+            vaultKey: key,
+          );
+        }
+        _isDirty = false;
+        return;
+      }
+
       final existing = await _repository.getNoteById(_note.id);
       if (existing == null) {
         // First insert of brand new note
@@ -679,5 +735,10 @@ class NoteEditorNotifier extends ChangeNotifier {
 final noteEditorProvider = ChangeNotifierProvider.autoDispose
     .family<NoteEditorNotifier, Note>((ref, note) {
   final repo = ref.watch(notesRepositoryProvider);
-  return NoteEditorNotifier(repo, note);
+  final vaultNotifier = ref.watch(vaultProvider);
+  return NoteEditorNotifier(
+    repo,
+    note,
+    getVaultKey: () => vaultNotifier.vaultKey,
+  );
 });

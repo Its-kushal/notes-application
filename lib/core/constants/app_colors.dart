@@ -38,6 +38,16 @@ abstract final class AppColors {
   static const Color white = Colors.white;
   static const Color black = Colors.black;
 
+  // Semantic UI aliases
+  static const Color surfaceDark = darkSurface;
+  static const Color cardLight = lightSurface;
+  static const Color charcoal = darkBorder;
+  static const Color greyLight = lightBorder;
+  static const Color greyMedium = lightTextHint;
+  static const Color greyDark = darkTextSecondary;
+  static const Color textPrimary = lightTextPrimary;
+  static const Color textSecondary = lightTextSecondary;
+
   // Note Color Labels (Subtle tint accents)
   static const List<Color> noteLabelColors = [
     Color(0x00000000), // 0: None / Default

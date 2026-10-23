@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/crypto/security_window_service.dart';
 import '../../../../core/theme/spacing.dart';
-import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/shared_widgets.dart';
 import '../../../export/export_service.dart';
+import '../../../locked_notes/presentation/controllers/vault_providers.dart';
 import '../../../settings/presentation/controllers/settings_provider.dart';
 import '../../domain/note.dart';
 import '../controllers/notes_providers.dart';
@@ -34,6 +36,9 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen>
     WidgetsBinding.instance.addObserver(this);
     _titleController = TextEditingController(text: widget.note.title);
     _bodyController = TextEditingController(text: widget.note.body);
+    if (widget.note.isLocked) {
+      SecurityWindowService.enableSecure();
+    }
   }
 
   @override
@@ -52,6 +57,9 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen>
     WidgetsBinding.instance.removeObserver(this);
     _titleController.dispose();
     _bodyController.dispose();
+    if (widget.note.isLocked) {
+      SecurityWindowService.disableSecure();
+    }
     super.dispose();
   }
 
@@ -200,6 +208,16 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen>
 
   @override
   Widget build(BuildContext context) {
+    final vaultNotifier = ref.watch(vaultProvider);
+    if (widget.note.isLocked && !vaultNotifier.isUnlocked) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.go('/unlock');
+      });
+      return const Scaffold(
+        body: Center(child: LoadingState(message: 'Vault locked')),
+      );
+    }
+
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final notifier = ref.watch(noteEditorProvider(widget.note));
@@ -236,130 +254,182 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen>
                 }
               },
             ),
-            IconButton(
-              icon: Icon(
-                notifier.note.isPinned
-                    ? Icons.push_pin
-                    : Icons.push_pin_outlined,
-              ),
-              color: notifier.note.isPinned ? AppColors.primary : null,
-              tooltip: notifier.note.isPinned ? 'Unpin' : 'Pin',
-              onPressed: () => notifier.togglePin(),
-            ),
-            IconButton(
-              icon: const Icon(Icons.folder_outlined),
-              tooltip: 'Move to folder',
-              onPressed: () => _showFolderPicker(context, notifier),
-            ),
-            IconButton(
-              icon: Icon(
-                notifier.note.isArchived
-                    ? Icons.unarchive_outlined
-                    : Icons.archive_outlined,
-              ),
-              tooltip: notifier.note.isArchived ? 'Unarchive' : 'Archive',
-              onPressed: () async {
-                if (notifier.note.isArchived) {
-                  await ref.read(notesListProvider).unarchiveNote(widget.note.id);
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                    AppSnackBar.show(
-                      context,
-                      message: 'Note unarchived',
-                      actionLabel: 'Undo',
-                      onAction: () => ref.read(notesListProvider).archiveNote(widget.note.id),
-                    );
+              if (!notifier.note.isLocked) ...[
+                IconButton(
+                  icon: Icon(
+                    notifier.note.isPinned
+                        ? Icons.push_pin
+                        : Icons.push_pin_outlined,
+                  ),
+                  color: notifier.note.isPinned ? AppColors.primary : null,
+                  tooltip: notifier.note.isPinned ? 'Unpin' : 'Pin',
+                  onPressed: () => notifier.togglePin(),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.folder_outlined),
+                  tooltip: 'Move to folder',
+                  onPressed: () => _showFolderPicker(context, notifier),
+                ),
+                IconButton(
+                  icon: Icon(
+                    notifier.note.isArchived
+                        ? Icons.unarchive_outlined
+                        : Icons.archive_outlined,
+                  ),
+                  tooltip: notifier.note.isArchived ? 'Unarchive' : 'Archive',
+                  onPressed: () async {
+                    if (notifier.note.isArchived) {
+                      await ref.read(notesListProvider).unarchiveNote(widget.note.id);
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                        AppSnackBar.show(
+                          context,
+                          message: 'Note unarchived',
+                          actionLabel: 'Undo',
+                          onAction: () => ref.read(notesListProvider).archiveNote(widget.note.id),
+                        );
+                      }
+                    } else {
+                      await ref.read(notesListProvider).archiveNote(widget.note.id);
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                        AppSnackBar.show(
+                          context,
+                          message: 'Note archived',
+                          actionLabel: 'Undo',
+                          onAction: () => ref.read(notesListProvider).unarchiveNote(widget.note.id),
+                        );
+                      }
+                    }
+                  },
+                ),
+                PopupMenuButton<int>(
+                  icon: const Icon(Icons.palette_outlined),
+                  tooltip: 'Color label',
+                  onSelected: (colorIndex) => notifier.setColorLabel(colorIndex),
+                  itemBuilder: (context) {
+                    return List.generate(AppColors.noteLabelColors.length, (i) {
+                      final color = AppColors.noteLabelColors[i];
+                      final labelName = AppColors.noteLabelNames[i];
+                      return PopupMenuItem<int>(
+                        value: i,
+                        child: Semantics(
+                          label: 'Color label: $labelName',
+                          child: Row(
+                            children: [
+                              Container(
+                                width: AppSpacing.xl,
+                                height: AppSpacing.xl,
+                                decoration: BoxDecoration(
+                                  color: i == 0 ? AppColors.transparent : color,
+                                  border: Border.all(
+                                    color: AppColors.lightBorder,
+                                    width: 1.5,
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              AppSpacing.hGapMd,
+                              Text(labelName),
+                            ],
+                          ),
+                        ),
+                      );
+                    });
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  tooltip: 'Move to trash',
+                  onPressed: () async {
+                    if (notifier.isEmptyContent) {
+                      await ref.read(notesRepositoryProvider).deleteNotePermanently(widget.note.id);
+                      await ref.read(notesListProvider).loadNotes();
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                      }
+                      return;
+                    }
+                    await ref.read(notesListProvider).trashNote(widget.note.id);
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                      AppSnackBar.show(
+                        context,
+                        message: 'Note moved to trash',
+                        actionLabel: 'Undo',
+                        onAction: () => ref.read(notesListProvider).restoreNote(widget.note.id),
+                      );
+                    }
+                  },
+                ),
+              ],
+              // Overflow Menu
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert),
+                tooltip: 'More options',
+                onSelected: (val) async {
+                  if (val == 'export') {
+                    _showExportModal(context, notifier.note);
+                  } else if (val == 'lock') {
+                    await _handleLockNote(context, notifier);
+                  } else if (val == 'unlock') {
+                    await _handleUnlockNote(context);
+                  } else if (val == 'delete_locked') {
+                    _handleDeleteLockedNote(context);
                   }
-                } else {
-                  await ref.read(notesListProvider).archiveNote(widget.note.id);
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                    AppSnackBar.show(
-                      context,
-                      message: 'Note archived',
-                      actionLabel: 'Undo',
-                      onAction: () => ref.read(notesListProvider).unarchiveNote(widget.note.id),
-                    );
+                },
+                itemBuilder: (ctx) {
+                  if (notifier.note.isLocked) {
+                    return [
+                      const PopupMenuItem(
+                        value: 'unlock',
+                        child: Row(
+                          children: [
+                            Icon(Icons.lock_open, size: 20, color: AppColors.primary),
+                            SizedBox(width: AppSpacing.md),
+                            Text('Unlock note'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'delete_locked',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete_forever, size: 20, color: AppColors.error),
+                            SizedBox(width: AppSpacing.md),
+                            Text('Delete permanently', style: TextStyle(color: AppColors.error)),
+                          ],
+                        ),
+                      ),
+                    ];
                   }
-                }
-              },
-            ),
-            PopupMenuButton<int>(
-              icon: const Icon(Icons.palette_outlined),
-              tooltip: 'Color label',
-              onSelected: (colorIndex) => notifier.setColorLabel(colorIndex),
-              itemBuilder: (context) {
-                return List.generate(AppColors.noteLabelColors.length, (i) {
-                  final color = AppColors.noteLabelColors[i];
-                  final labelName = AppColors.noteLabelNames[i];
-                  return PopupMenuItem<int>(
-                    value: i,
-                    child: Semantics(
-                      label: 'Color label: $labelName',
+                  return [
+                    const PopupMenuItem(
+                      value: 'lock',
                       child: Row(
                         children: [
-                          Container(
-                            width: AppSpacing.xl,
-                            height: AppSpacing.xl,
-                            decoration: BoxDecoration(
-                              color: i == 0 ? AppColors.transparent : color,
-                              border: Border.all(
-                                color: AppColors.lightBorder,
-                                width: 1.5,
-                              ),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          AppSpacing.hGapMd,
-                          Text(labelName),
+                          Icon(Icons.lock_outline, size: 20, color: AppColors.primary),
+                          SizedBox(width: AppSpacing.md),
+                          Text('Lock note'),
                         ],
                       ),
                     ),
-                  );
-                });
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete_outline),
-              tooltip: 'Move to trash',
-              onPressed: () async {
-                await ref.read(notesListProvider).trashNote(widget.note.id);
-                if (context.mounted) {
-                  Navigator.of(context).pop();
-                  AppSnackBar.show(
-                    context,
-                    message: 'Note moved to trash',
-                    actionLabel: 'Undo',
-                    onAction: () => ref.read(notesListProvider).restoreNote(widget.note.id),
-                  );
-                }
-              },
-            ),
-            // Overflow Menu with Export
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert),
-              tooltip: 'More options',
-              onSelected: (val) {
-                if (val == 'export') {
-                  _showExportModal(context, notifier.note);
-                }
-              },
-              itemBuilder: (ctx) => [
-                const PopupMenuItem(
-                  value: 'export',
-                  child: Row(
-                    children: [
-                      Icon(Icons.ios_share_outlined, size: 20),
-                      SizedBox(width: AppSpacing.md),
-                      Text('Export note'),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        body: Column(
+                    const PopupMenuItem(
+                      value: 'export',
+                      child: Row(
+                        children: [
+                          Icon(Icons.ios_share_outlined, size: 20),
+                          SizedBox(width: AppSpacing.md),
+                          Text('Export note'),
+                        ],
+                      ),
+                    ),
+                  ];
+                },
+              ),
+            ],
+          ),
+          body: Column(
           children: [
             Expanded(
               child: SingleChildScrollView(
@@ -517,6 +587,84 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen>
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _handleLockNote(BuildContext context, NoteEditorNotifier notifier) async {
+    final vaultNotifier = ref.read(vaultProvider);
+    await vaultNotifier.loadVaultState();
+    if (!context.mounted) return;
+    if (!vaultNotifier.hasVault) {
+      final setupResult = await context.push<bool>('/setup');
+      if (setupResult != true && !ref.read(vaultProvider).hasVault) {
+        return;
+      }
+    }
+
+    if (!ref.read(vaultProvider).isUnlocked) {
+      if (!context.mounted) return;
+      final unlocked = await context.push<bool>('/unlock');
+      if (unlocked != true && !ref.read(vaultProvider).isUnlocked) {
+        return;
+      }
+    }
+
+    final key = ref.read(vaultProvider).vaultKey;
+    if (key == null) return;
+
+    await notifier.saveImmediately();
+    await ref.read(notesRepositoryProvider).lockNote(widget.note.id, key);
+    await ref.read(notesListProvider).loadNotes();
+
+    if (context.mounted) {
+      AppSnackBar.show(context, message: 'Note locked');
+      Navigator.of(context).pop();
+    }
+  }
+
+  Future<void> _handleUnlockNote(BuildContext context) async {
+    final key = ref.read(vaultProvider).vaultKey;
+    if (key == null) return;
+
+    await ref.read(notesRepositoryProvider).unlockNote(widget.note.id, key);
+    await ref.read(notesListProvider).loadNotes();
+
+    if (context.mounted) {
+      AppSnackBar.show(context, message: 'Note unlocked and returned to All');
+      Navigator.of(context).pop();
+    }
+  }
+
+  void _handleDeleteLockedNote(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: const Text('Delete locked note?'),
+        content: const Text(
+          'This note will be PERMANENTLY deleted. It will not be moved to trash and cannot be recovered.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(dialogCtx).pop();
+              await ref.read(notesRepositoryProvider).deleteLockedNotePermanently(widget.note.id);
+              if (context.mounted) {
+                AppSnackBar.show(context, message: 'Locked note deleted permanently');
+                Navigator.of(context).pop();
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: AppColors.white,
+            ),
+            child: const Text('Delete Permanently'),
+          ),
+        ],
       ),
     );
   }

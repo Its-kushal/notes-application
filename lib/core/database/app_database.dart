@@ -11,7 +11,7 @@ enum DatabaseStatus {
 /// Central database manager for Privacy Notes utilizing SQLCipher.
 class AppDatabase {
   static const String databaseFileName = 'privacy_notes.db';
-  static const int currentDatabaseVersion = 1;
+  static const int currentDatabaseVersion = 2;
 
   final DatabaseKeyService _keyService;
   final DatabaseFactory? customFactory;
@@ -110,10 +110,11 @@ class AppDatabase {
   /// Applies incremental database migrations using the provided transaction [txn].
   static Future<void> migrateVersion(DatabaseExecutor txn, int version) async {
     switch (version) {
-      // Future schema migration steps execute queries on txn here:
-      // case 2:
-      //   await txn.execute(...);
-      //   break;
+      case 2:
+        await txn.execute(
+          "ALTER TABLE vault_metadata ADD COLUMN credential_type TEXT NOT NULL DEFAULT 'pin';",
+        );
+        break;
     }
   }
 
@@ -126,6 +127,7 @@ class AppDatabase {
         salt BLOB NOT NULL,
         kdf_algorithm TEXT NOT NULL,
         kdf_iterations INTEGER NOT NULL,
+        credential_type TEXT NOT NULL DEFAULT 'pin',
         wrapped_vault_key BLOB NOT NULL,
         wrapped_vault_key_iv BLOB NOT NULL,
         wrapped_vault_key_tag BLOB NOT NULL,
