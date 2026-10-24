@@ -281,7 +281,7 @@ class FakeNotesRepository implements NotesRepository {
   }
 
   @override
-  Future<void> lockNote(String noteId, Uint8List vaultKey) async {}
+  Future<void> lockNote(String noteId, Uint8List vaultKey, {int? expectedUpdatedAt}) async {}
 
   @override
   Future<void> unlockNote(String noteId, Uint8List vaultKey) async {}
