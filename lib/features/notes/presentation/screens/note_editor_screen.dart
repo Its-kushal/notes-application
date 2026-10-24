@@ -369,6 +369,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen>
                 tooltip: 'More options',
                 onSelected: (val) async {
                   if (val == 'export') {
+                    if (notifier.note.isLocked) return;
                     _showExportModal(context, notifier.note);
                   } else if (val == 'lock') {
                     await _handleLockNote(context, notifier);
@@ -592,6 +593,31 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen>
   }
 
   Future<void> _handleLockNote(BuildContext context, NoteEditorNotifier notifier) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Lock note?'),
+        content: const Text(
+          'Locking will encrypt this note with your vault key. Its folder, pin, archive status, and color label will be cleared.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.white,
+            ),
+            child: const Text('Lock'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
     final vaultNotifier = ref.read(vaultProvider);
     await vaultNotifier.loadVaultState();
     if (!context.mounted) return;

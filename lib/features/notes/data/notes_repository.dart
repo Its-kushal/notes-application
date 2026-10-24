@@ -75,7 +75,7 @@ abstract class NotesRepository {
   Future<void> deleteFolder(String id);
 
   // Locked Notes (M4)
-  Future<void> lockNote(String noteId, Uint8List vaultKey);
+  Future<void> lockNote(String noteId, Uint8List vaultKey, {int? expectedUpdatedAt});
   Future<void> unlockNote(String noteId, Uint8List vaultKey);
   Future<void> updateLockedNoteContent({
     required String id,
@@ -558,9 +558,13 @@ class SqlNotesRepository implements NotesRepository {
   }
 
   @override
-  Future<void> lockNote(String noteId, Uint8List vaultKey) async {
+  Future<void> lockNote(String noteId, Uint8List vaultKey, {int? expectedUpdatedAt}) async {
     final note = await getNoteById(noteId);
     if (note == null || note.isLocked) return;
+
+    if (expectedUpdatedAt != null && note.updatedAt != expectedUpdatedAt) {
+      throw StateError('Note was modified concurrently while locking. Please reload and try again.');
+    }
 
     final payload = jsonEncode({
       'title': note.title,
@@ -583,7 +587,7 @@ class SqlNotesRepository implements NotesRepository {
     final now = DateTime.now().millisecondsSinceEpoch;
 
     await _db.transaction((txn) async {
-      await txn.update(
+      final rowsUpdated = await txn.update(
         'notes',
         {
           'encrypted_payload': secretBox.cipherText,
@@ -600,9 +604,12 @@ class SqlNotesRepository implements NotesRepository {
           'color_label': 0,
           'updated_at': now,
         },
-        where: 'id = ?',
-        whereArgs: [noteId],
+        where: 'id = ? AND updated_at = ? AND is_locked = 0',
+        whereArgs: [noteId, note.updatedAt],
       );
+      if (rowsUpdated == 0) {
+        throw StateError('Note was modified concurrently while locking. Please reload and try again.');
+      }
     });
   }
 
