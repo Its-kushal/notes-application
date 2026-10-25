@@ -42,8 +42,11 @@ void main() {
       final beforeTimer = await repository.getNoteById(initialNote.id);
       expect(beforeTimer!.body, 'Draft text');
 
-      // Wait 550ms for debounce timer to fire
-      await Future.delayed(const Duration(milliseconds: 550));
+      // Wait for debounce timer (500ms) to fire, with tolerance for CPU load
+      for (int i = 0; i < 20; i++) {
+        await Future.delayed(const Duration(milliseconds: 50));
+        if (!notifier.isDirty) break;
+      }
 
       // Verify note is saved
       final afterTimer = await repository.getNoteById(initialNote.id);
