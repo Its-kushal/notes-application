@@ -64,6 +64,27 @@ abstract final class AppTheme {
           fontSize: 15,
         ),
       ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return AppColors.white;
+          }
+          return const Color(0xFF64748B); // Slate 500
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return AppColors.primary;
+          }
+          return AppColors.lightBorder; // Slate 200 (0xFFE2E8F0)
+        }),
+        trackOutlineColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return Colors.transparent;
+          }
+          return const Color(0xFF94A3B8); // Slate 400
+        }),
+        trackOutlineWidth: const WidgetStatePropertyAll(1.0),
+      ),
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
           fontSize: 32,
@@ -182,6 +203,27 @@ abstract final class AppTheme {
           color: AppColors.darkTextHint,
           fontSize: 15,
         ),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return AppColors.white;
+          }
+          return const Color(0xFFCBD5E1); // Slate 300 - crisp, bright silver thumb
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return AppColors.primary; // Vibrant teal
+          }
+          return AppColors.darkSurfaceElevated; // Slate 700 (0xFF334155)
+        }),
+        trackOutlineColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return Colors.transparent;
+          }
+          return const Color(0xFF64748B); // Slate 500 distinct border
+        }),
+        trackOutlineWidth: const WidgetStatePropertyAll(1.5),
       ),
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
