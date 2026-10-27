@@ -8,6 +8,8 @@ import 'core/theme/theme_cache_service.dart';
 import 'core/widgets/shared_widgets.dart';
 import 'features/locked_notes/presentation/controllers/vault_providers.dart';
 import 'features/locked_notes/presentation/screens/locked_notes_list_screen.dart';
+import 'features/locked_notes/presentation/screens/vault_recovery_key_screen.dart';
+import 'features/locked_notes/presentation/screens/vault_recovery_screen.dart';
 import 'features/locked_notes/presentation/screens/vault_setup_screen.dart';
 import 'features/locked_notes/presentation/screens/vault_unlock_screen.dart';
 import 'features/notes/domain/note.dart';
@@ -75,6 +77,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final onUnlocked = state.extra as VoidCallback?;
           return VaultUnlockScreen(onUnlocked: onUnlocked);
+        },
+      ),
+      GoRoute(
+        path: '/vault/recover',
+        builder: (context, state) => const VaultRecoveryScreen(),
+      ),
+      GoRoute(
+        path: '/vault/recovery-key',
+        builder: (context, state) {
+          final isRegenerating = state.extra == true;
+          return VaultRecoveryKeyScreen(isRegenerating: isRegenerating);
         },
       ),
       GoRoute(

@@ -313,6 +313,50 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => context.push('/setup'),
             )
           else ...[
+            if (!vaultState.hasRecoveryKey) ...[
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.xs),
+                padding: const EdgeInsets.all(Spacing.sm),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(Spacing.sm),
+                  border: Border.all(color: AppColors.error.withValues(alpha: 0.5)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.warning_amber_rounded, color: AppColors.error),
+                    SizedBox(width: Spacing.sm),
+                    Expanded(
+                      child: Text(
+                        'No recovery key created. If you forget your secret, you cannot recover locked notes.',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.error),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.key, color: AppColors.primary),
+                title: const Text('Create recovery key'),
+                subtitle: const Text('Generate a recovery key to write on paper'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () async {
+                  await context.push('/vault/recovery-key', extra: false);
+                  ref.read(vaultProvider).loadVaultState();
+                },
+              ),
+            ] else ...[
+              ListTile(
+                leading: const Icon(Icons.key_outlined),
+                title: const Text('Generate a new recovery key'),
+                subtitle: const Text('Replace existing recovery key (invalidates old key)'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () async {
+                  await context.push('/vault/recovery-key', extra: true);
+                  ref.read(vaultProvider).loadVaultState();
+                },
+              ),
+            ],
             ListTile(
               leading: const Icon(Icons.lock_clock_outlined),
               title: const Text('Auto-lock timeout'),
