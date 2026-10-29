@@ -95,6 +95,21 @@ class VaultMetadata {
   }
 }
 
+/// Represents the status and countdown of a 72-hour delayed reset request (Requirement A2).
+class DelayedResetStatus {
+  final bool isRequested;
+  final DateTime? requestedAt;
+  final int remainingSeconds;
+  final bool isReady;
+
+  const DelayedResetStatus({
+    required this.isRequested,
+    this.requestedAt,
+    required this.remainingSeconds,
+    required this.isReady,
+  });
+}
+
 /// Service managing the cryptographic vault for locked notes.
 ///
 /// NOTE: Dart's runtime and garbage collector cannot guarantee deterministic
@@ -232,15 +247,17 @@ class VaultService {
     await _resetFailedRecoveryAttempts();
   }
 
-  /// Unlocks the vault by unwrapping the vault key with the secret.
-  Future<void> unlockVault(String secret) async {
-    await checkLockout();
-
-    final metadata = await getVaultMetadata();
-    if (metadata == null) {
-      throw StateError('Vault has not been set up.');
-    }
-
+  /// Derives the wrapping key from [secret] using KDF parameters in [metadata],
+  /// unwraps the vault key, and returns it.
+  ///
+  /// On MAC mismatch, records a failed attempt and throws [VaultAuthException]
+  /// with [authErrorMessage]. Callers remain responsible for lockout checks and
+  /// any success-side bookkeeping (e.g. resetting attempt counters).
+  Future<Uint8List> _authenticateAndUnwrapVaultKey({
+    required String secret,
+    required VaultMetadata metadata,
+    String authErrorMessage = 'Incorrect secret. Please try again.',
+  }) async {
     final Uint8List wrappingKeyBytes;
     try {
       wrappingKeyBytes = await _kdfService.deriveKey(
@@ -260,7 +277,7 @@ class VaultService {
 
     try {
       final aesGcm = AesGcm.with256bits();
-      final decryptedVaultKey = await aesGcm.decrypt(
+      final decrypted = await aesGcm.decrypt(
         SecretBox(
           metadata.wrappedVaultKey,
           nonce: metadata.wrappedVaultKeyIv,
@@ -269,19 +286,44 @@ class VaultService {
         secretKey: SecretKey(wrappingKeyBytes),
         aad: vaultWrappingAad,
       );
-
-      _vaultKey = Uint8List.fromList(decryptedVaultKey);
-      await _resetFailedAttempts();
+      return Uint8List.fromList(decrypted);
     } on SecretBoxAuthenticationError {
       await _recordFailedAttempt();
-      throw const VaultAuthException('Incorrect secret. Please try again.');
+      throw VaultAuthException(authErrorMessage);
     } catch (e) {
       if (e is VaultLockoutException || e is VaultAuthException || e is VaultPlatformException) rethrow;
-      if (e.runtimeType.toString().contains('Mac') || e.toString().contains('MAC')) {
-        await _recordFailedAttempt();
-        throw const VaultAuthException('Incorrect secret. Please try again.');
-      }
       rethrow;
+    }
+  }
+
+  /// Unlocks the vault by unwrapping the vault key with the secret.
+  Future<void> unlockVault(String secret) async {
+    await checkLockout();
+
+    final metadata = await getVaultMetadata();
+    if (metadata == null) {
+      throw StateError('Vault has not been set up.');
+    }
+
+    _vaultKey = await _authenticateAndUnwrapVaultKey(
+      secret: secret,
+      metadata: metadata,
+      authErrorMessage: 'Incorrect secret. Please try again.',
+    );
+    await _resetFailedAttempts();
+
+    // A2: Cancel any pending delayed reset and record notice for the vault owner
+    final delayedReset = await getDelayedResetStatus();
+    if (delayedReset.isRequested && delayedReset.requestedAt != null) {
+      await _db.insert(
+        'app_settings',
+        {
+          'key': 'vault_pending_reset_notice_date',
+          'value': delayedReset.requestedAt!.millisecondsSinceEpoch.toString(),
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      await cancelDelayedReset();
     }
   }
 
@@ -303,48 +345,11 @@ class VaultService {
       throw StateError('Vault has not been set up.');
     }
 
-    // Always authenticate currentSecret against stored wrappedVaultKey
-    final Uint8List currentWrappingKeyBytes;
-    try {
-      currentWrappingKeyBytes = await _kdfService.deriveKey(
-        secret: currentSecret,
-        salt: metadata.salt,
-        iterations: metadata.kdfIterations,
-        keyLength: 32,
-      );
-    } on PlatformException catch (e) {
-      throw VaultPlatformException('Cryptographic service error: ${e.message ?? e.code}');
-    } catch (e) {
-      if (e is StateError) {
-        throw VaultPlatformException('Cryptographic service error: ${e.message}');
-      }
-      rethrow;
-    }
-
-    final Uint8List currentVaultKey;
-    try {
-      final aesGcm = AesGcm.with256bits();
-      final decrypted = await aesGcm.decrypt(
-        SecretBox(
-          metadata.wrappedVaultKey,
-          nonce: metadata.wrappedVaultKeyIv,
-          mac: Mac(metadata.wrappedVaultKeyTag),
-        ),
-        secretKey: SecretKey(currentWrappingKeyBytes),
-        aad: vaultWrappingAad,
-      );
-      currentVaultKey = Uint8List.fromList(decrypted);
-    } on SecretBoxAuthenticationError {
-      await _recordFailedAttempt();
-      throw const VaultAuthException('Current secret is incorrect.');
-    } catch (e) {
-      if (e is VaultPlatformException || e is VaultLockoutException) rethrow;
-      if (e.runtimeType.toString().contains('Mac') || e.toString().contains('MAC')) {
-        await _recordFailedAttempt();
-        throw const VaultAuthException('Current secret is incorrect.');
-      }
-      rethrow;
-    }
+    final currentVaultKey = await _authenticateAndUnwrapVaultKey(
+      secret: currentSecret,
+      metadata: metadata,
+      authErrorMessage: 'Current secret is incorrect.',
+    );
 
     final random = Random.secure();
     final newSalt = Uint8List(16);
@@ -415,48 +420,11 @@ class VaultService {
       throw StateError('Vault has not been set up.');
     }
 
-    // Authenticate currentSecret against stored wrappedVaultKey
-    final Uint8List currentWrappingKeyBytes;
-    try {
-      currentWrappingKeyBytes = await _kdfService.deriveKey(
-        secret: currentSecret,
-        salt: metadata.salt,
-        iterations: metadata.kdfIterations,
-        keyLength: 32,
-      );
-    } on PlatformException catch (e) {
-      throw VaultPlatformException('Cryptographic service error: ${e.message ?? e.code}');
-    } catch (e) {
-      if (e is StateError) {
-        throw VaultPlatformException('Cryptographic service error: ${e.message}');
-      }
-      rethrow;
-    }
-
-    final Uint8List currentVaultKey;
-    try {
-      final aesGcm = AesGcm.with256bits();
-      final decrypted = await aesGcm.decrypt(
-        SecretBox(
-          metadata.wrappedVaultKey,
-          nonce: metadata.wrappedVaultKeyIv,
-          mac: Mac(metadata.wrappedVaultKeyTag),
-        ),
-        secretKey: SecretKey(currentWrappingKeyBytes),
-        aad: vaultWrappingAad,
-      );
-      currentVaultKey = Uint8List.fromList(decrypted);
-    } on SecretBoxAuthenticationError {
-      await _recordFailedAttempt();
-      throw const VaultAuthException('Current secret is incorrect.');
-    } catch (e) {
-      if (e is VaultPlatformException || e is VaultLockoutException) rethrow;
-      if (e.runtimeType.toString().contains('Mac') || e.toString().contains('MAC')) {
-        await _recordFailedAttempt();
-        throw const VaultAuthException('Current secret is incorrect.');
-      }
-      rethrow;
-    }
+    final currentVaultKey = await _authenticateAndUnwrapVaultKey(
+      secret: currentSecret,
+      metadata: metadata,
+      authErrorMessage: 'Current secret is incorrect.',
+    );
 
     // Decode and validate new recovery key
     final recoveryBytes = RecoveryKeyService.decodeKey(recoveryKeyString);
@@ -535,12 +503,6 @@ class VaultService {
       // Well-formed but wrong key counts toward recovery failed attempts! (R6)
       await _recordFailedRecoveryAttempt();
       rethrow;
-    } catch (e) {
-      if (e.runtimeType.toString().contains('Mac') || e.toString().contains('MAC')) {
-        await _recordFailedRecoveryAttempt();
-        throw const RecoveryKeyAuthException('Incorrect recovery key.');
-      }
-      rethrow;
     }
 
     // Successfully recovered vault key! Now re-wrap primary secret
@@ -599,9 +561,24 @@ class VaultService {
     });
 
     _vaultKey = recoveredVaultKey;
+
+    // A2: Cancel any pending delayed reset and record notice for the vault owner
+    final delayedReset = await getDelayedResetStatus();
+    if (delayedReset.isRequested && delayedReset.requestedAt != null) {
+      await _db.insert(
+        'app_settings',
+        {
+          'key': 'vault_pending_reset_notice_date',
+          'value': delayedReset.requestedAt!.millisecondsSinceEpoch.toString(),
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      await cancelDelayedReset();
+    }
   }
 
-  /// Permanently deletes all locked notes, vault metadata, and lockout settings (D3, R8).
+  /// Permanently deletes all locked notes, vault metadata, and lockout settings (A4).
+  /// New vault creation is allowed only after a reset.
   Future<void> resetVault() async {
     await _db.transaction((txn) async {
       await txn.delete('notes', where: 'is_locked = 1');
@@ -610,11 +587,231 @@ class VaultService {
         'app_settings',
         where: "key IN ("
             "'vault_failed_attempts', 'vault_next_allowed_time', 'vault_last_attempt_time', 'vault_lockout_elapsed_realtime', 'vault_lockout_recorded_elapsed', 'vault_lockout_boot_time', 'vault_auto_lock_timeout', "
-            "'vault_recovery_failed_attempts', 'vault_recovery_next_allowed_time', 'vault_recovery_last_attempt_time', 'vault_recovery_lockout_elapsed_realtime', 'vault_recovery_lockout_recorded_elapsed'"
+            "'vault_recovery_failed_attempts', 'vault_recovery_next_allowed_time', 'vault_recovery_last_attempt_time', 'vault_recovery_lockout_elapsed_realtime', 'vault_recovery_lockout_recorded_elapsed', "
+            "'vault_delayed_reset_requested_at', 'vault_delayed_reset_elapsed', 'vault_delayed_reset_last_seen', 'vault_pending_reset_notice_date'"
             ")",
       );
     });
     _vaultKey = null;
+  }
+
+  /// A1: Immediate reset proved with current PIN/pattern and typed DELETE.
+  Future<void> immediateResetWithSecret({
+    required String secret,
+    required String confirmationText,
+  }) async {
+    if (confirmationText != 'DELETE') {
+      throw ArgumentError('Type DELETE exactly to confirm.');
+    }
+    await checkLockout();
+    final metadata = await getVaultMetadata();
+    if (metadata == null) {
+      await resetVault();
+      return;
+    }
+
+    await _authenticateAndUnwrapVaultKey(
+      secret: secret,
+      metadata: metadata,
+      authErrorMessage: 'Current secret is incorrect.',
+    );
+    await resetVault();
+  }
+
+  /// A1: Immediate reset proved with paper recovery key and typed DELETE.
+  Future<void> immediateResetWithRecoveryKey({
+    required String recoveryKeyString,
+    required String confirmationText,
+  }) async {
+    if (confirmationText != 'DELETE') {
+      throw ArgumentError('Type DELETE exactly to confirm.');
+    }
+    final metadata = await getVaultMetadata();
+    if (metadata == null) {
+      await resetVault();
+      return;
+    }
+    if (!metadata.hasRecoveryKey ||
+        metadata.recoveryWrappedKey == null ||
+        metadata.recoverySalt == null ||
+        metadata.recoveryIv == null ||
+        metadata.recoveryTag == null) {
+      throw StateError('No recovery key exists for this vault.');
+    }
+    await checkRecoveryLockout();
+    final recoveryBytes = RecoveryKeyService.decodeKey(recoveryKeyString);
+    try {
+      await RecoveryKeyService.unwrapVaultKey(
+        wrappedVaultKey: metadata.recoveryWrappedKey!,
+        iv: metadata.recoveryIv!,
+        tag: metadata.recoveryTag!,
+        recoveryKeyBytes: recoveryBytes,
+        salt: metadata.recoverySalt!,
+      );
+    } on RecoveryKeyAuthException {
+      await _recordFailedRecoveryAttempt();
+      rethrow;
+    }
+    await resetVault();
+  }
+
+  /// A2: Requests a delayed reset (starts 72-hour countdown).
+  Future<void> requestDelayedReset() async {
+    final nowWall = clock().millisecondsSinceEpoch;
+    await _db.insert(
+      'app_settings',
+      {'key': 'vault_delayed_reset_requested_at', 'value': nowWall.toString()},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    await _db.insert(
+      'app_settings',
+      {'key': 'vault_delayed_reset_last_seen', 'value': nowWall.toString()},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    if (elapsedRealtimeProvider != null) {
+      try {
+        final elapsed = await elapsedRealtimeProvider!();
+        await _db.insert(
+          'app_settings',
+          {'key': 'vault_delayed_reset_elapsed', 'value': elapsed.toString()},
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      } catch (_) {}
+    }
+  }
+
+  /// Cancels an active delayed reset request.
+  Future<void> cancelDelayedReset() async {
+    await _db.delete(
+      'app_settings',
+      where: "key IN ('vault_delayed_reset_requested_at', 'vault_delayed_reset_elapsed', 'vault_delayed_reset_last_seen')",
+    );
+  }
+
+  /// Dual-clock verification for 72-hour delayed reset (Requirement A3).
+  ///
+  /// Uses wall clock (DateTime) coupled with Android's monotonic elapsedRealtime
+  /// to prevent trivial clock rollbacks or fast-forwards.
+  ///
+  /// LIMITATION:
+  /// While the device remains booted, elapsedRealtime monotonically increases,
+  /// preventing the user from bypassing the 72-hour delay by advancing the system clock.
+  /// However, Android's SystemClock.elapsedRealtime resets to 0 upon device reboot.
+  /// Following a reboot, elapsedRealtime can no longer measure time elapsed before the
+  /// reboot. The service falls back to wall-clock monotonicity (ensuring the current
+  /// clock has not moved backward relative to the last recorded timestamp).
+  /// Consequently, an attacker with physical access could potentially reboot the device
+  /// and manually advance the device wall clock in system settings across the reboot,
+  /// as offline Android apps lack access to a tamper-proof hardware RTC or trusted network time.
+  Future<DelayedResetStatus> getDelayedResetStatus() async {
+    final res = await _db.query(
+      'app_settings',
+      where: "key IN ('vault_delayed_reset_requested_at', 'vault_delayed_reset_elapsed', 'vault_delayed_reset_last_seen')",
+    );
+    final map = {for (final r in res) r['key'] as String: r['value'] as String};
+    final requestedAtStr = map['vault_delayed_reset_requested_at'];
+    if (requestedAtStr == null) {
+      return const DelayedResetStatus(
+        isRequested: false,
+        remainingSeconds: 0,
+        isReady: false,
+      );
+    }
+
+    final requestedAtMs = int.tryParse(requestedAtStr) ?? 0;
+    final lastSeenMs = int.tryParse(map['vault_delayed_reset_last_seen'] ?? '') ?? requestedAtMs;
+    final requestedElapsedMs = int.tryParse(map['vault_delayed_reset_elapsed'] ?? '');
+    final nowWallMs = clock().millisecondsSinceEpoch;
+
+    // Detect wall-clock rollback
+    if (nowWallMs >= lastSeenMs) {
+      await _db.insert(
+        'app_settings',
+        {'key': 'vault_delayed_reset_last_seen', 'value': nowWallMs.toString()},
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+
+    const int seventyTwoHoursMs = 72 * 60 * 60 * 1000;
+    int effectivePassedMs;
+
+    if (elapsedRealtimeProvider != null && requestedElapsedMs != null) {
+      final currentElapsed = await elapsedRealtimeProvider!();
+      if (currentElapsed >= requestedElapsedMs) {
+        // Same boot session: monotonic elapsedRealtime governs progress
+        final elapsedDelta = currentElapsed - requestedElapsedMs;
+        final wallDelta = nowWallMs > requestedAtMs ? (nowWallMs - requestedAtMs) : 0;
+        effectivePassedMs = min(wallDelta, elapsedDelta);
+      } else {
+        // Reboot occurred: fall back to wall-clock with monotonicity protection
+        final effectiveWall = (nowWallMs >= lastSeenMs) ? nowWallMs : lastSeenMs;
+        effectivePassedMs = effectiveWall > requestedAtMs ? (effectiveWall - requestedAtMs) : 0;
+      }
+    } else {
+      final effectiveWall = (nowWallMs >= lastSeenMs) ? nowWallMs : lastSeenMs;
+      effectivePassedMs = effectiveWall > requestedAtMs ? (effectiveWall - requestedAtMs) : 0;
+    }
+
+    final remainingMs = max(0, seventyTwoHoursMs - effectivePassedMs);
+    final remainingSeconds = (remainingMs / 1000).ceil();
+
+    return DelayedResetStatus(
+      isRequested: true,
+      requestedAt: DateTime.fromMillisecondsSinceEpoch(requestedAtMs),
+      remainingSeconds: remainingSeconds,
+      isReady: remainingSeconds <= 0,
+    );
+  }
+
+  /// Completes the delayed reset with typed confirmation DELETE after 72 hours (A2).
+  Future<void> completeDelayedReset({required String confirmationText}) async {
+    if (confirmationText != 'DELETE') {
+      throw ArgumentError('Type DELETE exactly to confirm.');
+    }
+    final status = await getDelayedResetStatus();
+    if (!status.isRequested) {
+      throw StateError('No delayed reset has been requested.');
+    }
+    if (!status.isReady) {
+      throw StateError('Delayed reset period has not elapsed yet (${status.remainingSeconds}s remaining).');
+    }
+    await resetVault();
+  }
+
+  /// Notice displayed to owner if a reset was requested while unlocked/recovered (A2).
+  Future<DateTime?> getPendingResetNoticeDate() async {
+    final res = await _db.query('app_settings', where: "key = 'vault_pending_reset_notice_date'");
+    if (res.isEmpty) return null;
+    final ms = int.tryParse(res.first['value'] as String);
+    if (ms == null) return null;
+    return DateTime.fromMillisecondsSinceEpoch(ms);
+  }
+
+  Future<void> clearPendingResetNoticeDate() async {
+    await _db.delete('app_settings', where: "key = 'vault_pending_reset_notice_date'");
+  }
+
+  /// Compatibility wrapper for authorized vault resets.
+  Future<void> resetVaultWithAuthorization({
+    String? recoveryKeyString,
+    String? secret,
+    bool forceUnprotected = false,
+  }) async {
+    if (recoveryKeyString != null && recoveryKeyString.isNotEmpty) {
+      await immediateResetWithRecoveryKey(
+        recoveryKeyString: recoveryKeyString,
+        confirmationText: 'DELETE',
+      );
+    } else if (secret != null && secret.isNotEmpty) {
+      await immediateResetWithSecret(
+        secret: secret,
+        confirmationText: 'DELETE',
+      );
+    } else if (forceUnprotected) {
+      await resetVault();
+    } else {
+      throw ArgumentError('Authorization is required to reset this vault.');
+    }
   }
 
   // --- Auto-lock Timeout Persistence (D7) ---
