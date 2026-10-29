@@ -11,7 +11,7 @@ enum DatabaseStatus {
 /// Central database manager for Privacy Notes utilizing SQLCipher.
 class AppDatabase {
   static const String databaseFileName = 'privacy_notes.db';
-  static const int currentDatabaseVersion = 3;
+  static const int currentDatabaseVersion = 4;
 
   final DatabaseKeyService _keyService;
   final DatabaseFactory? customFactory;
@@ -72,7 +72,7 @@ class AppDatabase {
 
       final factory = customFactory ?? databaseFactory;
 
-      // D2: Safety backup before schema migration
+      // D2 & D: Safety backup and integrity check before schema migration
       if (fileExists && dbPath != inMemoryDatabasePath) {
         try {
           final tempDb = await factory.openDatabase(
@@ -81,10 +81,20 @@ class AppDatabase {
           );
           final versionRows = await tempDb.rawQuery('PRAGMA user_version;');
           final diskVersion = Sqflite.firstIntValue(versionRows) ?? 0;
-          await tempDb.close();
 
           if (diskVersion > 0 && diskVersion < currentDatabaseVersion) {
+            // Run the integrity check first! (Requirement D)
+            final checkRows = await tempDb.rawQuery('PRAGMA quick_check;');
+            final quickStatus = checkRows.isNotEmpty ? checkRows.first.values.first?.toString() : null;
+            if (quickStatus != 'ok') {
+              await tempDb.close();
+              _status = DatabaseStatus.recoveryNeeded;
+              return _status;
+            }
+            await tempDb.close();
             await _createMigrationBackup(dbPath, diskVersion, rawPassword, factory);
+          } else {
+            await tempDb.close();
           }
         } catch (e) {
           _status = DatabaseStatus.recoveryNeeded;
@@ -97,6 +107,7 @@ class AppDatabase {
         password: rawPassword,
         onConfigure: (db) async {
           await db.execute('PRAGMA foreign_keys = ON;');
+          await db.execute('PRAGMA synchronous = FULL;');
         },
         onCreate: (db, version) async {
           await createSchemaV1(db);
@@ -219,8 +230,34 @@ class AppDatabase {
         await txn.execute('ALTER TABLE vault_metadata ADD COLUMN recovery_tag BLOB;');
         await txn.execute('ALTER TABLE vault_metadata ADD COLUMN recovery_version INTEGER;');
         break;
+      case 4:
+        // Migration v4: one-time idempotent schema repair for vault_metadata columns (Requirement D)
+        final columns = await txn.rawQuery("PRAGMA table_info('vault_metadata');");
+        final colNames = columns.map((c) => c['name'] as String).toSet();
+        if (colNames.isNotEmpty) {
+          if (!colNames.contains('credential_type')) {
+            await txn.execute("ALTER TABLE vault_metadata ADD COLUMN credential_type TEXT NOT NULL DEFAULT 'pin';");
+          }
+          if (!colNames.contains('recovery_salt')) {
+            await txn.execute('ALTER TABLE vault_metadata ADD COLUMN recovery_salt BLOB;');
+          }
+          if (!colNames.contains('recovery_wrapped_key')) {
+            await txn.execute('ALTER TABLE vault_metadata ADD COLUMN recovery_wrapped_key BLOB;');
+          }
+          if (!colNames.contains('recovery_iv')) {
+            await txn.execute('ALTER TABLE vault_metadata ADD COLUMN recovery_iv BLOB;');
+          }
+          if (!colNames.contains('recovery_tag')) {
+            await txn.execute('ALTER TABLE vault_metadata ADD COLUMN recovery_tag BLOB;');
+          }
+          if (!colNames.contains('recovery_version')) {
+            await txn.execute('ALTER TABLE vault_metadata ADD COLUMN recovery_version INTEGER;');
+          }
+        }
+        break;
     }
   }
+
 
   /// Creates schema version 1.
   static Future<void> createSchemaV1(DatabaseExecutor db) async {
