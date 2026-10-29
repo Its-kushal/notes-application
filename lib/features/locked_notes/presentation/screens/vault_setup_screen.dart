@@ -484,6 +484,14 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                         minDots: 5,
                         isEnabled: !_isTransitioning,
                         isError: _isPatternError,
+                        onPatternStart: () {
+                          if (_isPatternError || _errorMessage != null) {
+                            setState(() {
+                              _isPatternError = false;
+                              _errorMessage = null;
+                            });
+                          }
+                        },
                         onPatternComplete: (dots) {
                           if (_isTransitioning) return;
                           final patternString = dots.join('-');
@@ -602,6 +610,7 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                       autofocus: true,
                       autocorrect: false,
                       enableSuggestions: false,
+                      enableIMEPersonalizedLearning: false,
                       textCapitalization: TextCapitalization.characters,
                       decoration: const InputDecoration(
                         labelText: 'Enter recovery key',

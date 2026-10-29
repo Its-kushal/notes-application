@@ -283,6 +283,14 @@ class _VaultRecoveryKeyScreenState extends ConsumerState<VaultRecoveryKeyScreen>
                       key: ValueKey('recovery_pattern_$_patternResetKey'),
                       minDots: 5,
                       isError: _isPatternError,
+                      onPatternStart: () {
+                        if (_isPatternError || _errorMessage != null) {
+                          setState(() {
+                            _isPatternError = false;
+                            _errorMessage = null;
+                          });
+                        }
+                      },
                       onPatternComplete: (dots) {
                         _currentSecret = dots.join('-');
                         _proceedStep0();
@@ -362,6 +370,7 @@ class _VaultRecoveryKeyScreenState extends ConsumerState<VaultRecoveryKeyScreen>
                     autofocus: true,
                     autocorrect: false,
                     enableSuggestions: false,
+                    enableIMEPersonalizedLearning: false,
                     textCapitalization: TextCapitalization.characters,
                     decoration: const InputDecoration(
                       labelText: 'Recovery key',

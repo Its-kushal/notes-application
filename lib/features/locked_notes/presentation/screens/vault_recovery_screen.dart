@@ -207,6 +207,39 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
       );
 
       if (mounted) {
+        final noticeDate = ref.read(vaultProvider).state.pendingResetNoticeDate;
+        if (noticeDate != null) {
+          await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) => AlertDialog(
+              title: const Row(
+                children: [
+                  Icon(Icons.security, color: AppColors.error),
+                  SizedBox(width: Spacing.sm),
+                  Expanded(
+                    child: Text('Security Notice', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+              content: Text(
+                'A vault reset was requested on ${noticeDate.toLocal().toString().split('.')[0]}.\n\n'
+                'Because you have successfully recovered the vault, this reset request has been automatically cancelled.',
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    ref.read(vaultProvider).acknowledgeResetNotice();
+                    Navigator.of(ctx).pop();
+                  },
+                  child: const Text('Dismiss'),
+                ),
+              ],
+            ),
+          );
+          if (!mounted) return;
+        }
+
         AppSnackBar.show(context, message: 'New secret set. Vault unlocked.');
         if (Navigator.of(context).canPop()) {
           context.pop(true);
@@ -320,6 +353,7 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
                     autofocus: true,
                     autocorrect: false,
                     enableSuggestions: false,
+                    enableIMEPersonalizedLearning: false,
                     textCapitalization: TextCapitalization.characters,
                     decoration: const InputDecoration(
                       labelText: 'Recovery key',
