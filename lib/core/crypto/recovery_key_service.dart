@@ -174,6 +174,14 @@ class RecoveryKeyService {
       );
     }
 
+    // 128-bit payload encoded in 130 bits (26 × 5). Top 2 bits must be zero,
+    // so the first base-32 digit must be 0–7 (binary 00xxx).
+    if (digits[0] > 7) {
+      throw const RecoveryKeyFormatException(
+        'Invalid recovery key: value exceeds 128-bit range.',
+      );
+    }
+
     // Reconstruct 128-bit BigInt
     BigInt val = BigInt.zero;
     for (int i = 0; i < payloadChars; i++) {
@@ -262,11 +270,6 @@ class RecoveryKeyService {
       return Uint8List.fromList(decrypted);
     } on SecretBoxAuthenticationError {
       throw const RecoveryKeyAuthException('Incorrect recovery key.');
-    } catch (e) {
-      if (e.runtimeType.toString().contains('Mac') || e.toString().contains('MAC')) {
-        throw const RecoveryKeyAuthException('Incorrect recovery key.');
-      }
-      rethrow;
     }
   }
 }

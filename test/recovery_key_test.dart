@@ -137,6 +137,49 @@ void main() {
         throwsA(isA<RecoveryKeyFormatException>()),
       );
     });
+
+    test('First digit > 7 (exceeds 128-bit range) throws RecoveryKeyFormatException', () {
+      // Craft a 28-char key where the first digit is 8 (0b01000 in Base32 = 'A'? No...)
+      // In Crockford Base32: digit 8 = '8', digit 9 = '9', 10 = 'A', etc.
+      // digits[0] > 7 means the first char maps to symbol index >= 8.
+      // Symbol index 8 is '8', index 9 is '9', index 10 is 'A', etc.
+      // Build a valid-checksum key starting with symbol '8' (index 8).
+      final digits = List<int>.filled(26, 0);
+      digits[0] = 8; // Above 7 — violates 128-bit range
+      final checksum = RecoveryKeyService.computeChecksum(digits);
+      final c0 = checksum ~/ 32;
+      final c1 = checksum % 32;
+      final buf = StringBuffer();
+      for (final d in digits) {
+        buf.write(RecoveryKeyService.alphabet[d]);
+      }
+      buf.write(RecoveryKeyService.alphabet[c0]);
+      buf.write(RecoveryKeyService.alphabet[c1]);
+      final key = buf.toString();
+
+      expect(
+        () => RecoveryKeyService.decodeKey(key),
+        throwsA(isA<RecoveryKeyFormatException>()),
+        reason: 'First digit 8 exceeds 128-bit range',
+      );
+
+      // Digit 7 should still be allowed
+      digits[0] = 7;
+      final checksum7 = RecoveryKeyService.computeChecksum(digits);
+      final c70 = checksum7 ~/ 32;
+      final c71 = checksum7 % 32;
+      final buf7 = StringBuffer();
+      for (final d in digits) {
+        buf7.write(RecoveryKeyService.alphabet[d]);
+      }
+      buf7.write(RecoveryKeyService.alphabet[c70]);
+      buf7.write(RecoveryKeyService.alphabet[c71]);
+      final key7 = buf7.toString();
+
+      // Should not throw — digit 7 is within 128-bit range
+      final decoded = RecoveryKeyService.decodeKey(key7);
+      expect(decoded.length, equals(16));
+    });
   });
 
   group('RecoveryKeyService Cryptography Tests (R3, R9)', () {
