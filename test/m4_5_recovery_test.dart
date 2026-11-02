@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +13,7 @@ import 'package:privacy_notes/features/locked_notes/presentation/controllers/vau
 import 'package:privacy_notes/features/locked_notes/presentation/screens/vault_recovery_key_screen.dart';
 import 'package:privacy_notes/features/locked_notes/presentation/screens/vault_recovery_screen.dart';
 import 'package:privacy_notes/features/locked_notes/presentation/screens/vault_setup_screen.dart';
+import 'package:privacy_notes/features/locked_notes/presentation/widgets/reset_vault_dialog.dart';
 import 'package:privacy_notes/features/notes/data/notes_repository.dart';
 import 'package:privacy_notes/features/notes/domain/note.dart';
 import 'package:privacy_notes/features/settings/presentation/screens/settings_screen.dart';
@@ -510,6 +510,55 @@ void main() {
 
       await appDb.close();
     });
+
+    test('resetVaultWithAuthorization strictly requires valid recovery key when recovery key is configured', () async {
+      final appDb = AppDatabase(
+        customFactory: databaseFactoryFfi,
+        customPath: inMemoryDatabasePath,
+      );
+      await appDb.initialize(overridePassword: 'test_db_password');
+      final vaultService = VaultService(
+        appDatabase: appDb,
+        kdfService: const FakeKdfService(),
+      );
+      final repo = SqlNotesRepository(appDatabase: appDb);
+
+      final recoveryKey = RecoveryKeyService.generateKey();
+      await vaultService.setupVault(
+        secret: '123456',
+        credentialType: CredentialType.pin,
+        iterations: 1000,
+        recoveryKeyString: recoveryKey,
+      );
+
+      final note = Note.create(title: 'Protected Note', body: 'Confidential');
+      await repo.insertNote(note);
+      await repo.lockNote(note.id, vaultService.vaultKey!);
+
+      // 1. Attempt reset without recovery key -> throws ArgumentError
+      await expectLater(
+        vaultService.resetVaultWithAuthorization(),
+        throwsA(isA<ArgumentError>()),
+      );
+      expect(await vaultService.hasVault(), isTrue);
+
+      // 2. Attempt reset with wrong recovery key -> throws RecoveryKeyAuthException & records failed attempt
+      final wrongKey = RecoveryKeyService.generateKey();
+      await expectLater(
+        vaultService.resetVaultWithAuthorization(recoveryKeyString: wrongKey),
+        throwsA(isA<RecoveryKeyAuthException>()),
+      );
+      expect(await vaultService.getRecoveryFailedAttempts(), equals(1));
+      expect(await vaultService.hasVault(), isTrue);
+
+      // 3. Reset with valid recovery key -> succeeds and wipes vault & locked notes
+      await vaultService.resetVaultWithAuthorization(recoveryKeyString: recoveryKey);
+      expect(await vaultService.hasVault(), isFalse);
+      expect(await vaultService.hasRecoveryKey(), isFalse);
+      expect(await repo.getActiveNotes(), isEmpty);
+
+      await appDb.close();
+    });
   });
 
   group('M4.5 Schema v3 Migration from Real v2 Database File (R3)', () {
@@ -893,6 +942,54 @@ void main() {
       expect(find.textContaining('No recovery key created'), findsNothing);
       expect(find.text('Generate a new recovery key'), findsOneWidget);
     });
+
+    testWidgets('ResetVaultDialog: strictly requires paper recovery key when hasRecoveryKey is true', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final fakeNotifier = _TestVaultNotifier(hasRecoveryKey: true);
+      final fakeService = _FakeVaultService();
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            vaultProvider.overrideWith((ref) => fakeNotifier),
+            vaultServiceProvider.overrideWithValue(fakeService),
+          ],
+          child: const MaterialApp(
+            home: Scaffold(
+              body: ResetVaultDialog(),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Confirms dialog title and prompt
+      expect(find.text('Reset locked notes?'), findsOneWidget);
+      expect(find.text('Prove current secret or recovery key to reset immediately:'), findsOneWidget);
+
+      // Select 'Recovery Key' segment
+      await tester.tap(find.text('Recovery Key'));
+      await tester.pumpAndSettle();
+
+      // Enter recovery key and typed DELETE
+      final validKey = RecoveryKeyService.generateKey();
+      final textFields = find.byType(TextField);
+      expect(textFields, findsNWidgets(2)); // Recovery key input + DELETE input
+
+      await tester.enterText(textFields.at(0), validKey);
+      await tester.enterText(textFields.at(1), 'DELETE');
+      await tester.pump();
+
+      await tester.tap(find.text('Delete Everything'));
+      await tester.pump();
+
+      expect(fakeNotifier.didResetVault, isTrue);
+      expect(fakeNotifier.resetRecoveryKey, equals(validKey));
+    });
   });
 }
 
@@ -1002,6 +1099,36 @@ class _TestVaultNotifier extends ChangeNotifier implements VaultNotifier {
   }) async {
     didCreateOrUpdateRecoveryKey = true;
     updatedRecoveryKey = recoveryKeyString;
+  }
+
+  bool didResetVault = false;
+  String? resetRecoveryKey;
+
+  @override
+  Future<void> immediateResetWithRecoveryKey({
+    required String recoveryKeyString,
+    required String confirmationText,
+  }) async {
+    didResetVault = true;
+    resetRecoveryKey = recoveryKeyString;
+  }
+
+  @override
+  Future<void> immediateResetWithSecret({
+    required String secret,
+    required String confirmationText,
+  }) async {
+    didResetVault = true;
+  }
+
+  @override
+  Future<void> resetVault({
+    String? recoveryKey,
+    String? secret,
+    bool forceUnprotected = false,
+  }) async {
+    didResetVault = true;
+    resetRecoveryKey = recoveryKey;
   }
 
   @override

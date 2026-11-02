@@ -44,6 +44,11 @@ class VaultState {
   final String autoLockTimeout;
   final bool isDeriving;
   final String? errorMessage;
+  final bool isDelayedResetRequested;
+  final DateTime? delayedResetRequestedAt;
+  final int delayedResetRemainingSeconds;
+  final bool isDelayedResetReady;
+  final DateTime? pendingResetNoticeDate;
 
   const VaultState({
     this.hasVault = false,
@@ -57,6 +62,11 @@ class VaultState {
     this.autoLockTimeout = 'background',
     this.isDeriving = false,
     this.errorMessage,
+    this.isDelayedResetRequested = false,
+    this.delayedResetRequestedAt,
+    this.delayedResetRemainingSeconds = 0,
+    this.isDelayedResetReady = false,
+    this.pendingResetNoticeDate,
   });
 
   VaultState copyWith({
@@ -72,6 +82,12 @@ class VaultState {
     bool? isDeriving,
     String? errorMessage,
     bool clearError = false,
+    bool? isDelayedResetRequested,
+    DateTime? delayedResetRequestedAt,
+    int? delayedResetRemainingSeconds,
+    bool? isDelayedResetReady,
+    DateTime? pendingResetNoticeDate,
+    bool clearNoticeDate = false,
   }) {
     return VaultState(
       hasVault: hasVault ?? this.hasVault,
@@ -85,6 +101,11 @@ class VaultState {
       autoLockTimeout: autoLockTimeout ?? this.autoLockTimeout,
       isDeriving: isDeriving ?? this.isDeriving,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      isDelayedResetRequested: isDelayedResetRequested ?? this.isDelayedResetRequested,
+      delayedResetRequestedAt: delayedResetRequestedAt ?? this.delayedResetRequestedAt,
+      delayedResetRemainingSeconds: delayedResetRemainingSeconds ?? this.delayedResetRemainingSeconds,
+      isDelayedResetReady: isDelayedResetReady ?? this.isDelayedResetReady,
+      pendingResetNoticeDate: clearNoticeDate ? null : (pendingResetNoticeDate ?? this.pendingResetNoticeDate),
     );
   }
 }
@@ -95,6 +116,7 @@ class VaultNotifier extends ChangeNotifier {
   VaultState _state = const VaultState();
   Timer? _lockoutTimer;
   Timer? _recoveryLockoutTimer;
+  Timer? _delayedResetTimer;
   DateTime? _lastBackgroundedTime;
   bool _isDisposed = false;
 
@@ -119,6 +141,7 @@ class VaultNotifier extends ChangeNotifier {
     _isDisposed = true;
     _lockoutTimer?.cancel();
     _recoveryLockoutTimer?.cancel();
+    _delayedResetTimer?.cancel();
     super.dispose();
   }
 
@@ -147,6 +170,8 @@ class VaultNotifier extends ChangeNotifier {
       final recFailures = await _vaultService.getRecoveryFailedAttempts();
       final recLockout = await _vaultService.getRemainingRecoveryLockoutSeconds();
       final autoLock = await _vaultService.getAutoLockTimeout();
+      final delayedReset = await _vaultService.getDelayedResetStatus();
+      final noticeDate = await _vaultService.getPendingResetNoticeDate();
 
       _state = _state.copyWith(
         hasVault: exists,
@@ -158,6 +183,11 @@ class VaultNotifier extends ChangeNotifier {
         recoveryFailedAttempts: recFailures,
         remainingRecoveryLockoutSeconds: recLockout,
         autoLockTimeout: autoLock,
+        isDelayedResetRequested: delayedReset.isRequested,
+        delayedResetRequestedAt: delayedReset.requestedAt,
+        delayedResetRemainingSeconds: delayedReset.remainingSeconds,
+        isDelayedResetReady: delayedReset.isReady,
+        pendingResetNoticeDate: noticeDate,
       );
 
       if (lockout > 0) {
@@ -166,9 +196,34 @@ class VaultNotifier extends ChangeNotifier {
       if (recLockout > 0) {
         _startRecoveryLockoutCountdown(recLockout);
       }
+      if (delayedReset.isRequested && !delayedReset.isReady) {
+        _startDelayedResetCountdown(delayedReset.remainingSeconds);
+      }
 
       notifyListeners();
     } catch (_) {}
+  }
+
+  void _startDelayedResetCountdown(int seconds) {
+    _delayedResetTimer?.cancel();
+    int current = seconds;
+    _delayedResetTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      current--;
+      if (current <= 0) {
+        timer.cancel();
+        _state = _state.copyWith(
+          delayedResetRemainingSeconds: 0,
+          isDelayedResetReady: true,
+        );
+        notifyListeners();
+      } else {
+        _state = _state.copyWith(
+          delayedResetRemainingSeconds: current,
+          isDelayedResetReady: false,
+        );
+        notifyListeners();
+      }
+    });
   }
 
   void _startLockoutCountdown(int seconds) {
@@ -304,6 +359,8 @@ class VaultNotifier extends ChangeNotifier {
         );
       }
 
+      final noticeDate = await _vaultService.getPendingResetNoticeDate();
+      _delayedResetTimer?.cancel();
       _state = _state.copyWith(
         isUnlocked: true,
         credentialType: newCredentialType,
@@ -312,6 +369,10 @@ class VaultNotifier extends ChangeNotifier {
         recoveryFailedAttempts: 0,
         remainingRecoveryLockoutSeconds: 0,
         isDeriving: false,
+        isDelayedResetRequested: false,
+        delayedResetRemainingSeconds: 0,
+        isDelayedResetReady: false,
+        pendingResetNoticeDate: noticeDate,
       );
       notifyListeners();
     } on VaultLockoutException catch (e) {
@@ -351,11 +412,17 @@ class VaultNotifier extends ChangeNotifier {
 
     try {
       await _vaultService.unlockVault(secret);
+      final noticeDate = await _vaultService.getPendingResetNoticeDate();
+      _delayedResetTimer?.cancel();
       _state = _state.copyWith(
         isUnlocked: true,
         failedAttempts: 0,
         remainingLockoutSeconds: 0,
         isDeriving: false,
+        isDelayedResetRequested: false,
+        delayedResetRemainingSeconds: 0,
+        isDelayedResetReady: false,
+        pendingResetNoticeDate: noticeDate,
       );
       notifyListeners();
     } on VaultPlatformException catch (e) {
@@ -442,10 +509,10 @@ class VaultNotifier extends ChangeNotifier {
     }
   }
 
-  Future<void> resetVault() async {
-    await _vaultService.resetVault();
+  void _clearAllStateAfterReset() {
     _lockoutTimer?.cancel();
     _recoveryLockoutTimer?.cancel();
+    _delayedResetTimer?.cancel();
     _state = const VaultState(
       hasVault: false,
       hasRecoveryKey: false,
@@ -455,8 +522,81 @@ class VaultNotifier extends ChangeNotifier {
       remainingLockoutSeconds: 0,
       recoveryFailedAttempts: 0,
       remainingRecoveryLockoutSeconds: 0,
+      isDelayedResetRequested: false,
+      delayedResetRemainingSeconds: 0,
+      isDelayedResetReady: false,
     );
     notifyListeners();
+  }
+
+  Future<void> immediateResetWithSecret({
+    required String secret,
+    required String confirmationText,
+  }) async {
+    await _vaultService.immediateResetWithSecret(
+      secret: secret,
+      confirmationText: confirmationText,
+    );
+    _clearAllStateAfterReset();
+  }
+
+  Future<void> immediateResetWithRecoveryKey({
+    required String recoveryKeyString,
+    required String confirmationText,
+  }) async {
+    await _vaultService.immediateResetWithRecoveryKey(
+      recoveryKeyString: recoveryKeyString,
+      confirmationText: confirmationText,
+    );
+    _clearAllStateAfterReset();
+  }
+
+  Future<void> requestDelayedReset() async {
+    await _vaultService.requestDelayedReset();
+    await loadVaultState();
+  }
+
+  Future<void> cancelDelayedReset() async {
+    await _vaultService.cancelDelayedReset();
+    _delayedResetTimer?.cancel();
+    _state = _state.copyWith(
+      isDelayedResetRequested: false,
+      delayedResetRemainingSeconds: 0,
+      isDelayedResetReady: false,
+    );
+    notifyListeners();
+  }
+
+  Future<void> completeDelayedReset({required String confirmationText}) async {
+    await _vaultService.completeDelayedReset(confirmationText: confirmationText);
+    _clearAllStateAfterReset();
+  }
+
+  Future<void> acknowledgeResetNotice() async {
+    await _vaultService.clearPendingResetNoticeDate();
+    _state = _state.copyWith(clearNoticeDate: true);
+    notifyListeners();
+  }
+
+  Future<void> resetVault({
+    String? recoveryKey,
+    String? secret,
+    bool forceUnprotected = false,
+  }) async {
+    if (recoveryKey != null && recoveryKey.isNotEmpty) {
+      await immediateResetWithRecoveryKey(
+        recoveryKeyString: recoveryKey,
+        confirmationText: 'DELETE',
+      );
+    } else if (secret != null && secret.isNotEmpty) {
+      await immediateResetWithSecret(
+        secret: secret,
+        confirmationText: 'DELETE',
+      );
+    } else {
+      await _vaultService.resetVault();
+      _clearAllStateAfterReset();
+    }
   }
 
   Future<void> setAutoLockTimeout(String timeout) async {

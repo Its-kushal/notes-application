@@ -10,6 +10,7 @@ import '../../../../core/widgets/loading_state.dart';
 import '../controllers/vault_providers.dart';
 import '../widgets/pattern_lock_widget.dart';
 import '../widgets/pin_pad_widget.dart';
+import '../widgets/reset_vault_dialog.dart';
 
 class VaultUnlockScreen extends ConsumerStatefulWidget {
   final VoidCallback? onUnlocked;
@@ -52,6 +53,39 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
     try {
       await vaultNotifier.unlockVault(secret);
       if (mounted) {
+        final noticeDate = ref.read(vaultProvider).state.pendingResetNoticeDate;
+        if (noticeDate != null) {
+          await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) => AlertDialog(
+              title: const Row(
+                children: [
+                  Icon(Icons.security, color: AppColors.error),
+                  SizedBox(width: Spacing.sm),
+                  Expanded(
+                    child: Text('Security Notice', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+              content: Text(
+                'A vault reset was requested on ${noticeDate.toLocal().toString().split('.')[0]}.\n\n'
+                'Because you have successfully unlocked the vault, this reset request has been automatically cancelled.',
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    ref.read(vaultProvider).acknowledgeResetNotice();
+                    Navigator.of(ctx).pop();
+                  },
+                  child: const Text('Dismiss'),
+                ),
+              ],
+            ),
+          );
+          if (!mounted) return;
+        }
+
         if (widget.onUnlocked != null) {
           widget.onUnlocked!();
         } else if (Navigator.of(context).canPop()) {
@@ -72,64 +106,26 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
     }
   }
 
-  void _showResetConfirmationDialog(BuildContext context) {
-    final controller = TextEditingController();
-    showDialog<bool>(
-      context: context,
-      builder: (dialogCtx) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            final isMatch = controller.text.trim() == 'DELETE';
-            return AlertDialog(
-              title: const Text('Reset locked notes?'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'This will PERMANENTLY DELETE all locked notes and reset the vault. Unlocked notes will not be affected.\n\nType DELETE to confirm:',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                  const SizedBox(height: Spacing.sm),
-                  TextField(
-                    controller: controller,
-                    autofocus: true,
-                    decoration: const InputDecoration(
-                      hintText: 'DELETE',
-                      border: OutlineInputBorder(),
-                    ),
-                    onChanged: (_) => setDialogState(() {}),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(dialogCtx).pop(false),
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: isMatch
-                      ? () async {
-                          Navigator.of(dialogCtx).pop(true);
-                          await ref.read(vaultProvider).resetVault();
-                          if (context.mounted) {
-                            AppSnackBar.show(context, message: 'Locked notes and vault reset');
-                            context.go('/');
-                          }
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.error,
-                    foregroundColor: AppColors.white,
-                  ),
-                  child: const Text('Delete Everything'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
+  Future<void> _showResetConfirmationDialog(BuildContext context) async {
+    final reset = await ResetVaultDialog.show(context);
+    if (reset == true && context.mounted) {
+      AppSnackBar.show(context, message: 'Locked notes and vault reset');
+      context.go('/');
+    }
+  }
+
+  String _formatDuration(int totalSeconds) {
+    if (totalSeconds <= 0) return '0s';
+    final hours = totalSeconds ~/ 3600;
+    final minutes = (totalSeconds % 3600) ~/ 60;
+    final seconds = totalSeconds % 60;
+    if (hours > 0) {
+      return '${hours}h ${minutes}m ${seconds}s';
+    } else if (minutes > 0) {
+      return '${minutes}m ${seconds}s';
+    } else {
+      return '${seconds}s';
+    }
   }
 
   @override
@@ -159,6 +155,63 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                if (vaultState.isDelayedResetRequested) ...[
+                  Container(
+                    margin: const EdgeInsets.only(bottom: Spacing.md),
+                    padding: const EdgeInsets.all(Spacing.sm),
+                    decoration: BoxDecoration(
+                      color: vaultState.isDelayedResetReady
+                          ? AppColors.error.withValues(alpha: isDark ? 0.25 : 0.1)
+                          : Colors.orange.withValues(alpha: isDark ? 0.25 : 0.1),
+                      borderRadius: BorderRadius.circular(Spacing.sm),
+                      border: Border.all(
+                        color: vaultState.isDelayedResetReady ? AppColors.error : Colors.orange,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.warning_amber_rounded,
+                              color: vaultState.isDelayedResetReady ? AppColors.error : Colors.orange,
+                              size: 20,
+                            ),
+                            const SizedBox(width: Spacing.xs),
+                            Expanded(
+                              child: Text(
+                                vaultState.isDelayedResetReady
+                                    ? 'Vault reset ready to complete (72h passed)'
+                                    : 'A vault reset was requested on ${vaultState.delayedResetRequestedAt?.toLocal().toString().split('.')[0] ?? ''}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: vaultState.isDelayedResetReady ? AppColors.error : Colors.orange.shade800,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (!vaultState.isDelayedResetReady) ...[
+                          const SizedBox(height: Spacing.xs),
+                          Text(
+                            'Time remaining: ${_formatDuration(vaultState.delayedResetRemainingSeconds)}',
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                        const SizedBox(height: Spacing.xs),
+                        TextButton(
+                          onPressed: () => _showResetConfirmationDialog(context),
+                          style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                          child: Text(
+                            vaultState.isDelayedResetReady ? 'Complete Reset Now' : 'Manage / Cancel Reset Request',
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: Spacing.sm),
                 Icon(
                   Icons.lock_rounded,
@@ -229,6 +282,14 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
                     minDots: 5,
                     isEnabled: !isLockedOut,
                     isError: _isPatternError,
+                    onPatternStart: () {
+                      if (_isPatternError || _errorMessage != null) {
+                        setState(() {
+                          _isPatternError = false;
+                          _errorMessage = null;
+                        });
+                      }
+                    },
                     onPatternComplete: (dots) {
                       final patternString = dots.join('-');
                       _attemptUnlock(patternString);
