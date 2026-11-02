@@ -5,6 +5,7 @@ import '../../../../core/theme/spacing.dart';
 class PatternLockWidget extends StatefulWidget {
   final int minDots;
   final ValueChanged<List<int>> onPatternComplete;
+  final VoidCallback? onPatternStart;
   final bool isEnabled;
   final bool isError;
   final String? errorMessage;
@@ -13,6 +14,7 @@ class PatternLockWidget extends StatefulWidget {
     super.key,
     this.minDots = 5,
     required this.onPatternComplete,
+    this.onPatternStart,
     this.isEnabled = true,
     this.isError = false,
     this.errorMessage,
@@ -51,6 +53,7 @@ class _PatternLockWidgetState extends State<PatternLockWidget> {
 
   void _onPanStart(DragStartDetails details, Size size) {
     if (!widget.isEnabled) return;
+    widget.onPatternStart?.call();
     setState(() {
       _selectedDots.clear();
       _currentTouch = details.localPosition;
@@ -109,7 +112,7 @@ class _PatternLockWidgetState extends State<PatternLockWidget> {
                 color: isDark ? AppColors.surfaceDark : AppColors.cardLight,
                 borderRadius: BorderRadius.circular(Spacing.md),
                 border: Border.all(
-                  color: widget.isError
+                  color: (widget.isError && _currentTouch == null)
                       ? AppColors.error
                       : (isDark ? AppColors.charcoal : AppColors.greyLight),
                   width: 1.5,
@@ -169,8 +172,12 @@ class _PatternPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final dotColor = isDark ? AppColors.greyDark : AppColors.greyMedium;
-    final activeColor = isError ? AppColors.error : AppColors.primary;
+    // Inactive dots: distinct, clearly visible points on dark surface
+    final dotColor = isDark ? const Color(0xFF64748B) : const Color(0xFFCBD5E1);
+    // While actively dragging a new pattern, always use primary accent; only show red when error evaluated
+    final activeColor = (isError && currentTouch == null)
+        ? AppColors.error
+        : (isDark ? AppColors.primaryLight : AppColors.primary);
 
     final dotPaint = Paint()
       ..color = dotColor
@@ -181,12 +188,12 @@ class _PatternPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     final haloPaint = Paint()
-      ..color = activeColor.withValues(alpha: 0.25)
+      ..color = activeColor.withValues(alpha: isDark ? 0.35 : 0.25)
       ..style = PaintingStyle.fill;
 
     final linePaint = Paint()
       ..color = activeColor
-      ..strokeWidth = 4.0
+      ..strokeWidth = 4.5
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
       ..style = PaintingStyle.stroke;
