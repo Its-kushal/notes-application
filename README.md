@@ -65,3 +65,28 @@ Privacy Notes uses a 500 ms debounce timer for autosaving note content in the ed
   - Bulk pin/unpin, bulk move to folder, bulk archive, bulk trash.
   - Android back button exits selection mode first before exiting screen.
 - [x] **Release APK Build**: Validated on release build with full ProGuard/R8 rules.
+
+---
+
+## Native PBKDF2 & PRAGMA Benchmarks (Android Device: M2101K6P)
+
+### Production PBKDF2 KDF Derivation (400,000 Iterations)
+Measured in release build using hardware `SecretKeyFactory("PBKDF2WithHmacSHA256")`:
+- Run 1 (400,000 iterations): 706 ms
+- Run 2 (400,000 iterations): 763 ms
+- Run 3 (400,000 iterations): 682 ms
+- **Production Average**: 717.0 ms (with visible `LoadingState` spinner during key derivation)
+
+### On-Device PRAGMA Synchronous & Journal Mode Benchmark (100 Writes Each)
+Measured on physical UFS storage in SQLCipher database:
+- `PRAGMA journal_mode`: `delete`
+- `PRAGMA synchronous (default)`: `1` (NORMAL)
+  - Average commit latency: **6.823 ms**
+  - Median commit latency: **6.600 ms**
+  - p95 commit latency: **12.792 ms**
+- `PRAGMA synchronous`: `2` (FULL)
+  - Average commit latency: **4.841 ms**
+  - Median commit latency: **4.520 ms**
+  - p95 commit latency: **7.663 ms**
+- **Delta (Added Cost per Write)**: **-1.983 ms** (added cost is < 0 ms, safely below the 5 ms limit, applied in `onConfigure`)
+

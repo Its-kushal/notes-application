@@ -115,7 +115,7 @@ class DelayedResetStatus {
 /// NOTE: Dart's runtime and garbage collector cannot guarantee deterministic
 /// zeroing of memory for Uint8List or String variables.
 class VaultService {
-  static const int standardKdfIterations = 400000;
+  static const int standardKdfIterations = 200000;
   static const String standardKdfAlgorithm = 'PBKDF2-HMAC-SHA256';
   static final Uint8List vaultWrappingAad = utf8.encode('vault:v1');
 
@@ -795,7 +795,6 @@ class VaultService {
   Future<void> resetVaultWithAuthorization({
     String? recoveryKeyString,
     String? secret,
-    bool forceUnprotected = false,
   }) async {
     if (recoveryKeyString != null && recoveryKeyString.isNotEmpty) {
       await immediateResetWithRecoveryKey(
@@ -807,8 +806,6 @@ class VaultService {
         secret: secret,
         confirmationText: 'DELETE',
       );
-    } else if (forceUnprotected) {
-      await resetVault();
     } else {
       throw ArgumentError('Authorization is required to reset this vault.');
     }

@@ -581,7 +581,6 @@ class VaultNotifier extends ChangeNotifier {
   Future<void> resetVault({
     String? recoveryKey,
     String? secret,
-    bool forceUnprotected = false,
   }) async {
     if (recoveryKey != null && recoveryKey.isNotEmpty) {
       await immediateResetWithRecoveryKey(
@@ -594,8 +593,7 @@ class VaultNotifier extends ChangeNotifier {
         confirmationText: 'DELETE',
       );
     } else {
-      await _vaultService.resetVault();
-      _clearAllStateAfterReset();
+      throw ArgumentError('Authorization is required to reset this vault.');
     }
   }
 

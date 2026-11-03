@@ -1125,7 +1125,6 @@ class _TestVaultNotifier extends ChangeNotifier implements VaultNotifier {
   Future<void> resetVault({
     String? recoveryKey,
     String? secret,
-    bool forceUnprotected = false,
   }) async {
     didResetVault = true;
     resetRecoveryKey = recoveryKey;

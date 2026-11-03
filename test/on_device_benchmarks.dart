@@ -24,9 +24,9 @@ void main() async {
 
   try {
     // -------------------------------------------------------------
-    // PART 1: KDF TIMING AT 400,000 ITERATIONS (Requirement C)
+    // PART 1: KDF TIMING AT 200,000 & 400,000 ITERATIONS
     // -------------------------------------------------------------
-    print('\n>>> [KDF BENCHMARK] Measuring Native PBKDF2 at 400,000 iterations...');
+    print('\n>>> [KDF BENCHMARK] Measuring Native PBKDF2 at 200,000 iterations...');
     final kdfService = NativeKdfService();
     final random = Random.secure();
     final testSalt = Uint8List(16);
@@ -34,34 +34,51 @@ void main() async {
       testSalt[i] = random.nextInt(256);
     }
     const testSecret = 'benchmark_secret_1234';
-    const iterations = 400000;
 
-    final kdfTimings = <int>[];
+    final kdfTimings200k = <int>[];
     for (int run = 1; run <= 5; run++) {
       final sw = Stopwatch()..start();
       final key = await kdfService.deriveKey(
         secret: testSecret,
         salt: testSalt,
-        iterations: iterations,
+        iterations: 200000,
         keyLength: 32,
       );
       sw.stop();
       final ms = sw.elapsedMilliseconds;
-      kdfTimings.add(ms);
-      print('  Run $run: $ms ms (derived ${key.length} bytes)');
+      kdfTimings200k.add(ms);
+      print('  Run $run (200k): $ms ms (derived ${key.length} bytes)');
     }
+    kdfTimings200k.sort();
+    final kdfAvg200k = kdfTimings200k.reduce((a, b) => a + b) / kdfTimings200k.length;
+    print('=== KDF 200,000 ITERATIONS SUMMARY ===');
+    print('  Average: ${kdfAvg200k.toStringAsFixed(1)} ms');
+    print('  Median:  ${kdfTimings200k[kdfTimings200k.length ~/ 2]} ms');
+    print('  Min:     ${kdfTimings200k.first} ms');
+    print('  Max:     ${kdfTimings200k.last} ms');
 
-    kdfTimings.sort();
-    final kdfAvg = kdfTimings.reduce((a, b) => a + b) / kdfTimings.length;
-    final kdfMin = kdfTimings.first;
-    final kdfMax = kdfTimings.last;
-    final kdfMedian = kdfTimings[kdfTimings.length ~/ 2];
-
+    print('\n>>> [KDF BENCHMARK] Measuring Native PBKDF2 at 400,000 iterations...');
+    final kdfTimings400k = <int>[];
+    for (int run = 1; run <= 5; run++) {
+      final sw = Stopwatch()..start();
+      final key = await kdfService.deriveKey(
+        secret: testSecret,
+        salt: testSalt,
+        iterations: 400000,
+        keyLength: 32,
+      );
+      sw.stop();
+      final ms = sw.elapsedMilliseconds;
+      kdfTimings400k.add(ms);
+      print('  Run $run (400k): $ms ms (derived ${key.length} bytes)');
+    }
+    kdfTimings400k.sort();
+    final kdfAvg400k = kdfTimings400k.reduce((a, b) => a + b) / kdfTimings400k.length;
     print('=== KDF 400,000 ITERATIONS SUMMARY ===');
-    print('  Average: ${kdfAvg.toStringAsFixed(1)} ms');
-    print('  Median:  $kdfMedian ms');
-    print('  Min:     $kdfMin ms');
-    print('  Max:     $kdfMax ms');
+    print('  Average: ${kdfAvg400k.toStringAsFixed(1)} ms');
+    print('  Median:  ${kdfTimings400k[kdfTimings400k.length ~/ 2]} ms');
+    print('  Min:     ${kdfTimings400k.first} ms');
+    print('  Max:     ${kdfTimings400k.last} ms');
 
     // -------------------------------------------------------------
     // PART 2: PRAGMA journal_mode & synchronous BENCHMARK (Requirement B)
