@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -394,6 +395,32 @@ class SettingsScreen extends ConsumerWidget {
               onTap: () => _showResetConfirmationDialog(context, ref),
             ),
           ],
+          const Divider(),
+          const SectionHeader(title: 'File Handling'),
+          const ListTile(
+            leading: Icon(Icons.file_open_outlined),
+            title: Text('Open text and Markdown files'),
+            subtitle: Text(
+              'Open any .txt or .md file in your file manager, choose Privacy Notes, and tap Always/Remember my choice. If another app (such as ChatGPT) is already the default, clear it in Android Settings > Apps > that app > Open by default.\n\nNote: Android decides the default app, and some file managers may open files in their own built-in viewer.',
+            ),
+            isThreeLine: true,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.xs),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.settings_outlined),
+                label: const Text('Open default apps settings'),
+                onPressed: () async {
+                  try {
+                    const channel = MethodChannel('com.privacynotes.app/security');
+                    await channel.invokeMethod('openDefaultAppsSettings');
+                  } catch (_) {}
+                },
+              ),
+            ),
+          ),
           const Divider(),
           const SectionHeader(title: 'Information'),
           ListTile(

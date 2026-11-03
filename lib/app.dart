@@ -6,6 +6,9 @@ import 'core/database/database_recovery_screen.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_cache_service.dart';
 import 'core/widgets/shared_widgets.dart';
+import 'features/file_viewer/domain/opened_file.dart';
+import 'features/file_viewer/presentation/screens/file_viewer_screen.dart';
+import 'features/file_viewer/services/file_intent_service.dart';
 import 'features/locked_notes/presentation/controllers/vault_providers.dart';
 import 'features/locked_notes/presentation/screens/locked_notes_list_screen.dart';
 import 'features/locked_notes/presentation/screens/vault_recovery_key_screen.dart';
@@ -108,6 +111,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           onRetry: () => ref.refresh(databaseInitProvider),
         ),
       ),
+      GoRoute(
+        path: '/file-viewer',
+        builder: (context, state) {
+          final file = state.extra as OpenedFile;
+          return FileViewerScreen(file: file);
+        },
+      ),
     ],
   );
 });
@@ -121,6 +131,8 @@ class PrivacyNotesApp extends ConsumerStatefulWidget {
 
 class _PrivacyNotesAppState extends ConsumerState<PrivacyNotesApp>
     with WidgetsBindingObserver {
+  FileIntentService? _fileIntentService;
+
   @override
   void initState() {
     super.initState();
@@ -161,6 +173,15 @@ class _PrivacyNotesAppState extends ConsumerState<PrivacyNotesApp>
             ),
           );
         }
+
+        if (status == DatabaseStatus.ready && _fileIntentService == null) {
+          final router = ref.read(appRouterProvider);
+          _fileIntentService = FileIntentService(router: router);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _fileIntentService?.startListening();
+          });
+        }
+
         final router = ref.watch(appRouterProvider);
         final settings = ref.watch(settingsProvider).settings;
 
