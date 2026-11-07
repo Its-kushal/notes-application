@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/theme/spacing.dart';
+import 'package:privacy_notes/l10n/l10n_extension.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -9,10 +10,11 @@ class AboutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
+    final l10n = contextL10n(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('About'),
+        title: Text(l10n.about),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
@@ -24,22 +26,25 @@ class AboutScreen extends StatelessWidget {
           children: [
             AppSpacing.vGapLg,
             // App Shield Icon
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.shield_outlined,
-                size: 44,
-                color: AppColors.primary,
+            Semantics(
+              label: 'Privacy Notes shield logo',
+              child: Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.shield_outlined,
+                  size: 44,
+                  color: AppColors.primary,
+                ),
               ),
             ),
             AppSpacing.vGapMd,
             Text(
-              'Privacy Notes',
+              l10n.appTitle,
               style: textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -55,7 +60,7 @@ class AboutScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
               ),
               child: Text(
-                'Version 1.0.0',
+                l10n.appVersion('1.0.0'),
                 style: textTheme.labelMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -76,6 +81,7 @@ class AboutScreen extends StatelessWidget {
               child: Padding(
                 padding: AppSpacing.paddingLg,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
@@ -84,18 +90,20 @@ class AboutScreen extends StatelessWidget {
                           color: AppColors.primary,
                         ),
                         AppSpacing.hGapSm,
-                        Text(
-                          'Our Privacy Guarantee',
-                          style: textTheme.titleMedium?.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: Text(
+                            l10n.ourPrivacyGuarantee,
+                            style: textTheme.titleMedium?.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
                     ),
                     AppSpacing.vGapSm,
                     Text(
-                      'Nothing leaves your device. All notes, folders, checklists, and cryptographic encryption keys remain strictly on your local hardware. There are no tracking scripts, no third-party telemetry, no cloud sync, and absolutely no internet permissions in this application.',
+                      l10n.nothingLeavesYourDeviceBody,
                       style: textTheme.bodyMedium?.copyWith(
                         height: 1.5,
                       ),
@@ -105,40 +113,40 @@ class AboutScreen extends StatelessWidget {
               ),
             ),
             AppSpacing.vGapLg,
-            // Technical Architecture Items
+            // Technical Architecture & Threat Model Items
+            _buildArchitectureCard(
+              context,
+              icon: Icons.enhanced_encryption_outlined,
+              title: l10n.lockedNotesCryptography,
+              description: l10n.lockedNotesCryptographyDesc,
+            ),
+            AppSpacing.vGapSm,
             _buildArchitectureCard(
               context,
               icon: Icons.lock_outline,
-              title: 'Hardware-Backed SQLCipher',
-              description: 'Database is encrypted at rest using AES-256 with keys secured in Android Keystore.',
+              title: l10n.hardwareBackedSqlCipher,
+              description: l10n.hardwareBackedSqlCipherDesc,
             ),
             AppSpacing.vGapSm,
             _buildArchitectureCard(
               context,
               icon: Icons.public_off_outlined,
-              title: 'No Internet Permission',
-              description: 'The app binary requests zero network permissions (INTERNET is absent from AndroidManifest).',
+              title: l10n.noInternetPermission,
+              description: l10n.noInternetPermissionDesc,
             ),
             AppSpacing.vGapSm,
             _buildArchitectureCard(
               context,
               icon: Icons.folder_shared_outlined,
-              title: 'Storage Access Framework',
-              description: 'Text exports use Android SAF, keeping full storage permissions completely off your device.',
-            ),
-            AppSpacing.vGapSm,
-            _buildArchitectureCard(
-              context,
-              icon: Icons.enhanced_encryption_outlined,
-              title: 'Locked Notes Cryptography',
-              description: 'Locked notes are encrypted with your secret using AES-256-GCM with PBKDF2 key derivation and cannot be recovered if you forget it.',
+              title: l10n.storageAccessFramework,
+              description: l10n.storageAccessFrameworkDesc,
             ),
             AppSpacing.vGapSm,
             _buildArchitectureCard(
               context,
               icon: Icons.code_outlined,
-              title: 'Open Source & Transparent',
-              description: 'Licensed under the Apache 2.0 license. Fully inspectable code with no proprietary lock-in.',
+              title: l10n.openSourceAndTransparent,
+              description: l10n.openSourceAndTransparentDesc,
             ),
             AppSpacing.vGapXl,
           ],

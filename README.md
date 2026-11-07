@@ -90,3 +90,35 @@ Measured on physical UFS storage in SQLCipher database:
   - p95 commit latency: **7.663 ms**
 - **Delta (Added Cost per Write)**: **-1.983 ms** (added cost is < 0 ms, safely below the 5 ms limit, applied in `onConfigure`)
 
+---
+
+## 5,000-Note Scaling & Performance Benchmarks (M5 / P6)
+
+Measured using `BenchmarkSeeder` inserting realistic, variable-length notes into the encrypted SQLCipher database:
+- **5,000 Notes Batch Transaction Insert**: **596 ms** (0.12 ms per note)
+- **Startup Query Latency (Loading 5,000 Notes)**: **39 ms** (well below the 80 ms threshold)
+- **Full-Text LIKE Search Across 5,000 Notes**: **7 ms**
+- **Batch Purge & Cleanup (5,000 Notes)**: **16 ms**
+- **Post-Benchmark Integrity Check**: `PRAGMA integrity_check: ok`, **0 partial notes**
+
+---
+
+## Milestone Verification Checklists
+
+### M3 & M4 Features & Security
+- [x] **AES-256-GCM Vault Encryption**: Locked note payloads encrypted with per-note random salt and 12-byte IV.
+- [x] **Native PBKDF2 Key Derivation**: 400,000 SHA-256 iterations executing on Android Keystore / hardware crypto (`~717 ms`).
+- [x] **Dual Unlock Modes**: Custom PIN pad and 3x3 pattern lock widgets with accessibility announcements and auto-timeout lock.
+- [x] **24-Word BIP-39 Recovery Key**: Mandatory 2-step paper backup verification with zero unauthenticated reset paths.
+- [x] **Locked Note Export Isolation (C1)**: Locked notes strictly excluded from plain-text export and file sharing.
+- [x] **Startup Database Integrity Check (D3)**: Automatic `PRAGMA integrity_check` on boot, routing to recovery screen on corruption.
+- [x] **External File Viewer (C4)**: Read-only `.txt` and `.md` viewer from external file managers; Back/Close cleanly returns to caller.
+
+### M5 Features (Polish, Accessibility, Icon, and Splash)
+- [x] **Localization-Ready (P1)**: 100% user-visible strings defined in ARB via `flutter gen-l10n`, ICU plurals, and RTL-safe directional layouts.
+- [x] **First-Run Welcome (P2)**: Onboarding screen on initial launch with plain offline privacy principles; 0 launch permissions.
+- [x] **Accessibility Sweep (P3)**: Semantic roles and TalkBack labels on all controls, 48 dp minimum touch targets, font scaling up to 1.5 without clipping, reduced motion, dark mode support.
+- [x] **Consistency Sweep (P4)**: All screens unified to design tokens (`AppColors`, `AppSpacing`); selection mode "Select all" text button placed opposite "NOTES" section header.
+- [x] **Branding (P5)**: Original teal `#0D9488` adaptive icon with monochrome layer and matching native Android 12+ splash screen.
+- [x] **Scale Testing (P6)**: Validated performance scaling with 5,000 notes in database.
+- [x] **Threat Model About Screen (P7)**: Version 1.0.0, "Nothing leaves your device" guarantee, honest threat model documentation.

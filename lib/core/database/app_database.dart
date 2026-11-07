@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'database_key_service.dart';
 
@@ -74,8 +75,9 @@ class AppDatabase {
 
       // D2 & D: Safety backup and integrity check before schema migration
       if (fileExists && dbPath != inMemoryDatabasePath) {
+        Database? tempDb;
         try {
-          final tempDb = await factory.openDatabase(
+          tempDb = await factory.openDatabase(
             dbPath,
             options: SqlCipherOpenDatabaseOptions(password: rawPassword),
           );
@@ -88,15 +90,21 @@ class AppDatabase {
             final quickStatus = checkRows.isNotEmpty ? checkRows.first.values.first?.toString() : null;
             if (quickStatus != 'ok') {
               await tempDb.close();
+              tempDb = null;
               _status = DatabaseStatus.recoveryNeeded;
               return _status;
             }
             await tempDb.close();
+            tempDb = null;
             await _createMigrationBackup(dbPath, diskVersion, rawPassword, factory);
           } else {
             await tempDb.close();
+            tempDb = null;
           }
         } catch (e) {
+          try {
+            await tempDb?.close();
+          } catch (_) {}
           _status = DatabaseStatus.recoveryNeeded;
           return _status;
         }
@@ -128,19 +136,34 @@ class AppDatabase {
 
       _db = await factory.openDatabase(dbPath, options: options);
 
-      // D3: Startup quick_check integrity verification
-      final checkRows = await _db!.rawQuery('PRAGMA quick_check;');
-      final quickStatus = checkRows.isNotEmpty ? checkRows.first.values.first?.toString() : null;
-      if (quickStatus != 'ok') {
+      // D3: Startup PRAGMA integrity_check & quick_check verification
+      final integrityRows = await _db!.rawQuery('PRAGMA integrity_check;');
+      final integrityStatus = integrityRows.isNotEmpty ? integrityRows.first.values.first?.toString() : null;
+      debugPrint('[DB_INTEGRITY] integrity_check: $integrityStatus');
+
+      if (integrityStatus != 'ok') {
         await _db!.close();
         _db = null;
         _status = DatabaseStatus.recoveryNeeded;
         return _status;
       }
 
+      final notesRows = await _db!.rawQuery('SELECT id, title, length(body) as body_len, is_locked, trashed_at FROM notes;');
+      int partialNotes = 0;
+      for (final row in notesRows) {
+        if (row['title'] == null || row['body_len'] == null) {
+          partialNotes++;
+        }
+      }
+      debugPrint('[DB_INTEGRITY] notes_found: ${notesRows.length}, partial_notes: $partialNotes');
+
       _status = DatabaseStatus.ready;
       return _status;
     } catch (e) {
+      try {
+        await _db?.close();
+      } catch (_) {}
+      _db = null;
       // If opening failed on existing file
       final dbPath = await resolveDatabasePath();
       if (await File(dbPath).exists()) {
@@ -351,4 +374,5 @@ class AppDatabase {
       _status = DatabaseStatus.uninitialized;
     }
   }
+
 }
