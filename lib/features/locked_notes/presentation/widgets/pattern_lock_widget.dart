@@ -95,7 +95,8 @@ class _PatternLockWidgetState extends State<PatternLockWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     const double boardDimension = 280.0;
 
     return Semantics(
@@ -109,12 +110,12 @@ class _PatternLockWidgetState extends State<PatternLockWidget> {
               width: boardDimension,
               height: boardDimension,
               decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceDark : AppColors.cardLight,
-                borderRadius: BorderRadius.circular(Spacing.md),
+                color: isDark ? theme.colorScheme.surfaceContainerHighest : theme.colorScheme.surface,
+                borderRadius: AppSpacing.borderRadiusMd,
                 border: Border.all(
                   color: (widget.isError && _currentTouch == null)
                       ? AppColors.error
-                      : (isDark ? AppColors.charcoal : AppColors.greyLight),
+                      : theme.colorScheme.outlineVariant,
                   width: 1.5,
                 ),
               ),
@@ -139,12 +140,11 @@ class _PatternLockWidgetState extends State<PatternLockWidget> {
               ),
             ),
             if (widget.errorMessage != null) ...[
-              const SizedBox(height: Spacing.sm),
+              AppSpacing.vGapSm,
               Text(
                 widget.errorMessage!,
-                style: const TextStyle(
+                style: theme.textTheme.bodyMedium?.copyWith(
                   color: AppColors.error,
-                  fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
                 textAlign: TextAlign.center,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/theme/spacing.dart';
+import '../../../../l10n/l10n_extension.dart';
 
 class NotesSearchBar extends StatelessWidget {
   final TextEditingController controller;
@@ -20,6 +21,7 @@ class NotesSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = contextL10n(context);
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -34,7 +36,7 @@ class NotesSearchBar extends StatelessWidget {
               onChanged: onChanged,
               style: theme.textTheme.bodyLarge,
               decoration: InputDecoration(
-                hintText: 'Search notes...',
+                hintText: l10n.searchNotes,
                 prefixIcon: Icon(
                   Icons.search,
                   color: isDark ? AppColors.darkTextHint : AppColors.lightTextHint,
@@ -46,7 +48,7 @@ class NotesSearchBar extends StatelessWidget {
                             ? AppColors.darkTextHint
                             : AppColors.lightTextHint,
                         onPressed: onClear,
-                        tooltip: 'Clear search',
+                        tooltip: l10n.clearSearch,
                       )
                     : null,
                 contentPadding: const EdgeInsets.symmetric(

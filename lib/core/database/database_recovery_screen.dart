@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n_extension.dart';
 import '../constants/app_colors.dart';
+import '../theme/spacing.dart';
 
 /// Screen displayed when the database file exists on disk but the Android Keystore
 /// encryption key cannot be retrieved or read.
@@ -16,44 +18,47 @@ class DatabaseRecoveryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = contextL10n(context);
 
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xl,
+            vertical: AppSpacing.xxl,
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: AppColors.errorContainer,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.lock_clock_outlined,
-                  size: 40,
-                  color: AppColors.error,
+              Semantics(
+                label: 'Vault access error icon',
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: const BoxDecoration(
+                    color: AppColors.errorContainer,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.lock_clock_outlined,
+                    size: 40,
+                    color: AppColors.error,
+                  ),
                 ),
               ),
-              const SizedBox(height: 24),
+              AppSpacing.vGapXl,
               Text(
-                'Vault Access Error',
-                style: textTheme.headlineSmall,
+                l10n.vaultAccessError,
+                style: textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 12),
+              AppSpacing.vGapMd,
               Text(
-                'The encrypted database file is present on your device, but the hardware Keystore encryption key could not be accessed.',
+                l10n.databaseRecoveryMessage,
                 style: textTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Your encrypted notes remain safe and untouched on disk. Please unlock your device or retry to re-establish secure access.',
-                style: textTheme.bodySmall,
                 textAlign: TextAlign.center,
               ),
               const Spacer(),
@@ -65,12 +70,15 @@ class DatabaseRecoveryScreen extends StatelessWidget {
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: AppColors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: AppSpacing.borderRadiusMd,
                     ),
                   ),
                   icon: const Icon(Icons.refresh, size: 20),
-                  label: Text('Retry Access', style: textTheme.labelLarge?.copyWith(color: AppColors.white)),
+                  label: Text(
+                    l10n.retryAccess,
+                    style: textTheme.labelLarge?.copyWith(color: AppColors.white),
+                  ),
                 ),
               ),
             ],

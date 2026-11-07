@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -997,7 +996,7 @@ class _FakeVaultService implements VaultService {
   final VaultMetadata? metadata;
   final int recoveryLockoutSeconds;
 
-  _FakeVaultService({this.metadata, this.recoveryLockoutSeconds = 0});
+  _FakeVaultService({this.metadata}) : recoveryLockoutSeconds = 0;
 
   @override
   Future<int> getRemainingRecoveryLockoutSeconds() async => recoveryLockoutSeconds;
@@ -1059,10 +1058,8 @@ class _TestVaultNotifier extends ChangeNotifier implements VaultNotifier {
   @override
   CredentialType get credentialType => _testState.credentialType;
 
-  @override
   int get remainingLockoutSeconds => _testState.remainingLockoutSeconds;
 
-  @override
   int get remainingRecoveryLockoutSeconds => _testState.remainingRecoveryLockoutSeconds;
 
   @override

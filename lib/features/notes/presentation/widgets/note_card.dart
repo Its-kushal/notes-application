@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/theme/spacing.dart';
+import '../../../../l10n/l10n_extension.dart';
 import '../../../settings/presentation/controllers/settings_provider.dart';
 import '../../domain/checklist_item.dart';
 import '../../domain/note.dart';
@@ -46,12 +47,13 @@ class NoteCard extends ConsumerWidget {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
     final settings = ref.watch(settingsProvider).settings;
+    final l10n = contextL10n(context);
 
     final displayTitle = note.title.trim().isNotEmpty
         ? note.title
         : (note.body.trim().isNotEmpty || (note.isChecklistMode && (note.checklistJson?.isNotEmpty ?? false))
-            ? 'Untitled'
-            : 'Empty note');
+            ? l10n.untitledNote
+            : l10n.emptyNote);
 
     final colorAccent = (note.colorLabel > 0 &&
             note.colorLabel < AppColors.noteLabelColors.length)
@@ -61,7 +63,7 @@ class NoteCard extends ConsumerWidget {
     final colorName = (note.colorLabel >= 0 &&
             note.colorLabel < AppColors.noteLabelNames.length)
         ? AppColors.noteLabelNames[note.colorLabel]
-        : 'None';
+        : l10n.colorLabelNone;
 
     return Semantics(
       label: 'Note: $displayTitle. Color label: $colorName.${note.isPinned ? " Pinned." : ""}',
@@ -90,8 +92,8 @@ class NoteCard extends ConsumerWidget {
               color: isSelected
                   ? AppColors.primary.withValues(alpha: 0.08)
                   : null,
-              border: Border(
-                left: BorderSide(
+              border: BorderDirectional(
+                start: BorderSide(
                   color: colorAccent,
                   width: colorAccent == AppColors.transparent ? 0 : 5,
                 ),
@@ -106,7 +108,7 @@ class NoteCard extends ConsumerWidget {
                   children: [
                     if (isSelectionMode)
                       Padding(
-                        padding: const EdgeInsets.only(right: AppSpacing.md),
+                        padding: const EdgeInsetsDirectional.only(end: AppSpacing.md),
                         child: Icon(
                           isSelected
                               ? Icons.check_circle
@@ -122,7 +124,7 @@ class NoteCard extends ConsumerWidget {
                         children: [
                           if (note.isChecklistMode)
                             const Padding(
-                              padding: EdgeInsets.only(right: AppSpacing.xs),
+                              padding: EdgeInsetsDirectional.only(end: AppSpacing.xs),
                               child: Icon(
                                 Icons.checklist,
                                 size: 18,
@@ -149,12 +151,12 @@ class NoteCard extends ConsumerWidget {
                           color: AppColors.primary,
                           visualDensity: VisualDensity.compact,
                           onPressed: onTogglePin,
-                          tooltip: 'Unpin note',
+                          tooltip: l10n.unpin,
                         )
                       else
                         PopupMenuButton<String>(
                           icon: const Icon(Icons.more_vert, size: 20),
-                          tooltip: 'Note options',
+                          tooltip: l10n.noteActions,
                           onSelected: (value) {
                             if (value == 'pin' && onTogglePin != null) {
                               onTogglePin!();
@@ -166,18 +168,18 @@ class NoteCard extends ConsumerWidget {
                           },
                           itemBuilder: (context) => [
                             if (onTogglePin != null)
-                              const PopupMenuItem(
+                              PopupMenuItem(
                                 value: 'pin',
-                                child: Text('Pin note'),
+                                child: Text(l10n.pin),
                               ),
                             if (onArchive != null)
                               PopupMenuItem(
                                 value: 'archive',
-                                child: Text(note.isArchived ? 'Unarchive' : 'Archive'),
+                                child: Text(note.isArchived ? l10n.unarchive : l10n.archive),
                               ),
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'delete',
-                              child: Text('Move to trash'),
+                              child: Text(l10n.moveToTrash),
                             ),
                           ],
                         ),
@@ -205,7 +207,7 @@ class NoteCard extends ConsumerWidget {
                                   AppSpacing.hGapXs,
                                   Expanded(
                                     child: Text(
-                                      item.text.isEmpty ? 'List item' : item.text,
+                                      item.text.isEmpty ? l10n.addChecklistItem : item.text,
                                       style: textTheme.bodySmall?.copyWith(
                                         decoration: item.isChecked
                                             ? TextDecoration.lineThrough
@@ -222,7 +224,7 @@ class NoteCard extends ConsumerWidget {
                           Padding(
                             padding: const EdgeInsets.only(top: 2.0),
                             child: Text(
-                              '+ ${items.length - 3} more items',
+                              l10n.moreItemsCount(items.length - 3),
                               style: textTheme.labelSmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -256,7 +258,7 @@ class NoteCard extends ConsumerWidget {
                         final items = ChecklistItem.parseList(note.checklistJson);
                         final completed = items.where((i) => i.isChecked).length;
                         return Text(
-                          '$completed/${items.length} completed',
+                          l10n.checklistProgress(completed, items.length),
                           style: textTheme.bodySmall?.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w500,
@@ -265,7 +267,7 @@ class NoteCard extends ConsumerWidget {
                       })
                     else if (settings.showWordCount && note.wordCount > 0)
                       Text(
-                        '${note.wordCount} words',
+                        l10n.wordsCount(note.wordCount),
                         style: textTheme.bodySmall,
                       ),
                   ],

@@ -7,6 +7,7 @@ import '../../../../core/crypto/vault_service.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/loading_state.dart';
+import '../../../../l10n/l10n_extension.dart';
 import '../controllers/vault_providers.dart';
 import '../widgets/pattern_lock_widget.dart';
 import '../widgets/pin_pad_widget.dart';
@@ -55,16 +56,20 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
       if (mounted) {
         final noticeDate = ref.read(vaultProvider).state.pendingResetNoticeDate;
         if (noticeDate != null) {
+          final l10n = contextL10n(context);
           await showDialog(
             context: context,
             barrierDismissible: false,
             builder: (ctx) => AlertDialog(
-              title: const Row(
+              title: Row(
                 children: [
-                  Icon(Icons.security, color: AppColors.error),
-                  SizedBox(width: Spacing.sm),
+                  const Icon(Icons.security, color: AppColors.error),
+                  const SizedBox(width: Spacing.sm),
                   Expanded(
-                    child: Text('Security Notice', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: Text(
+                      l10n.securityNotice,
+                      style: Theme.of(ctx).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),
@@ -78,7 +83,7 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
                     ref.read(vaultProvider).acknowledgeResetNotice();
                     Navigator.of(ctx).pop();
                   },
-                  child: const Text('Dismiss'),
+                  child: Text(l10n.dismiss),
                 ),
               ],
             ),
@@ -96,9 +101,10 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
       }
     } catch (_) {
       if (mounted) {
+        final l10n = contextL10n(context);
         setState(() {
           _errorMessage = ref.read(vaultProvider).state.errorMessage ??
-              'Incorrect secret. Please try again.';
+              l10n.incorrectSecret;
           _isPatternError = true;
           _enteredPin = '';
         });
@@ -107,9 +113,10 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
   }
 
   Future<void> _showResetConfirmationDialog(BuildContext context) async {
+    final l10n = contextL10n(context);
     final reset = await ResetVaultDialog.show(context);
     if (reset == true && context.mounted) {
-      AppSnackBar.show(context, message: 'Locked notes and vault reset');
+      AppSnackBar.show(context, message: l10n.lockedNotesVaultReset);
       context.go('/');
     }
   }
@@ -132,20 +139,23 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
   Widget build(BuildContext context) {
     final vaultState = ref.watch(vaultProvider).state;
     final isLockedOut = vaultState.remainingLockoutSeconds > 0;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final l10n = contextL10n(context);
 
     if (vaultState.isDeriving) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Unlocking vault')),
-        body: const Center(
-          child: LoadingState(message: 'Verifying secret...'),
+        appBar: AppBar(title: Text(l10n.unlockingVault)),
+        body: Center(
+          child: LoadingState(message: l10n.verifyingSecret),
         ),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Unlock notes'),
+        title: Text(l10n.unlockNotes),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -162,10 +172,10 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
                     decoration: BoxDecoration(
                       color: vaultState.isDelayedResetReady
                           ? AppColors.error.withValues(alpha: isDark ? 0.25 : 0.1)
-                          : Colors.orange.withValues(alpha: isDark ? 0.25 : 0.1),
+                          : AppColors.warning.withValues(alpha: isDark ? 0.25 : 0.1),
                       borderRadius: BorderRadius.circular(Spacing.sm),
                       border: Border.all(
-                        color: vaultState.isDelayedResetReady ? AppColors.error : Colors.orange,
+                        color: vaultState.isDelayedResetReady ? AppColors.error : AppColors.warning,
                       ),
                     ),
                     child: Column(
@@ -174,19 +184,20 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
                           children: [
                             Icon(
                               Icons.warning_amber_rounded,
-                              color: vaultState.isDelayedResetReady ? AppColors.error : Colors.orange,
+                              color: vaultState.isDelayedResetReady ? AppColors.error : AppColors.warning,
                               size: 20,
                             ),
                             const SizedBox(width: Spacing.xs),
                             Expanded(
                               child: Text(
                                 vaultState.isDelayedResetReady
-                                    ? 'Vault reset ready to complete (72h passed)'
-                                    : 'A vault reset was requested on ${vaultState.delayedResetRequestedAt?.toLocal().toString().split('.')[0] ?? ''}',
-                                style: TextStyle(
+                                    ? l10n.vaultResetReadyToComplete
+                                    : l10n.vaultResetRequestedOn(
+                                        vaultState.delayedResetRequestedAt?.toLocal().toString().split('.')[0] ?? '',
+                                      ),
+                                style: textTheme.bodyMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
-                                  color: vaultState.isDelayedResetReady ? AppColors.error : Colors.orange.shade800,
-                                  fontSize: 13,
+                                  color: vaultState.isDelayedResetReady ? AppColors.error : AppColors.warning,
                                 ),
                               ),
                             ),
@@ -195,8 +206,8 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
                         if (!vaultState.isDelayedResetReady) ...[
                           const SizedBox(height: Spacing.xs),
                           Text(
-                            'Time remaining: ${_formatDuration(vaultState.delayedResetRemainingSeconds)}',
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                            l10n.timeRemaining(_formatDuration(vaultState.delayedResetRemainingSeconds)),
+                            style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
                           ),
                         ],
                         const SizedBox(height: Spacing.xs),
@@ -204,8 +215,10 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
                           onPressed: () => _showResetConfirmationDialog(context),
                           style: TextButton.styleFrom(padding: EdgeInsets.zero),
                           child: Text(
-                            vaultState.isDelayedResetReady ? 'Complete Reset Now' : 'Manage / Cancel Reset Request',
-                            style: const TextStyle(fontSize: 12),
+                            vaultState.isDelayedResetReady
+                                ? l10n.completeResetNow
+                                : l10n.manageCancelResetRequest,
+                            style: textTheme.bodySmall,
                           ),
                         ),
                       ],
@@ -221,9 +234,9 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
                 const SizedBox(height: Spacing.sm),
                 Text(
                   vaultState.credentialType == CredentialType.pin
-                      ? 'Enter your PIN'
-                      : 'Draw your pattern',
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ? l10n.enterYourPin
+                      : l10n.drawYourPattern,
+                  style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: Spacing.xs),
 
@@ -242,11 +255,10 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
                         const Icon(Icons.timer_outlined, color: AppColors.error, size: 20),
                         const SizedBox(width: Spacing.xs),
                         Text(
-                          'Locked out. Try again in ${vaultState.remainingLockoutSeconds}s',
-                          style: const TextStyle(
+                          l10n.lockedOutTryAgainIn(vaultState.remainingLockoutSeconds),
+                          style: textTheme.bodyMedium?.copyWith(
                             color: AppColors.error,
                             fontWeight: FontWeight.w600,
-                            fontSize: 14,
                           ),
                         ),
                       ],
@@ -255,7 +267,10 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
                 ] else if (_errorMessage != null) ...[
                   Text(
                     _errorMessage!,
-                    style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.w600),
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: AppColors.error,
+                      fontWeight: FontWeight.w600,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -314,18 +329,21 @@ class _VaultUnlockScreenState extends ConsumerState<VaultUnlockScreen> {
                         }
                       }
                     },
-                    child: const Text(
-                      'Forgot PIN/pattern?',
-                      style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
+                    child: Text(
+                      l10n.forgotPinOrPattern,
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
 
                 // Reset Vault Button (D3, R8)
                 TextButton(
                   onPressed: () => _showResetConfirmationDialog(context),
-                  child: const Text(
-                    'Forgot secret? Reset locked notes',
-                    style: TextStyle(color: AppColors.error, fontSize: 13),
+                  child: Text(
+                    l10n.forgotSecretResetVault,
+                    style: textTheme.bodySmall?.copyWith(color: AppColors.error),
                   ),
                 ),
               ],

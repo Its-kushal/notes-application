@@ -400,5 +400,55 @@ void main() {
       expect(find.text('PINNED'), findsOneWidget);
       expect(find.text('RECENT'), findsOneWidget);
     });
+
+    testWidgets('5. Selection Mode: Select All appears as text on opposite side of NOTES header', (tester) async {
+      fakeRepo.notes = [
+        Note.create(
+          title: 'Note 1',
+          body: 'Content 1',
+          isPinned: false,
+        ),
+        Note.create(
+          title: 'Note 2',
+          body: 'Content 2',
+          isPinned: false,
+        ),
+      ];
+
+      await tester.pumpWidget(createTestWidget(fakeRepo));
+      await tester.pumpAndSettle();
+
+      // In regular mode, header is NOTES and Select all is not shown
+      expect(find.text('NOTES'), findsOneWidget);
+      expect(find.text('Select all'), findsNothing);
+      expect(find.byIcon(Icons.select_all), findsNothing);
+
+      // Long press first note to enter selection mode
+      await tester.longPress(find.text('Note 1'));
+      await tester.pumpAndSettle();
+
+      // Icons.select_all should NOT be in the AppBar
+      expect(find.byIcon(Icons.select_all), findsNothing);
+
+      // "Select all" text button should appear opposite NOTES header
+      expect(find.text('Select all'), findsOneWidget);
+      expect(find.text('1 selected'), findsOneWidget);
+
+      // Tap "Select all" text button
+      await tester.tap(find.text('Select all'));
+      await tester.pumpAndSettle();
+
+      // Both notes are now selected and button toggles to "Deselect all"
+      expect(find.text('2 selected'), findsOneWidget);
+      expect(find.text('Deselect all'), findsOneWidget);
+
+      // Tap "Deselect all"
+      await tester.tap(find.text('Deselect all'));
+      await tester.pumpAndSettle();
+
+      // Selection mode exits
+      expect(find.text('Select all'), findsNothing);
+      expect(find.text('Deselect all'), findsNothing);
+    });
   });
 }

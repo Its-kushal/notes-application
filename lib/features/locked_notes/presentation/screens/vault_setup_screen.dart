@@ -9,6 +9,7 @@ import '../../../../core/crypto/vault_service.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/loading_state.dart';
+import '../../../../l10n/l10n_extension.dart';
 import '../controllers/vault_providers.dart';
 import '../widgets/pattern_lock_widget.dart';
 import '../widgets/pin_pad_widget.dart';
@@ -292,50 +293,53 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
 
   CredentialType get _activeCredentialType => (_step == 0) ? _currentCredentialType : _selectedType;
 
-  String get _stepTitle {
+  String _getStepTitle(AppLocalizations l10n) {
     if (_step == 0) {
-      return _currentCredentialType == CredentialType.pin ? 'Enter your current PIN' : 'Draw your current pattern';
+      return _currentCredentialType == CredentialType.pin ? l10n.currentPinPrompt : l10n.currentPatternPrompt;
     } else if (_step == 1) {
-      return _selectedType == CredentialType.pin ? 'Enter your new PIN' : 'Draw your pattern';
+      return _selectedType == CredentialType.pin ? l10n.enterNewPinPrompt : l10n.drawYourPatternPrompt;
     } else if (_step == 2) {
-      return _selectedType == CredentialType.pin ? 'Confirm your PIN' : 'Confirm your pattern';
+      return _selectedType == CredentialType.pin ? l10n.confirmYourPin : l10n.confirmYourPattern;
     } else if (_step == 3) {
-      return 'Write down your recovery key';
+      return l10n.writeDownRecoveryKey;
     } else {
-      return 'Confirm recovery key';
+      return l10n.confirmRecoveryKey;
     }
   }
 
-  String get _stepSubtitle {
+  String _getStepSubtitle(AppLocalizations l10n) {
     if (_step == 0) {
-      return 'Confirm current secret before setting a new credential';
+      return l10n.confirmCurrentSecretSubtitle;
     } else if (_step == 1) {
       return _selectedType == CredentialType.pin
-          ? 'Minimum 6 digits'
-          : 'Connect at least 5 dots without repeats';
+          ? l10n.minSixDigits
+          : l10n.connectAtLeastFiveDots;
     } else if (_step == 2) {
-      return 'Enter the same ${_selectedType == CredentialType.pin ? "PIN" : "pattern"} again';
+      return l10n.enterSameSecretAgain(_selectedType == CredentialType.pin ? l10n.pinCredential : l10n.patternCredential);
     } else if (_step == 3) {
-      return 'Keep this key safe. You will need to confirm it in the next step.';
+      return l10n.keepKeySafeSubtitle;
     } else {
-      return 'Type the whole key correctly to finalize vault creation';
+      return l10n.typeWholeKeySubtitle;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final vaultState = ref.watch(vaultProvider).state;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final l10n = contextL10n(context);
     final baseStep = widget.isChangingSecret ? 0 : 1;
 
     if (vaultState.isDeriving) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Securing vault')),
-        body: const Center(
+        appBar: AppBar(title: Text(l10n.securingVault)),
+        body: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              LoadingState(message: 'Securing vault key...'),
+              LoadingState(message: l10n.securingVaultKey),
             ],
           ),
         ),
@@ -344,10 +348,11 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isChangingSecret ? 'Change secret' : 'Set up locked notes'),
+        title: Text(widget.isChangingSecret ? l10n.changeSecretTitle : l10n.setUpLockedNotesTitle),
         leading: _step > baseStep
             ? IconButton(
                 icon: const Icon(Icons.arrow_back),
+                tooltip: l10n.back,
                 onPressed: () {
                   if (_isTransitioning) return;
                   setState(() {
@@ -397,12 +402,11 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                         Expanded(
                           child: Text(
                             _step >= 3
-                                ? 'Write it on paper; whoever has this key can open all your notes; it cannot be shown again.'
-                                : 'If you forget your secret, your written paper recovery key is the only way to recover your notes.',
-                            style: TextStyle(
+                                ? l10n.paperKeyWarning
+                                : l10n.forgotSecretNotice,
+                            style: textTheme.bodySmall?.copyWith(
                               color: isDark ? AppColors.white : AppColors.error,
                               fontWeight: FontWeight.w600,
-                              fontSize: 13,
                             ),
                           ),
                         ),
@@ -414,16 +418,16 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                   // Credential type selector (PIN vs Pattern) (D1)
                   if (_step == 1) ...[
                     SegmentedButton<CredentialType>(
-                      segments: const [
+                      segments: [
                         ButtonSegment(
                           value: CredentialType.pin,
-                          label: Text('PIN (min 6)'),
-                          icon: Icon(Icons.pin_outlined),
+                          label: Text(l10n.pinMinLength),
+                          icon: const Icon(Icons.pin_outlined),
                         ),
                         ButtonSegment(
                           value: CredentialType.pattern,
-                          label: Text('Pattern (min 5)'),
-                          icon: Icon(Icons.pattern_outlined),
+                          label: Text(l10n.patternMinLength),
+                          icon: const Icon(Icons.pattern_outlined),
                         ),
                       ],
                       selected: {_selectedType},
@@ -439,10 +443,22 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                           color: isDark ? AppColors.charcoal : AppColors.greyLight,
                           borderRadius: BorderRadius.circular(Spacing.xs),
                         ),
-                        child: const Text(
-                          'Notice: Pattern lock is not screen-reader friendly. We strongly recommend choosing PIN for TalkBack users.',
-                          style: TextStyle(fontSize: 12, color: AppColors.greyDark),
-                          textAlign: TextAlign.center,
+                        child: Column(
+                          children: [
+                            Text(
+                              l10n.patternAccessibilityNotice,
+                              style: textTheme.bodySmall?.copyWith(
+                                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: Spacing.xs),
+                            TextButton.icon(
+                              onPressed: () => _onTypeChanged(CredentialType.pin),
+                              icon: const Icon(Icons.pin_outlined, size: 16),
+                              label: Text(l10n.usePinInstead),
+                            ),
+                          ],
                         ),
                       ),
                     const SizedBox(height: Spacing.md),
@@ -450,13 +466,15 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
 
                   // Step Title
                   Text(
-                    _stepTitle,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    _getStepTitle(l10n),
+                    style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: Spacing.xs),
                   Text(
-                    _stepSubtitle,
-                    style: const TextStyle(fontSize: 13, color: AppColors.greyDark),
+                    _getStepSubtitle(l10n),
+                    style: textTheme.bodySmall?.copyWith(
+                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: Spacing.md),
@@ -464,7 +482,10 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                   if (_errorMessage != null) ...[
                     Text(
                       _errorMessage!,
-                      style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.w600),
+                      style: textTheme.bodySmall?.copyWith(
+                        color: AppColors.error,
+                        fontWeight: FontWeight.w600,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: Spacing.sm),
@@ -518,7 +539,7 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                             foregroundColor: AppColors.white,
                             minimumSize: const Size(200, 48),
                           ),
-                          child: const Text('Continue'),
+                          child: Text(l10n.continueAction),
                         )
                       else if (_step == 1)
                         ElevatedButton(
@@ -528,7 +549,7 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                             foregroundColor: AppColors.white,
                             minimumSize: const Size(200, 48),
                           ),
-                          child: const Text('Continue'),
+                          child: Text(l10n.continueAction),
                         )
                       else
                         Row(
@@ -543,7 +564,7 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                                   _patternResetKey++;
                                 });
                               },
-                              child: const Text('Back'),
+                              child: Text(l10n.back),
                             ),
                             const SizedBox(width: Spacing.md),
                             ElevatedButton(
@@ -553,7 +574,7 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                                 foregroundColor: AppColors.white,
                                 minimumSize: const Size(140, 48),
                               ),
-                              child: const Text('Confirm'),
+                              child: Text(l10n.confirm),
                             ),
                           ],
                         ),
@@ -577,9 +598,8 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                             _generatedRecoveryKey ?? '',
                             key: const ValueKey('recovery_key_display_text'),
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: textTheme.titleMedium?.copyWith(
                               fontFamily: 'monospace',
-                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1.2,
                             ),
@@ -588,9 +608,11 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                       ),
                     ),
                     const SizedBox(height: Spacing.sm),
-                    const Text(
-                      'This recovery key can decrypt all your notes if you forget your secret. Keep it secret and write it down now.',
-                      style: TextStyle(fontSize: 12, color: AppColors.greyDark),
+                    Text(
+                      l10n.recoveryKeyExplanation,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: Spacing.lg),
@@ -601,7 +623,7 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                         foregroundColor: AppColors.white,
                         minimumSize: const Size(220, 48),
                       ),
-                      child: const Text('I have written it down'),
+                      child: Text(l10n.iHaveWrittenItDown),
                     ),
                   ] else if (_step == 4) ...[
                     // Step 4: Mandatory re-type confirmation (R4)
@@ -612,11 +634,11 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                       enableSuggestions: false,
                       enableIMEPersonalizedLearning: false,
                       textCapitalization: TextCapitalization.characters,
-                      decoration: const InputDecoration(
-                        labelText: 'Enter recovery key',
+                      decoration: InputDecoration(
+                        labelText: l10n.enterRecoveryKeyLabel,
                         hintText: 'XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.edit_note_outlined),
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.edit_note_outlined),
                       ),
                       onChanged: (_) {
                         if (_errorMessage != null) {
@@ -627,9 +649,11 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                       },
                     ),
                     const SizedBox(height: Spacing.xs),
-                    const Text(
-                      'Dashes and spaces are optional. Case-insensitive.',
-                      style: TextStyle(fontSize: 12, color: AppColors.greyDark),
+                    Text(
+                      l10n.recoveryKeyDashesHint,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                      ),
                     ),
                     const SizedBox(height: Spacing.lg),
                     Row(
@@ -642,7 +666,7 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                               _errorMessage = null;
                             });
                           },
-                          child: const Text('View key again'),
+                          child: Text(l10n.viewKeyAgain),
                         ),
                         const SizedBox(width: Spacing.md),
                         ElevatedButton(
@@ -652,7 +676,7 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                             foregroundColor: AppColors.white,
                             minimumSize: const Size(160, 48),
                           ),
-                          child: const Text('Confirm & Create Vault'),
+                          child: Text(l10n.confirmAndCreateVault),
                         ),
                       ],
                     ),

@@ -7,6 +7,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/database_recovery_screen.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/shared_widgets.dart';
+import 'package:privacy_notes/l10n/l10n_extension.dart';
 import '../../../notes/domain/note.dart';
 import '../../../notes/presentation/controllers/notes_providers.dart';
 import '../../domain/file_decoder.dart';
@@ -69,6 +70,7 @@ class _FileViewerScreenState extends ConsumerState<FileViewerScreen> {
   Future<void> _saveAsNote() async {
     if (_isSaving) return;
     setState(() => _isSaving = true);
+    final l10n = contextL10n(context);
 
     try {
       final title = FileDecoder.extractTitle(widget.file.name);
@@ -84,43 +86,44 @@ class _FileViewerScreenState extends ConsumerState<FileViewerScreen> {
       final savedNote = await repo.insertNote(note);
 
       if (mounted) {
-        AppSnackBar.show(context, message: 'Note saved');
+        AppSnackBar.show(context, message: l10n.noteSavedSuccessfully);
         context.pushReplacement('/note/${savedNote.id}', extra: savedNote);
       }
     } catch (_) {
       if (mounted) {
         AppSnackBar.show(
           context,
-          message: 'Failed to save note. Please try again.',
+          message: l10n.failedToSaveNoteRetry,
         );
         setState(() => _isSaving = false);
       }
     }
   }
 
-  Widget _buildErrorContent() {
+  Widget _buildErrorContent(BuildContext context) {
+    final l10n = contextL10n(context);
     final error = widget.file.error;
     switch (error) {
       case FileDecoder.errorTooLarge:
-        return const ErrorState(
+        return ErrorState(
           icon: Icons.folder_off_outlined,
-          message: 'File exceeds 2 MB limit\nCannot open files larger than 2 MB.',
+          message: l10n.errorFileTooLarge,
         );
       case FileDecoder.errorBinary:
-        return const ErrorState(
+        return ErrorState(
           icon: Icons.block_outlined,
-          message: 'Not a text file\nBinary or unsupported file format detected.',
+          message: l10n.errorFileBinary,
         );
       case FileDecoder.errorEmpty:
-        return const ErrorState(
+        return ErrorState(
           icon: Icons.notes_outlined,
-          message: 'File is empty\nThis file contains no text.',
+          message: l10n.errorFileEmpty,
         );
       case FileDecoder.errorUnreadable:
       default:
-        return const ErrorState(
+        return ErrorState(
           icon: Icons.broken_image_outlined,
-          message: 'Unable to read file\nThe file could not be accessed or read.',
+          message: l10n.errorFileUnreadable,
         );
     }
   }
@@ -128,6 +131,7 @@ class _FileViewerScreenState extends ConsumerState<FileViewerScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = contextL10n(context);
     final dbInitAsync = ref.watch(databaseInitProvider);
     final isRecovery = dbInitAsync.value == DatabaseStatus.recoveryNeeded;
 
@@ -142,11 +146,11 @@ class _FileViewerScreenState extends ConsumerState<FileViewerScreen> {
           appBar: AppBar(
             leading: IconButton(
               icon: const Icon(Icons.close),
-              tooltip: 'Close',
+              tooltip: l10n.closeAction,
               onPressed: _close,
             ),
             title: Text(
-              'Database Recovery',
+              l10n.databaseRecoveryTitle,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -171,7 +175,7 @@ class _FileViewerScreenState extends ConsumerState<FileViewerScreen> {
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.close),
-            tooltip: 'Close',
+            tooltip: l10n.closeAction,
             onPressed: _close,
           ),
           title: Text(
@@ -187,17 +191,22 @@ class _FileViewerScreenState extends ConsumerState<FileViewerScreen> {
                 icon: Icon(
                   _isMonospace ? Icons.font_download : Icons.font_download_outlined,
                 ),
-                tooltip: _isMonospace ? 'Variable width font' : 'Monospace font',
+                tooltip: _isMonospace
+                    ? l10n.variableWidthFontTooltip
+                    : l10n.monospaceFontTooltip,
                 onPressed: () => setState(() => _isMonospace = !_isMonospace),
               ),
               Padding(
-                padding: const EdgeInsets.only(right: Spacing.sm),
+                padding: const EdgeInsetsDirectional.only(end: AppSpacing.sm),
                 child: FilledButton(
                   onPressed: _isSaving ? null : _saveAsNote,
                   style: FilledButton.styleFrom(
                     backgroundColor: theme.colorScheme.primary,
                     foregroundColor: theme.colorScheme.onPrimary,
-                    padding: const EdgeInsets.symmetric(horizontal: Spacing.md),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.sm,
+                    ),
                   ),
                   child: _isSaving
                       ? SizedBox(
@@ -208,29 +217,29 @@ class _FileViewerScreenState extends ConsumerState<FileViewerScreen> {
                             color: theme.colorScheme.onPrimary,
                           ),
                         )
-                      : const Text('Save as note'),
+                      : Text(l10n.saveAsNoteAction),
                 ),
               ),
             ],
           ],
         ),
         body: isError
-            ? _buildErrorContent()
+            ? _buildErrorContent(context)
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if (widget.file.hasInvalidBytes)
                     Container(
-                      margin: const EdgeInsets.fromLTRB(
-                        Spacing.md,
-                        Spacing.sm,
-                        Spacing.md,
-                        Spacing.xs,
+                      margin: const EdgeInsetsDirectional.fromSTEB(
+                        AppSpacing.md,
+                        AppSpacing.sm,
+                        AppSpacing.md,
+                        AppSpacing.xs,
                       ),
-                      padding: const EdgeInsets.all(Spacing.sm),
+                      padding: AppSpacing.paddingSm,
                       decoration: BoxDecoration(
                         color: theme.colorScheme.errorContainer.withValues(alpha: 0.4),
-                        borderRadius: BorderRadius.circular(Spacing.sm),
+                        borderRadius: AppSpacing.borderRadiusSm,
                         border: Border.all(
                           color: theme.colorScheme.error.withValues(alpha: 0.5),
                         ),
@@ -242,10 +251,10 @@ class _FileViewerScreenState extends ConsumerState<FileViewerScreen> {
                             color: theme.colorScheme.error,
                             size: 20,
                           ),
-                          const SizedBox(width: Spacing.sm),
+                          AppSpacing.hGapSm,
                           Expanded(
                             child: Text(
-                              'Some characters could not be decoded and were replaced with \uFFFD.',
+                              l10n.undecodedCharactersWarning,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.error,
                                 fontWeight: FontWeight.w500,
@@ -260,14 +269,14 @@ class _FileViewerScreenState extends ConsumerState<FileViewerScreen> {
                       child: ListView.builder(
                         itemCount: _lines.length,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: Spacing.md,
-                          vertical: Spacing.sm,
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.sm,
                         ),
                         itemBuilder: (context, index) {
                           final line = _lines[index];
                           return Text(
                             line.isEmpty ? ' ' : line,
-                            style: (theme.textTheme.bodyMedium ?? const TextStyle()).copyWith(
+                            style: theme.textTheme.bodyMedium?.copyWith(
                               fontFamily: _isMonospace ? 'monospace' : null,
                               height: 1.4,
                             ),

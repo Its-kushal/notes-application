@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/spacing.dart';
+import '../../../../l10n/l10n_extension.dart';
 
 class NotesEmptyView extends StatelessWidget {
   final bool isSearch;
@@ -20,11 +21,12 @@ class NotesEmptyView extends StatelessWidget {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
 
+    final l10n = contextL10n(context);
     final defaultIcon = isSearch ? Icons.search_off_outlined : Icons.shield_outlined;
-    final defaultTitle = isSearch ? 'No matching notes' : 'No notes yet';
+    final defaultTitle = isSearch ? l10n.noSearchResultsTitle : l10n.noNotesTitle;
     final defaultSubtitle = isSearch
-        ? 'Try searching with different terms or check for typos.'
-        : 'Tap the + button below to create your first encrypted note.';
+        ? l10n.noSearchResultsMessage
+        : l10n.noNotesMessage;
 
     return Center(
       child: Padding(

@@ -6,6 +6,7 @@ import '../../../../core/crypto/recovery_key_service.dart';
 import '../../../../core/crypto/security_window_service.dart';
 import '../../../../core/crypto/vault_service.dart';
 import '../../../../core/theme/spacing.dart';
+import 'package:privacy_notes/l10n/l10n_extension.dart';
 import '../controllers/vault_providers.dart';
 
 enum ResetAuthMethod {
@@ -68,10 +69,11 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
   }
 
   Future<void> _handleImmediateReset() async {
+    final l10n = contextL10n(context);
     final deleteText = _deleteConfirmController.text.trim();
     if (deleteText != 'DELETE') {
       setState(() {
-        _errorMessage = 'Type DELETE exactly to confirm.';
+        _errorMessage = l10n.typeDeleteToConfirm;
       });
       return;
     }
@@ -87,7 +89,7 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
         final secret = _secretController.text;
         if (secret.isEmpty) {
           setState(() {
-            _errorMessage = 'Please enter your current secret.';
+            _errorMessage = l10n.pleaseEnterCurrentSecret;
             _isResetting = false;
           });
           return;
@@ -100,29 +102,11 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
         final recoveryKey = _recoveryKeyController.text.trim();
         if (recoveryKey.isEmpty) {
           setState(() {
-            _errorMessage = 'Please enter your recovery key.';
+            _errorMessage = l10n.pleaseEnterYourRecoveryKey;
             _isResetting = false;
           });
           return;
         }
-
-        // Format and checksum pre-check to prevent burning failed attempts
-        try {
-          RecoveryKeyService.decodeKey(recoveryKey);
-        } on RecoveryKeyChecksumException {
-          setState(() {
-            _errorMessage = 'Recovery key checksum mismatch. Check for typing mistakes.';
-            _isResetting = false;
-          });
-          return;
-        } on RecoveryKeyFormatException {
-          setState(() {
-            _errorMessage = 'Invalid recovery key format. Expected 28 characters.';
-            _isResetting = false;
-          });
-          return;
-        }
-
         await notifier.immediateResetWithRecoveryKey(
           recoveryKeyString: recoveryKey,
           confirmationText: deleteText,
@@ -132,42 +116,42 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
       if (mounted) {
         Navigator.of(context).pop(true);
       }
-    } on VaultAuthException catch (e) {
-      if (mounted) {
-        setState(() {
-          _isResetting = false;
-          _errorMessage = e.message;
-        });
-      }
-    } on RecoveryKeyAuthException {
-      if (mounted) {
-        setState(() {
-          _isResetting = false;
-          _errorMessage = 'Incorrect recovery key. Reset rejected.';
-        });
-      }
     } on VaultLockoutException catch (e) {
-      if (mounted) {
-        setState(() {
-          _isResetting = false;
-          _errorMessage = 'Locked out. Try again in ${e.remainingSeconds}s';
-        });
-      }
+      setState(() {
+        _isResetting = false;
+        _errorMessage = l10n.lockedOutTryAgainIn(e.remainingSeconds);
+      });
+    } on VaultAuthException {
+      setState(() {
+        _isResetting = false;
+        _errorMessage = _authMethod == ResetAuthMethod.secret
+            ? l10n.currentSecretIncorrect
+            : l10n.incorrectRecoveryKeyCheckPaper;
+      });
+    } on RecoveryKeyChecksumException {
+      setState(() {
+        _isResetting = false;
+        _errorMessage = l10n.checkForTypingMistakes;
+      });
+    } on RecoveryKeyFormatException {
+      setState(() {
+        _isResetting = false;
+        _errorMessage = l10n.checkForTypingMistakes;
+      });
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isResetting = false;
-          _errorMessage = 'Reset failed: $e';
-        });
-      }
+      setState(() {
+        _isResetting = false;
+        _errorMessage = l10n.recoveryFailedWithDetails(e.toString());
+      });
     }
   }
 
   Future<void> _handleCompleteDelayedReset() async {
+    final l10n = contextL10n(context);
     final deleteText = _deleteConfirmController.text.trim();
     if (deleteText != 'DELETE') {
       setState(() {
-        _errorMessage = 'Type DELETE exactly to confirm.';
+        _errorMessage = l10n.typeDeleteToConfirm;
       });
       return;
     }
@@ -183,28 +167,32 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
         Navigator.of(context).pop(true);
       }
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isResetting = false;
-          _errorMessage = 'Reset failed: $e';
-        });
-      }
+      setState(() {
+        _isResetting = false;
+        _errorMessage = l10n.recoveryFailedWithDetails(e.toString());
+      });
     }
   }
 
   Future<void> _handleRequestDelayedReset() async {
+    final l10n = contextL10n(context);
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Request 72-Hour Reset?'),
-        content: const Text(
-          'A delayed reset will be scheduled. After 72 hours, anyone with physical access can reset the vault by typing DELETE.\n\n'
-          'Unlocking the vault with your secret or recovery key before 72 hours will automatically cancel this request.',
+        title: Text(
+          l10n.requestDelayedReset,
+          style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          l10n.vaultResetRequestedOn('72h'),
+          style: Theme.of(ctx).textTheme.bodyMedium,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
@@ -212,7 +200,7 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
               backgroundColor: AppColors.error,
               foregroundColor: AppColors.white,
             ),
-            child: const Text('Request Reset'),
+            child: Text(l10n.confirm),
           ),
         ],
       ),
@@ -234,7 +222,7 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
         if (mounted) {
           setState(() {
             _isResetting = false;
-            _errorMessage = 'Failed to request delayed reset: $e';
+            _errorMessage = l10n.recoveryFailedWithDetails(e.toString());
           });
         }
       }
@@ -242,6 +230,7 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
   }
 
   Future<void> _handleCancelDelayedReset() async {
+    final l10n = contextL10n(context);
     setState(() {
       _isResetting = true;
     });
@@ -257,7 +246,7 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
       if (mounted) {
         setState(() {
           _isResetting = false;
-          _errorMessage = 'Failed to cancel request: $e';
+          _errorMessage = l10n.recoveryFailedWithDetails(e.toString());
         });
       }
     }
@@ -265,6 +254,9 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final l10n = contextL10n(context);
     final vaultState = ref.watch(vaultProvider).state;
     final hasRecoveryKey = vaultState.hasRecoveryKey;
     final isDelayedRequested = vaultState.isDelayedResetRequested;
@@ -284,14 +276,19 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
     final isDelayedCompleteEnabled = !_isResetting && isDelayedReady && isDeleteTyped;
 
     return AlertDialog(
-      title: const Row(
+      shape: const RoundedRectangleBorder(
+        borderRadius: AppSpacing.borderRadiusMd,
+      ),
+      title: Row(
         children: [
-          Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 28),
-          SizedBox(width: Spacing.sm),
+          const Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 28),
+          AppSpacing.hGapSm,
           Expanded(
             child: Text(
-              'Reset locked notes?',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              l10n.resetLockedNotesTitle,
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -301,24 +298,24 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'This will PERMANENTLY DELETE all locked notes and reset the vault metadata. Unlocked notes will not be affected.',
-              style: TextStyle(fontSize: 14),
+            Text(
+              l10n.resetWarningMessage,
+              style: textTheme.bodyMedium,
             ),
-            const SizedBox(height: Spacing.md),
+            AppSpacing.vGapMd,
 
             // If a delayed reset is currently requested
             if (isDelayedRequested) ...[
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(Spacing.sm),
+                padding: AppSpacing.paddingSm,
                 decoration: BoxDecoration(
                   color: isDelayedReady
                       ? AppColors.error.withValues(alpha: 0.1)
-                      : Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                      : AppColors.warning.withValues(alpha: 0.1),
+                  borderRadius: AppSpacing.borderRadiusSm,
                   border: Border.all(
-                    color: isDelayedReady ? AppColors.error : Colors.orange,
+                    color: isDelayedReady ? AppColors.error : AppColors.warning,
                   ),
                 ),
                 child: Column(
@@ -326,43 +323,42 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
                   children: [
                     Text(
                       isDelayedReady
-                          ? 'Delayed Reset Ready (72h Passed)'
-                          : 'Delayed Reset Requested',
-                      style: TextStyle(
+                          ? l10n.vaultResetReadyToComplete
+                          : l10n.vaultResetRequestedOn(
+                              vaultState.delayedResetRequestedAt != null
+                                  ? vaultState.delayedResetRequestedAt!.toLocal().toString().split('.')[0]
+                                  : '',
+                            ),
+                      style: textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: isDelayedReady ? AppColors.error : Colors.orange.shade800,
+                        color: isDelayedReady ? AppColors.error : AppColors.warning,
                       ),
                     ),
-                    const SizedBox(height: Spacing.xs),
-                    if (vaultState.delayedResetRequestedAt != null)
+                    if (!isDelayedReady) ...[
+                      AppSpacing.vGapXs,
                       Text(
-                        'Requested on: ${vaultState.delayedResetRequestedAt!.toLocal().toString().split('.')[0]}',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    if (!isDelayedReady)
-                      Padding(
-                        padding: const EdgeInsets.only(top: Spacing.xs),
-                        child: Text(
-                          'Time remaining: ${_formatDuration(remainingSecs)}',
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                        l10n.timeRemaining(_formatDuration(remainingSecs)),
+                        style: textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    const SizedBox(height: Spacing.xs),
+                    ],
+                    AppSpacing.vGapXs,
                     TextButton(
                       onPressed: _isResetting ? null : _handleCancelDelayedReset,
                       style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                      child: const Text('Cancel Delayed Reset Request'),
+                      child: Text(l10n.cancelPendingReset),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: Spacing.md),
+              AppSpacing.vGapMd,
               if (isDelayedReady) ...[
-                const Text(
-                  'The 72-hour delay has passed. Type DELETE to complete reset:',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                Text(
+                  l10n.deleteConfirmationPrompt,
+                  style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
                 ),
-                const SizedBox(height: Spacing.xs),
+                AppSpacing.vGapXs,
                 TextField(
                   controller: _deleteConfirmController,
                   enabled: !_isResetting,
@@ -379,25 +375,25 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
 
             // Immediate Reset Section (available when delayed reset is not ready)
             if (!isDelayedReady) ...[
-              const Text(
-                'Prove current secret or recovery key to reset immediately:',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              Text(
+                l10n.proveCurrentSecretOrRecoveryKey,
+                style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: Spacing.xs),
+              AppSpacing.vGapXs,
 
               // Method Selector
               if (hasRecoveryKey) ...[
                 SegmentedButton<ResetAuthMethod>(
-                  segments: const [
+                  segments: [
                     ButtonSegment(
                       value: ResetAuthMethod.secret,
-                      label: Text('Vault Secret'),
-                      icon: Icon(Icons.lock_outline, size: 16),
+                      label: Text(l10n.vaultSecretOption),
+                      icon: const Icon(Icons.lock_outline, size: 16),
                     ),
                     ButtonSegment(
                       value: ResetAuthMethod.recoveryKey,
-                      label: Text('Recovery Key'),
-                      icon: Icon(Icons.key, size: 16),
+                      label: Text(l10n.recoveryKeyOption),
+                      icon: const Icon(Icons.key, size: 16),
                     ),
                   ],
                   selected: {_authMethod},
@@ -408,7 +404,7 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
                     });
                   },
                 ),
-                const SizedBox(height: Spacing.sm),
+                AppSpacing.vGapSm,
               ],
 
               if (_authMethod == ResetAuthMethod.secret) ...[
@@ -419,8 +415,8 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
                   enableIMEPersonalizedLearning: false,
                   decoration: InputDecoration(
                     labelText: vaultState.credentialType == CredentialType.pattern
-                        ? 'Current Pattern Secret'
-                        : 'Current PIN',
+                        ? l10n.currentPatternPrompt
+                        : l10n.currentPinPrompt,
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.lock),
                   ),
@@ -434,22 +430,22 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
                   autocorrect: false,
                   enableSuggestions: false,
                   textCapitalization: TextCapitalization.characters,
-                  decoration: const InputDecoration(
-                    labelText: 'Paper Recovery Key',
+                  decoration: InputDecoration(
+                    labelText: l10n.enterRecoveryKeyLabel,
                     hintText: 'XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.key, color: AppColors.primary),
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.key, color: AppColors.primary),
                   ),
                   onChanged: (_) => setState(() {}),
                 ),
               ],
 
-              const SizedBox(height: Spacing.sm),
-              const Text(
-                'Type DELETE to confirm:',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              AppSpacing.vGapSm,
+              Text(
+                l10n.deleteConfirmationPrompt,
+                style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: Spacing.xs),
+              AppSpacing.vGapXs,
               TextField(
                 controller: _deleteConfirmController,
                 enabled: !isLockedOut && !_isResetting,
@@ -463,13 +459,13 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
               ),
 
               if (!isDelayedRequested) ...[
-                const SizedBox(height: Spacing.md),
+                AppSpacing.vGapMd,
                 const Divider(),
                 Center(
                   child: TextButton.icon(
                     onPressed: _isResetting ? null : _handleRequestDelayedReset,
                     icon: const Icon(Icons.schedule, size: 18),
-                    label: const Text('Lost both? Request delayed reset (72h)'),
+                    label: Text(l10n.requestDelayedReset),
                   ),
                 ),
               ],
@@ -480,7 +476,7 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
       actions: [
         TextButton(
           onPressed: _isResetting ? null : () => Navigator.of(context).pop(false),
-          child: const Text('Cancel'),
+          child: Text(l10n.cancel),
         ),
         if (isDelayedReady)
           ElevatedButton(
@@ -495,10 +491,10 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
                     height: 16,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
                     ),
                   )
-                : const Text('Complete Reset'),
+                : Text(l10n.completeResetNow),
           )
         else
           ElevatedButton(
@@ -513,10 +509,10 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
                     height: 16,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
                     ),
                   )
-                : const Text('Delete Everything'),
+                : Text(l10n.deleteEverything),
           ),
       ],
     );

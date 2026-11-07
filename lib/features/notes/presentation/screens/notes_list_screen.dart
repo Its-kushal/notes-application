@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/shared_widgets.dart';
+import '../../../../l10n/l10n_extension.dart';
 import '../../domain/folder.dart';
 import '../../domain/note.dart';
 import '../../domain/note_sort.dart';
@@ -42,6 +43,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
   }
 
   void _showSortDialog(BuildContext context, NotesListNotifier notifier) {
+    final l10n = contextL10n(context);
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -61,15 +63,20 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Sort by',
+                  l10n.sortBy,
                   style: Theme.of(ctx).textTheme.titleMedium,
                 ),
                 AppSpacing.vGapSm,
                 ...NoteSortField.values.map((field) {
                   final isSelected = notifier.sortOption.field == field;
+                  final label = switch (field) {
+                    NoteSortField.title => l10n.sortFieldTitle,
+                    NoteSortField.modified => l10n.sortFieldUpdated,
+                    NoteSortField.created => l10n.sortFieldCreated,
+                  };
                   return ListTile(
                     dense: true,
-                    title: Text(field.name[0].toUpperCase() + field.name.substring(1)),
+                    title: Text(label),
                     trailing: isSelected
                         ? const Icon(Icons.check, color: AppColors.primary)
                         : null,
@@ -84,13 +91,13 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                 }),
                 const Divider(),
                 Text(
-                  'Order',
+                  l10n.order,
                   style: Theme.of(ctx).textTheme.titleSmall,
                 ),
                 AppSpacing.vGapXs,
                 ...NoteSortOrder.values.map((order) {
                   final isSelected = notifier.sortOption.order == order;
-                  final label = order == NoteSortOrder.ascending ? 'Ascending' : 'Descending';
+                  final label = order == NoteSortOrder.ascending ? l10n.ascending : l10n.descending;
                   return ListTile(
                     dense: true,
                     title: Text(label),
@@ -115,6 +122,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
   }
 
   void _showCreateFolderDialog(BuildContext context) {
+    final l10n = contextL10n(context);
     final controller = TextEditingController();
     showDialog(
       context: context,
@@ -122,18 +130,18 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
         shape: const RoundedRectangleBorder(
           borderRadius: AppSpacing.borderRadiusMd,
         ),
-        title: const Text('New Folder'),
+        title: Text(l10n.newFolder),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'Folder name',
+          decoration: InputDecoration(
+            hintText: l10n.folderName,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -143,7 +151,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                 if (ctx.mounted) Navigator.of(ctx).pop();
               }
             },
-            child: const Text('Create'),
+            child: Text(l10n.create),
           ),
         ],
       ),
@@ -151,6 +159,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
   }
 
   void _showFolderOptions(BuildContext context, Folder folder) {
+    final l10n = contextL10n(context);
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -165,7 +174,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.edit_outlined),
-                title: const Text('Rename folder'),
+                title: Text(l10n.renameFolder),
                 onTap: () {
                   Navigator.of(ctx).pop();
                   _showRenameFolderDialog(context, folder);
@@ -173,18 +182,17 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.delete_outline, color: AppColors.error),
-                title: const Text(
-                  'Delete folder',
-                  style: TextStyle(color: AppColors.error),
+                title: Text(
+                  l10n.deleteFolder,
+                  style: Theme.of(ctx).textTheme.bodyLarge?.copyWith(color: AppColors.error),
                 ),
                 onTap: () async {
                   Navigator.of(ctx).pop();
                   final confirm = await ConfirmDialog.show(
                     context,
-                    title: 'Delete folder?',
-                    message:
-                        'Notes inside "${folder.name}" will not be deleted; they will stay in All notes.',
-                    confirmText: 'Delete',
+                    title: l10n.deleteFolderConfirmTitle,
+                    message: l10n.deleteFolderConfirmMessage(folder.name),
+                    confirmText: l10n.delete,
                     isDestructive: true,
                   );
                   if (confirm == true) {
@@ -200,6 +208,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
   }
 
   void _showRenameFolderDialog(BuildContext context, Folder folder) {
+    final l10n = contextL10n(context);
     final controller = TextEditingController(text: folder.name);
     showDialog(
       context: context,
@@ -207,18 +216,18 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
         shape: const RoundedRectangleBorder(
           borderRadius: AppSpacing.borderRadiusMd,
         ),
-        title: const Text('Rename Folder'),
+        title: Text(l10n.renameFolder),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'Folder name',
+          decoration: InputDecoration(
+            hintText: l10n.folderName,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -230,7 +239,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                 if (ctx.mounted) Navigator.of(ctx).pop();
               }
             },
-            child: const Text('Save'),
+            child: Text(l10n.save),
           ),
         ],
       ),
@@ -238,6 +247,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
   }
 
   void _showBulkMoveFolderPicker(BuildContext context) {
+    final l10n = contextL10n(context);
     final notifier = ref.read(notesListProvider);
     showModalBottomSheet(
       context: context,
@@ -254,7 +264,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.lg),
                 child: Text(
-                  'Move ${notifier.selectedCount} notes to...',
+                  l10n.moveNotesToFolderTitle(notifier.selectedCount),
                   style: Theme.of(ctx).textTheme.titleMedium,
                 ),
               ),
@@ -262,7 +272,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                 Padding(
                   padding: const EdgeInsets.all(AppSpacing.lg),
                   child: Text(
-                    'No folders created yet',
+                    l10n.noFoldersYet,
                     style: Theme.of(ctx).textTheme.bodyMedium,
                   ),
                 )
@@ -288,6 +298,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
+    final l10n = contextL10n(context);
     final notifier = ref.watch(notesListProvider);
 
     final pinnedNotes = notifier.notes.where((n) => n.isPinned).toList();
@@ -323,14 +334,14 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                           ),
                           AppSpacing.vGapSm,
                           Text(
-                            'Privacy Notes',
+                            l10n.appTitle,
                             style: textTheme.titleLarge?.copyWith(
                               color: AppColors.white,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
-                            'Encrypted Vault (AES-256)',
+                            l10n.encryptedVaultSubtitle,
                             style: textTheme.bodySmall?.copyWith(
                               color: AppColors.white.withValues(alpha: 0.8),
                             ),
@@ -340,7 +351,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                     ),
                     ListTile(
                       leading: const Icon(Icons.notes_outlined),
-                      title: const Text('All Notes'),
+                      title: Text(l10n.allNotes),
                       selected: notifier.selectedFolderId == null,
                       onTap: () {
                         notifier.setSelectedFolder(null);
@@ -349,7 +360,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                     ),
                     ListTile(
                       leading: const Icon(Icons.lock_outline),
-                      title: const Text('Locked notes'),
+                      title: Text(l10n.lockedNotes),
                       onTap: () async {
                         Navigator.of(context).pop();
                         final vaultNotifier = ref.read(vaultProvider);
@@ -373,7 +384,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                     ),
                     ListTile(
                       leading: const Icon(Icons.archive_outlined),
-                      title: const Text('Archive'),
+                      title: Text(l10n.archive),
                       onTap: () {
                         Navigator.of(context).pop();
                         context.push('/archive');
@@ -381,7 +392,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                     ),
                     ListTile(
                       leading: const Icon(Icons.delete_outline),
-                      title: const Text('Trash'),
+                      title: Text(l10n.trash),
                       onTap: () {
                         Navigator.of(context).pop();
                         context.push('/trash');
@@ -390,7 +401,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                     const Divider(),
                     ListTile(
                       leading: const Icon(Icons.settings_outlined),
-                      title: const Text('Settings'),
+                      title: Text(l10n.settings),
                       onTap: () {
                         Navigator.of(context).pop();
                         context.push('/settings');
@@ -403,42 +414,37 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
             ? AppBar(
                 leading: IconButton(
                   icon: const Icon(Icons.close),
-                  tooltip: 'Exit selection',
+                  tooltip: l10n.exitSelection,
                   onPressed: () => notifier.clearSelection(),
                 ),
-                title: Text('${notifier.selectedCount} selected'),
+                title: Text(l10n.selectedNotesCount(notifier.selectedCount)),
                 actions: [
-                  IconButton(
-                    icon: const Icon(Icons.select_all),
-                    tooltip: 'Select all',
-                    onPressed: () => notifier.selectAll(),
-                  ),
                   IconButton(
                     icon: Icon(
                       notifier.areAllSelectedPinned
                           ? Icons.push_pin
                           : Icons.push_pin_outlined,
                     ),
-                    tooltip: notifier.areAllSelectedPinned ? 'Unpin' : 'Pin',
+                    tooltip: notifier.areAllSelectedPinned ? l10n.unpin : l10n.pin,
                     onPressed: () async {
                       await notifier.toggleBulkPin();
                     },
                   ),
                   IconButton(
                     icon: const Icon(Icons.folder_outlined),
-                    tooltip: 'Move to folder',
+                    tooltip: l10n.moveToFolder,
                     onPressed: () => _showBulkMoveFolderPicker(context),
                   ),
                   IconButton(
                     icon: const Icon(Icons.archive_outlined),
-                    tooltip: 'Archive',
+                    tooltip: l10n.archive,
                     onPressed: () async {
                       final archivedIds = await notifier.bulkArchive();
                       if (context.mounted && archivedIds.isNotEmpty) {
                         AppSnackBar.show(
                           context,
-                          message: '${archivedIds.length} notes archived',
-                          actionLabel: 'Undo',
+                          message: l10n.notesArchived(archivedIds.length),
+                          actionLabel: l10n.undo,
                           onAction: () =>
                               notifier.unarchiveNotes(archivedIds),
                         );
@@ -447,14 +453,14 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete_outline),
-                    tooltip: 'Move to trash',
+                    tooltip: l10n.moveToTrash,
                     onPressed: () async {
                       final trashedIds = await notifier.bulkTrash();
                       if (context.mounted && trashedIds.isNotEmpty) {
                         AppSnackBar.show(
                           context,
-                          message: '${trashedIds.length} notes moved to trash',
-                          actionLabel: 'Undo',
+                          message: l10n.notesMovedToTrash(trashedIds.length),
+                          actionLabel: l10n.undo,
                           onAction: () =>
                               notifier.restoreNotes(trashedIds),
                         );
@@ -464,7 +470,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                 ],
               )
             : AppBar(
-                title: Text('Privacy Notes', style: textTheme.headlineSmall),
+                title: Text(l10n.appTitle, style: textTheme.headlineSmall),
                 actions: [
                   IconButton(
                     icon: Icon(
@@ -473,13 +479,13 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                           : Icons.grid_view_outlined,
                     ),
                     tooltip: notifier.isGridView
-                        ? 'Switch to list'
-                        : 'Switch to grid',
+                        ? l10n.switchToList
+                        : l10n.switchToGrid,
                     onPressed: () => notifier.toggleViewMode(),
                   ),
                   IconButton(
                     icon: const Icon(Icons.sort_outlined),
-                    tooltip: 'Sort notes',
+                    tooltip: l10n.sortNotes,
                     onPressed: () => _showSortDialog(context, notifier),
                   ),
                 ],
@@ -506,12 +512,12 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                   children: [
                     FilterChip(
                       selected: notifier.selectedFolderId == null,
-                      label: const Text('All'),
+                      label: Text(l10n.allNotes),
                       onSelected: (_) => notifier.setSelectedFolder(null),
                     ),
                     ...notifier.folders.map(
                       (folder) => Padding(
-                        padding: const EdgeInsets.only(left: AppSpacing.sm),
+                        padding: const EdgeInsetsDirectional.only(start: AppSpacing.sm),
                         child: InputChip(
                           selected: notifier.selectedFolderId == folder.id,
                           label: Text(folder.name),
@@ -519,14 +525,14 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                               notifier.setSelectedFolder(folder.id),
                           onDeleted: () => _showFolderOptions(context, folder),
                           deleteIcon: const Icon(Icons.more_vert, size: 16),
-                          deleteButtonTooltipMessage: 'Folder options',
+                          deleteButtonTooltipMessage: l10n.folderOptions,
                         ),
                       ),
                     ),
                     AppSpacing.hGapSm,
                     ActionChip(
                       avatar: const Icon(Icons.add, size: 16),
-                      label: const Text('New Folder'),
+                      label: Text(l10n.newFolder),
                       onPressed: () => _showCreateFolderDialog(context),
                     ),
                   ],
@@ -551,8 +557,13 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                               child: CustomScrollView(
                                 slivers: [
                                   if (pinnedNotes.isNotEmpty) ...[
-                                    const SliverToBoxAdapter(
-                                      child: SectionHeader(title: 'Pinned'),
+                                    SliverToBoxAdapter(
+                                      child: SectionHeader(
+                                        title: l10n.pinnedSectionHeader,
+                                        trailing: (notifier.isSelectionMode && otherNotes.isEmpty)
+                                            ? _buildSelectAllAction(context, notifier, l10n)
+                                            : null,
+                                      ),
                                     ),
                                     if (notifier.isGridView)
                                       SliverPadding(
@@ -597,8 +608,11 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                                     SliverToBoxAdapter(
                                       child: SectionHeader(
                                         title: pinnedNotes.isNotEmpty
-                                            ? 'Recent'
-                                            : 'Notes',
+                                            ? l10n.recentSectionHeader
+                                            : l10n.notesSectionHeader,
+                                        trailing: notifier.isSelectionMode
+                                            ? _buildSelectAllAction(context, notifier, l10n)
+                                            : null,
                                       ),
                                     ),
                                     if (notifier.isGridView)
@@ -655,15 +669,49 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                 onPressed: _navigateToNewNote,
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.white,
-                tooltip: 'New note',
+                tooltip: l10n.newNote,
                 child: const Icon(Icons.add, size: 28),
               ),
       ),
     );
   }
 
+  Widget _buildSelectAllAction(
+    BuildContext context,
+    NotesListNotifier notifier,
+    AppLocalizations l10n,
+  ) {
+    final theme = Theme.of(context);
+    final allSelected =
+        notifier.selectedCount == notifier.notes.length && notifier.notes.isNotEmpty;
+
+    return TextButton(
+      style: TextButton.styleFrom(
+        visualDensity: VisualDensity.compact,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+        minimumSize: const Size(48, 48),
+        foregroundColor: AppColors.primary,
+      ),
+      onPressed: () {
+        if (allSelected) {
+          notifier.clearSelection();
+        } else {
+          notifier.selectAll();
+        }
+      },
+      child: Text(
+        allSelected ? l10n.deselectAll : l10n.selectAll,
+        style: theme.textTheme.labelLarge?.copyWith(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
   Widget _buildNoteCard(Note note, NotesListNotifier notifier) {
     final isSelected = notifier.selectedNoteIds.contains(note.id);
+    final l10n = contextL10n(context);
 
     return NoteCard(
       note: note,
@@ -685,8 +733,8 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
         if (mounted) {
           AppSnackBar.show(
             context,
-            message: 'Note archived',
-            actionLabel: 'Undo',
+            message: l10n.noteArchived,
+            actionLabel: l10n.undo,
             onAction: () => notifier.unarchiveNote(note.id),
           );
         }
@@ -696,8 +744,8 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
         if (mounted) {
           AppSnackBar.show(
             context,
-            message: 'Note moved to trash',
-            actionLabel: 'Undo',
+            message: l10n.noteMovedToTrash,
+            actionLabel: l10n.undo,
             onAction: () => notifier.restoreNote(note.id),
           );
         }

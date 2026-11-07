@@ -135,7 +135,7 @@ class FileDecoder {
   /// Decodes a payload received from native platform or fake channel.
   /// Expects:
   /// - 'name': String? (display name)
-  /// - 'bytes': Uint8List? or List<int>? (raw content bytes)
+  /// - 'bytes': `Uint8List?` or `List<int>?` (raw content bytes)
   /// - 'error': String? (read error, if any)
   static OpenedFile decodePayload(
     Map<dynamic, dynamic> map, {

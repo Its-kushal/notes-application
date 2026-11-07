@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/shared_widgets.dart';
+import '../../../../l10n/l10n_extension.dart';
 import '../../../settings/presentation/controllers/settings_provider.dart';
 import '../controllers/notes_providers.dart';
 import '../widgets/notes_empty_view.dart';
@@ -34,20 +35,20 @@ class _TrashScreenState extends ConsumerState<TrashScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final trashNotifier = ref.watch(trashProvider);
+    final l10n = contextL10n(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Trash'),
+        title: Text(l10n.trash),
         actions: [
           if (trashNotifier.trashedNotes.isNotEmpty)
             TextButton.icon(
               onPressed: () async {
                 final confirm = await ConfirmDialog.show(
                   context,
-                  title: 'Empty trash?',
-                  message:
-                      'All notes in trash will be permanently deleted. This action cannot be undone.',
-                  confirmText: 'Empty trash',
+                  title: l10n.emptyTrashConfirmTitle,
+                  message: l10n.emptyTrashConfirmMessage,
+                  confirmText: l10n.emptyTrash,
                   isDestructive: true,
                 );
 
@@ -57,15 +58,15 @@ class _TrashScreenState extends ConsumerState<TrashScreen> {
                   if (context.mounted) {
                     AppSnackBar.show(
                       context,
-                      message: 'Trash emptied',
+                      message: l10n.trashEmptied,
                     );
                   }
                 }
               },
               icon: const Icon(Icons.delete_sweep_outlined, color: AppColors.error),
-              label: const Text(
-                'Empty',
-                style: TextStyle(color: AppColors.error),
+              label: Text(
+                l10n.emptyTrash,
+                style: theme.textTheme.labelLarge?.copyWith(color: AppColors.error),
               ),
             ),
         ],
@@ -78,10 +79,10 @@ class _TrashScreenState extends ConsumerState<TrashScreen> {
                   onRetry: () => trashNotifier.loadTrash(),
                 )
               : trashNotifier.trashedNotes.isEmpty
-                  ? const NotesEmptyView(
+                  ? NotesEmptyView(
                       icon: Icons.delete_outline,
-                      customTitle: 'Trash is empty',
-                      customSubtitle: 'Notes moved to trash will appear here.',
+                      customTitle: l10n.trashEmptyTitle,
+                      customSubtitle: l10n.trashEmptyMessage,
                     )
                   : Column(
                       children: [
@@ -102,7 +103,7 @@ class _TrashScreenState extends ConsumerState<TrashScreen> {
                               AppSpacing.hGapSm,
                               Expanded(
                                 child: Text(
-                                  'Items in trash are automatically purged after ${ref.watch(settingsProvider).settings.trashRetentionDays} days.',
+                                  l10n.trashRetentionNotice(ref.watch(settingsProvider).settings.trashRetentionDays),
                                   style: theme.textTheme.bodySmall,
                                 ),
                               ),
@@ -122,8 +123,8 @@ class _TrashScreenState extends ConsumerState<TrashScreen> {
                                 final displayTitle = note.title.trim().isNotEmpty
                                     ? note.title
                                     : (note.body.trim().isNotEmpty
-                                        ? 'Untitled'
-                                        : 'Empty note');
+                                        ? l10n.untitledNote
+                                        : l10n.emptyNote);
 
                                 return Card(
                                   margin: const EdgeInsets.symmetric(
@@ -156,7 +157,7 @@ class _TrashScreenState extends ConsumerState<TrashScreen> {
                                             IconButton(
                                               icon: const Icon(
                                                   Icons.restore_outlined),
-                                              tooltip: 'Restore note',
+                                              tooltip: l10n.restore,
                                               onPressed: () async {
                                                 await trashNotifier
                                                     .restoreNote(note.id);
@@ -166,8 +167,8 @@ class _TrashScreenState extends ConsumerState<TrashScreen> {
                                                 if (context.mounted) {
                                                   AppSnackBar.show(
                                                     context,
-                                                    message: 'Note restored',
-                                                    actionLabel: 'Undo',
+                                                    message: l10n.noteRestored,
+                                                    actionLabel: l10n.undo,
                                                     onAction: () async {
                                                       await ref
                                                           .read(notesListProvider)
@@ -184,16 +185,16 @@ class _TrashScreenState extends ConsumerState<TrashScreen> {
                                                 Icons.delete_forever_outlined,
                                                 color: AppColors.error,
                                               ),
-                                              tooltip: 'Delete permanently',
+                                              tooltip: l10n.deletePermanently,
                                               onPressed: () async {
                                                 final confirm =
                                                     await ConfirmDialog.show(
                                                   context,
                                                   title:
-                                                      'Delete permanently?',
+                                                      l10n.deletePermanentlyConfirmTitle,
                                                   message:
-                                                      'This note will be permanently erased from your encrypted database.',
-                                                  confirmText: 'Delete',
+                                                      l10n.deletePermanentlyConfirmMessage,
+                                                  confirmText: l10n.delete,
                                                   isDestructive: true,
                                                 );
 
@@ -219,7 +220,7 @@ class _TrashScreenState extends ConsumerState<TrashScreen> {
                                         ],
                                         AppSpacing.vGapMd,
                                         Text(
-                                          'Deleted on ${_formatTrashedDate(note.trashedAt)}',
+                                          l10n.deletedAtDate(_formatTrashedDate(note.trashedAt)),
                                           style: theme.textTheme.bodySmall
                                               ?.copyWith(
                                             color: AppColors.lightTextHint,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/shared_widgets.dart';
+import '../../../../l10n/l10n_extension.dart';
 import '../controllers/notes_providers.dart';
 import '../widgets/note_card.dart';
 import '../widgets/notes_empty_view.dart';
@@ -26,10 +27,11 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
   @override
   Widget build(BuildContext context) {
     final archiveNotifier = ref.watch(archiveProvider);
+    final l10n = contextL10n(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Archive'),
+        title: Text(l10n.archive),
       ),
       body: archiveNotifier.isLoading
           ? const LoadingState()
@@ -39,10 +41,10 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
                   onRetry: () => archiveNotifier.loadArchive(),
                 )
               : archiveNotifier.archivedNotes.isEmpty
-                  ? const NotesEmptyView(
+                  ? NotesEmptyView(
                       icon: Icons.archive_outlined,
-                      customTitle: 'Archive is empty',
-                      customSubtitle: 'Notes you archive will appear here.',
+                      customTitle: l10n.archiveEmptyTitle,
+                      customSubtitle: l10n.archiveEmptyMessage,
                     )
                   : RefreshIndicator(
                       onRefresh: () => archiveNotifier.loadArchive(),
@@ -67,8 +69,8 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
                               if (context.mounted) {
                                 AppSnackBar.show(
                                   context,
-                                  message: 'Note unarchived',
-                                  actionLabel: 'Undo',
+                                  message: l10n.noteUnarchived,
+                                  actionLabel: l10n.undo,
                                   onAction: () async {
                                     await ref
                                         .read(notesListProvider)
@@ -84,8 +86,8 @@ class _ArchiveScreenState extends ConsumerState<ArchiveScreen> {
                               if (context.mounted) {
                                 AppSnackBar.show(
                                   context,
-                                  message: 'Note moved to trash',
-                                  actionLabel: 'Undo',
+                                  message: l10n.noteMovedToTrash,
+                                  actionLabel: l10n.undo,
                                   onAction: () async {
                                     await ref
                                         .read(notesListProvider)

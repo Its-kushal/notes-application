@@ -445,6 +445,7 @@ class NoteEditorNotifier extends ChangeNotifier {
   List<ChecklistItem> _checklistItems = const [];
   bool _isDirty = false;
   bool _isSaving = false;
+  int _editRevision = 0;
   Timer? _debounceTimer;
 
   NoteEditorNotifier(
@@ -540,10 +541,12 @@ class NoteEditorNotifier extends ChangeNotifier {
       _note = _note.copyWith(
         isChecklistMode: false,
         body: text,
+        clearChecklistJson: true,
         wordCount: count,
       );
     }
     _isDirty = true;
+    _editRevision++;
     notifyListeners();
     _triggerAutosave();
   }
@@ -560,6 +563,7 @@ class NoteEditorNotifier extends ChangeNotifier {
 
     _note = _note.copyWith(title: newTitle, body: newBody, wordCount: count);
     _isDirty = true;
+    _editRevision++;
     notifyListeners();
     _triggerAutosave();
   }
@@ -582,6 +586,7 @@ class NoteEditorNotifier extends ChangeNotifier {
     final plainText = mutable.map((i) => i.text).join('\n');
     _note = _note.copyWith(body: plainText, checklistJson: encoded, wordCount: count);
     _isDirty = true;
+    _editRevision++;
     notifyListeners();
     _triggerAutosave();
     return newItem.id;
@@ -601,6 +606,7 @@ class NoteEditorNotifier extends ChangeNotifier {
     final plainText = mutable.map((i) => i.text).join('\n');
     _note = _note.copyWith(body: plainText, checklistJson: encoded, wordCount: count);
     _isDirty = true;
+    _editRevision++;
     notifyListeners();
     _triggerAutosave();
   }
@@ -616,6 +622,7 @@ class NoteEditorNotifier extends ChangeNotifier {
     final plainText = mutable.map((i) => i.text).join('\n');
     _note = _note.copyWith(body: plainText, checklistJson: encoded, wordCount: count);
     _isDirty = true;
+    _editRevision++;
     notifyListeners();
     _triggerAutosave();
   }
@@ -632,6 +639,7 @@ class NoteEditorNotifier extends ChangeNotifier {
     final plainText = mutable.map((i) => i.text).join('\n');
     _note = _note.copyWith(body: plainText, checklistJson: encoded);
     _isDirty = true;
+    _editRevision++;
     notifyListeners();
     _triggerAutosave();
   }
@@ -660,19 +668,28 @@ class NoteEditorNotifier extends ChangeNotifier {
     _debounceTimer?.cancel();
     if (!_isDirty || _isSaving) return;
 
-    if (isEmptyContent) {
+    final revisionBeingSaved = _editRevision;
+    final noteBeingSaved = _note;
+    final checklistItemsBeingSaved = List<ChecklistItem>.from(_checklistItems);
+
+    final isEmpty = noteBeingSaved.title.trim().isEmpty &&
+        (noteBeingSaved.isChecklistMode
+            ? checklistItemsBeingSaved.every((item) => item.text.trim().isEmpty)
+            : noteBeingSaved.body.trim().isEmpty);
+    if (isEmpty) {
       _isSaving = true;
       notifyListeners();
       try {
         final existing = await _repository.getNoteById(_note.id);
         if (existing != null) {
           // If emptied, delete from database so no phantom empty note persists
-          await _repository.deleteNotePermanently(_note.id);
+          await _repository.deleteNotePermanently(noteBeingSaved.id);
         }
-        _isDirty = false;
+        if (_editRevision == revisionBeingSaved) _isDirty = false;
       } catch (_) {
       } finally {
         _isSaving = false;
+        if (_isDirty) _triggerAutosave();
         notifyListeners();
       }
       return;
@@ -686,47 +703,48 @@ class NoteEditorNotifier extends ChangeNotifier {
         final key = getVaultKey?.call();
         if (key != null) {
           await _repository.updateLockedNoteContent(
-            id: _note.id,
-            title: _note.title,
-            body: _note.body,
-            checklistJson: _note.checklistJson,
-            isChecklistMode: _note.isChecklistMode,
+            id: noteBeingSaved.id,
+            title: noteBeingSaved.title,
+            body: noteBeingSaved.body,
+            checklistJson: noteBeingSaved.checklistJson,
+            isChecklistMode: noteBeingSaved.isChecklistMode,
             vaultKey: key,
           );
         }
-        _isDirty = false;
+        if (_editRevision == revisionBeingSaved) _isDirty = false;
         return;
       }
 
-      final existing = await _repository.getNoteById(_note.id);
+      final existing = await _repository.getNoteById(noteBeingSaved.id);
       if (existing == null) {
         // First insert of brand new note
-        await _repository.insertNote(_note);
+        await _repository.insertNote(noteBeingSaved);
       } else {
         // M1 FIX 2 / M3: Partial update of content only.
         // Saves ONLY title, body, checklist_json, is_checklist_mode, word_count, and updated_at.
         await _repository.updateNoteContent(
-          id: _note.id,
-          title: _note.title,
-          body: _note.body,
-          checklistJson: _note.checklistJson,
-          isChecklistMode: _note.isChecklistMode,
-          wordCount: _note.wordCount,
+          id: noteBeingSaved.id,
+          title: noteBeingSaved.title,
+          body: noteBeingSaved.body,
+          checklistJson: noteBeingSaved.checklistJson,
+          isChecklistMode: noteBeingSaved.isChecklistMode,
+          wordCount: noteBeingSaved.wordCount,
         );
 
-        final refreshed = await _repository.getNoteById(_note.id);
-        if (refreshed != null) {
+        final refreshed = await _repository.getNoteById(noteBeingSaved.id);
+        if (refreshed != null && _editRevision == revisionBeingSaved) {
           _note = _note.copyWith(
             updatedAt: refreshed.updatedAt,
             wordCount: refreshed.wordCount,
           );
         }
       }
-      _isDirty = false;
+      if (_editRevision == revisionBeingSaved) _isDirty = false;
     } catch (_) {
       // Keep dirty flag if save failed
     } finally {
       _isSaving = false;
+      if (_isDirty) _triggerAutosave();
       notifyListeners();
     }
   }

@@ -1,7 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../domain/file_decoder.dart';
-import '../domain/opened_file.dart';
 
 /// Service responsible for receiving files opened via Android ACTION_VIEW intents
 /// from Kotlin over the com.privacynotes.app/security channel and navigating

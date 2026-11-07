@@ -9,6 +9,7 @@ import '../../../../core/crypto/vault_service.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/loading_state.dart';
+import 'package:privacy_notes/l10n/l10n_extension.dart';
 import '../controllers/vault_providers.dart';
 import '../widgets/pattern_lock_widget.dart';
 import '../widgets/pin_pad_widget.dart';
@@ -47,11 +48,12 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
   }
 
   Future<void> _verifyRecoveryKey() async {
+    final l10n = contextL10n(context);
     final vaultService = ref.read(vaultServiceProvider);
     final lockoutSeconds = await vaultService.getRemainingRecoveryLockoutSeconds();
     if (lockoutSeconds > 0) {
       setState(() {
-        _errorMessage = 'Locked out. Try again in ${lockoutSeconds}s';
+        _errorMessage = l10n.lockedOutTryAgainIn(lockoutSeconds);
       });
       return;
     }
@@ -59,7 +61,7 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
     final input = _recoveryKeyController.text.trim();
     if (input.isEmpty) {
       setState(() {
-        _errorMessage = 'Please enter your recovery key.';
+        _errorMessage = l10n.pleaseEnterYourRecoveryKey;
       });
       return;
     }
@@ -70,12 +72,12 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
       recoveryBytes = RecoveryKeyService.decodeKey(input);
     } on RecoveryKeyChecksumException {
       setState(() {
-        _errorMessage = 'Check for typing mistakes.';
+        _errorMessage = l10n.checkForTypingMistakes;
       });
       return;
     } on RecoveryKeyFormatException {
       setState(() {
-        _errorMessage = 'Check for typing mistakes.';
+        _errorMessage = l10n.checkForTypingMistakes;
       });
       return;
     }
@@ -84,7 +86,7 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
     final meta = await vaultService.getVaultMetadata();
     if (meta == null || !meta.hasRecoveryKey) {
       setState(() {
-        _errorMessage = 'No recovery key wrap exists for this vault.';
+        _errorMessage = l10n.noRecoveryKeyWrapExists;
       });
       return;
     }
@@ -117,14 +119,14 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
       final newLockout = await vaultService.getRemainingRecoveryLockoutSeconds();
       setState(() {
         if (newLockout > 0) {
-          _errorMessage = 'Locked out. Try again in ${newLockout}s';
+          _errorMessage = l10n.lockedOutTryAgainIn(newLockout);
         } else {
-          _errorMessage = 'Incorrect recovery key. Please check your paper copy.';
+          _errorMessage = l10n.incorrectRecoveryKeyCheckPaper;
         }
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Recovery error: $e';
+        _errorMessage = l10n.recoveryErrorWithDetails(e.toString());
       });
     }
   }
@@ -142,17 +144,18 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
   }
 
   void _proceedStep1() {
+    final l10n = contextL10n(context);
     if (_selectedType == CredentialType.pin) {
       if (_newSecret.length < 6) {
         setState(() {
-          _errorMessage = 'PIN must be at least 6 digits';
+          _errorMessage = l10n.pinMustBeAtLeastSixDigits;
         });
         return;
       }
     } else {
       if (_newSecret.split('-').length < 5) {
         setState(() {
-          _errorMessage = 'Pattern must connect at least 5 dots';
+          _errorMessage = l10n.patternMustConnectAtLeastFiveDots;
           _isPatternError = true;
         });
         return;
@@ -169,10 +172,11 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
   }
 
   Future<void> _proceedStep2() async {
+    final l10n = contextL10n(context);
     if (_newSecret != _confirmSecret) {
       if (_selectedType == CredentialType.pattern) {
         setState(() {
-          _errorMessage = 'Patterns do not match. Please try again.';
+          _errorMessage = l10n.patternsDoNotMatch;
           _isPatternError = true;
           _isTransitioning = true;
           _confirmSecret = '';
@@ -190,7 +194,7 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
         }
       } else {
         setState(() {
-          _errorMessage = 'PINs do not match. Please try again.';
+          _errorMessage = l10n.pinsDoNotMatch;
           _isPatternError = true;
           _confirmSecret = '';
         });
@@ -213,18 +217,23 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
             context: context,
             barrierDismissible: false,
             builder: (ctx) => AlertDialog(
-              title: const Row(
+              title: Row(
                 children: [
-                  Icon(Icons.security, color: AppColors.error),
-                  SizedBox(width: Spacing.sm),
+                  const Icon(Icons.security, color: AppColors.error),
+                  AppSpacing.hGapSm,
                   Expanded(
-                    child: Text('Security Notice', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: Text(
+                      l10n.securityNotice,
+                      style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
               content: Text(
-                'A vault reset was requested on ${noticeDate.toLocal().toString().split('.')[0]}.\n\n'
-                'Because you have successfully recovered the vault, this reset request has been automatically cancelled.',
+                l10n.vaultResetCancelledNotice(noticeDate.toLocal().toString().split('.')[0]),
+                style: Theme.of(ctx).textTheme.bodyMedium,
               ),
               actions: [
                 ElevatedButton(
@@ -232,7 +241,7 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
                     ref.read(vaultProvider).acknowledgeResetNotice();
                     Navigator.of(ctx).pop();
                   },
-                  child: const Text('Dismiss'),
+                  child: Text(l10n.dismiss),
                 ),
               ],
             ),
@@ -240,7 +249,7 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
           if (!mounted) return;
         }
 
-        AppSnackBar.show(context, message: 'New secret set. Vault unlocked.');
+        AppSnackBar.show(context, message: l10n.newSecretSetVaultUnlocked);
         if (Navigator.of(context).canPop()) {
           context.pop(true);
         } else {
@@ -250,7 +259,7 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Recovery failed: $e';
+          _errorMessage = l10n.recoveryFailedWithDetails(e.toString());
         });
       }
     }
@@ -258,25 +267,29 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final l10n = contextL10n(context);
     final vaultState = ref.watch(vaultProvider).state;
     final isLockedOut = vaultState.remainingRecoveryLockoutSeconds > 0;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = theme.brightness == Brightness.dark;
 
     if (vaultState.isDeriving) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Recovering vault')),
-        body: const Center(
-          child: LoadingState(message: 'Securing new secret...'),
+        appBar: AppBar(title: Text(l10n.recoveringVault)),
+        body: Center(
+          child: LoadingState(message: l10n.securingNewSecret),
         ),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Recover vault'),
+        title: Text(l10n.recoverVaultTitle),
         leading: _step > 0
             ? IconButton(
                 icon: const Icon(Icons.arrow_back),
+                tooltip: l10n.back,
                 onPressed: () {
                   if (_isTransitioning) return;
                   setState(() {
@@ -289,7 +302,7 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.sm),
+          padding: AppSpacing.screenPadding,
           child: SizedBox(
             width: double.infinity,
             child: Column(
@@ -297,54 +310,59 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
               children: [
                 if (_step == 0) ...[
                   const Icon(Icons.vpn_key_rounded, size: 56, color: AppColors.primary),
-                  const SizedBox(height: Spacing.sm),
-                  const Text(
-                    'Enter your recovery key',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  AppSpacing.vGapSm,
+                  Text(
+                    l10n.enterRecoveryKeyHeading,
+                    style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: Spacing.xs),
-                  const Text(
-                    'Enter the 28-character recovery key written on paper to reset your secret without losing notes.',
-                    style: TextStyle(fontSize: 13, color: AppColors.greyDark),
+                  AppSpacing.vGapXs,
+                  Text(
+                    l10n.enter28CharRecoveryKeyDesc,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: Spacing.md),
+                  AppSpacing.vGapMd,
 
                   // Recovery Lockout Warning
                   if (isLockedOut) ...[
                     Container(
-                      padding: const EdgeInsets.all(Spacing.sm),
+                      padding: AppSpacing.paddingSm,
                       decoration: BoxDecoration(
                         color: AppColors.error.withValues(alpha: isDark ? 0.25 : 0.1),
-                        borderRadius: BorderRadius.circular(Spacing.sm),
+                        borderRadius: AppSpacing.borderRadiusSm,
                         border: Border.all(color: AppColors.error),
                       ),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.timer_outlined, color: AppColors.error, size: 20),
-                          const SizedBox(width: Spacing.xs),
-                          Text(
-                            'Locked out. Try again in ${vaultState.remainingRecoveryLockoutSeconds}s',
-                            style: const TextStyle(
-                              color: AppColors.error,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
+                          const Icon(Icons.lock_clock, color: AppColors.error, size: 20),
+                          AppSpacing.hGapSm,
+                          Expanded(
+                            child: Text(
+                              l10n.lockedOutTryAgainIn(vaultState.remainingRecoveryLockoutSeconds),
+                              style: textTheme.bodySmall?.copyWith(
+                                color: AppColors.error,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: Spacing.md),
+                    AppSpacing.vGapMd,
                   ],
 
                   if (_errorMessage != null) ...[
                     Text(
                       _errorMessage!,
-                      style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.w600),
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: AppColors.error,
+                        fontWeight: FontWeight.w600,
+                      ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: Spacing.sm),
+                    AppSpacing.vGapSm,
                   ],
 
                   TextField(
@@ -355,48 +373,49 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
                     enableSuggestions: false,
                     enableIMEPersonalizedLearning: false,
                     textCapitalization: TextCapitalization.characters,
-                    decoration: const InputDecoration(
-                      labelText: 'Recovery key',
+                    decoration: InputDecoration(
+                      labelText: l10n.enterRecoveryKeyLabel,
                       hintText: 'XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.edit_note_outlined),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.password_rounded),
                     ),
-                    onChanged: (_) {
-                      if (_errorMessage != null) {
-                        setState(() {
-                          _errorMessage = null;
-                        });
-                      }
+                    onSubmitted: (_) {
+                      if (!isLockedOut) _verifyRecoveryKey();
                     },
                   ),
-                  const SizedBox(height: Spacing.xs),
-                  const Text(
-                    'Dashes and spaces are optional. Case-insensitive.',
-                    style: TextStyle(fontSize: 12, color: AppColors.greyDark),
+                  AppSpacing.vGapXs,
+                  Text(
+                    l10n.recoveryKeyDashesHint,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                  const SizedBox(height: Spacing.lg),
+                  AppSpacing.vGapLg,
                   ElevatedButton(
                     onPressed: isLockedOut ? null : _verifyRecoveryKey,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: AppColors.white,
                       minimumSize: const Size(220, 48),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: AppSpacing.borderRadiusSm,
+                      ),
                     ),
-                    child: const Text('Verify Recovery Key'),
+                    child: Text(l10n.verifyRecoveryKeyButton),
                   ),
                 ] else if (_step == 1) ...[
                   // Step 1: Set NEW PIN or Pattern (R6)
                   SegmentedButton<CredentialType>(
-                    segments: const [
+                    segments: [
                       ButtonSegment(
                         value: CredentialType.pin,
-                        label: Text('PIN (min 6)'),
-                        icon: Icon(Icons.pin_outlined),
+                        label: Text(l10n.pinMinLength),
+                        icon: const Icon(Icons.pin_outlined),
                       ),
                       ButtonSegment(
                         value: CredentialType.pattern,
-                        label: Text('Pattern (min 5)'),
-                        icon: Icon(Icons.pattern_outlined),
+                        label: Text(l10n.patternMinLength),
+                        icon: const Icon(Icons.pattern_outlined),
                       ),
                     ],
                     selected: {_selectedType},
@@ -411,29 +430,69 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
                       });
                     },
                   ),
-                  const SizedBox(height: Spacing.md),
+                  AppSpacing.vGapSm,
+                  if (_selectedType == CredentialType.pattern)
+                    Container(
+                      padding: AppSpacing.paddingSm,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        borderRadius: AppSpacing.borderRadiusSm,
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            l10n.patternAccessibilityNotice,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          AppSpacing.vGapXs,
+                          TextButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                _selectedType = CredentialType.pin;
+                                _newSecret = '';
+                                _confirmSecret = '';
+                                _errorMessage = null;
+                                _isPatternError = false;
+                                _patternResetKey++;
+                              });
+                            },
+                            icon: const Icon(Icons.pin_outlined, size: 16),
+                            label: Text(l10n.usePinInstead),
+                          ),
+                        ],
+                      ),
+                    ),
+                  AppSpacing.vGapMd,
                   Text(
                     _selectedType == CredentialType.pin
-                        ? 'Enter your new PIN'
-                        : 'Draw your new pattern',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ? l10n.enterNewPinPrompt
+                        : l10n.drawYourPatternPrompt,
+                    style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: Spacing.xs),
+                  AppSpacing.vGapXs,
                   Text(
                     _selectedType == CredentialType.pin
-                        ? 'Minimum 6 digits'
-                        : 'Connect at least 5 dots without repeats',
-                    style: const TextStyle(fontSize: 13, color: AppColors.greyDark),
+                        ? l10n.minSixDigits
+                        : l10n.connectAtLeastFiveDots,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                  const SizedBox(height: Spacing.md),
+                  AppSpacing.vGapMd,
 
                   if (_errorMessage != null) ...[
                     Text(
                       _errorMessage!,
-                      style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.w600),
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: AppColors.error,
+                        fontWeight: FontWeight.w600,
+                      ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: Spacing.sm),
+                    AppSpacing.vGapSm,
                   ],
 
                   if (_selectedType == CredentialType.pin) ...[
@@ -442,15 +501,18 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
                       minDigits: 6,
                       onPinChanged: _onSecretInput,
                     ),
-                    const SizedBox(height: Spacing.md),
+                    AppSpacing.vGapMd,
                     ElevatedButton(
                       onPressed: _newSecret.length >= 6 ? _proceedStep1 : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: AppColors.white,
                         minimumSize: const Size(200, 48),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: AppSpacing.borderRadiusSm,
+                        ),
                       ),
-                      child: const Text('Continue'),
+                      child: Text(l10n.continueAction),
                     ),
                   ] else ...[
                     PatternLockWidget(
@@ -467,24 +529,31 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
                   // Step 2: Confirm new secret
                   Text(
                     _selectedType == CredentialType.pin
-                        ? 'Confirm your new PIN'
-                        : 'Confirm your new pattern',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ? l10n.confirmYourPin
+                        : l10n.confirmYourPattern,
+                    style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: Spacing.xs),
+                  AppSpacing.vGapXs,
                   Text(
-                    'Enter the same ${_selectedType == CredentialType.pin ? "PIN" : "pattern"} again',
-                    style: const TextStyle(fontSize: 13, color: AppColors.greyDark),
+                    l10n.enterSameSecretAgain(
+                      _selectedType == CredentialType.pin ? l10n.pinCredential : l10n.patternCredential,
+                    ),
+                    style: textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                  const SizedBox(height: Spacing.md),
+                  AppSpacing.vGapMd,
 
                   if (_errorMessage != null) ...[
                     Text(
                       _errorMessage!,
-                      style: const TextStyle(color: AppColors.error, fontWeight: FontWeight.w600),
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: AppColors.error,
+                        fontWeight: FontWeight.w600,
+                      ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: Spacing.sm),
+                    AppSpacing.vGapSm,
                   ],
 
                   if (_selectedType == CredentialType.pin) ...[
@@ -493,7 +562,7 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
                       minDigits: 6,
                       onPinChanged: _onSecretInput,
                     ),
-                    const SizedBox(height: Spacing.md),
+                    AppSpacing.vGapMd,
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -505,17 +574,26 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
                               _errorMessage = null;
                             });
                           },
-                          child: const Text('Back'),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(120, 48),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: AppSpacing.borderRadiusSm,
+                            ),
+                          ),
+                          child: Text(l10n.back),
                         ),
-                        const SizedBox(width: Spacing.md),
+                        AppSpacing.hGapMd,
                         ElevatedButton(
                           onPressed: _confirmSecret.length >= 6 ? _proceedStep2 : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             foregroundColor: AppColors.white,
                             minimumSize: const Size(140, 48),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: AppSpacing.borderRadiusSm,
+                            ),
                           ),
-                          child: const Text('Confirm'),
+                          child: Text(l10n.confirm),
                         ),
                       ],
                     ),

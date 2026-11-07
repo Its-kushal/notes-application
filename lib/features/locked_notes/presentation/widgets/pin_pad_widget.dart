@@ -39,7 +39,8 @@ class PinPadWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -48,7 +49,7 @@ class PinPadWidget extends StatelessWidget {
         Semantics(
           label: 'PIN entered: ${pin.length} digits',
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: Spacing.md),
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
@@ -57,16 +58,16 @@ class PinPadWidget extends StatelessWidget {
                   final isFilled = index < pin.length;
                   return AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
-                    margin: const EdgeInsets.symmetric(horizontal: Spacing.xs),
+                    margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
                     width: isFilled ? 16 : 12,
                     height: isFilled ? 16 : 12,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: isFilled
                           ? AppColors.primary
-                          : (isDark ? AppColors.charcoal : AppColors.greyLight),
+                          : (isDark ? theme.colorScheme.surfaceContainerHighest : AppColors.lightBorder),
                       border: Border.all(
-                        color: isFilled ? AppColors.primary : AppColors.greyDark,
+                        color: isFilled ? AppColors.primary : theme.colorScheme.outline,
                         width: 1.5,
                       ),
                     ),
@@ -76,18 +77,18 @@ class PinPadWidget extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: Spacing.md),
+        AppSpacing.vGapMd,
         // Numpad Grid
         Container(
           constraints: const BoxConstraints(maxWidth: 320),
           child: Column(
             children: [
               _buildRow(context, ['1', '2', '3']),
-              const SizedBox(height: Spacing.sm),
+              AppSpacing.vGapSm,
               _buildRow(context, ['4', '5', '6']),
-              const SizedBox(height: Spacing.sm),
+              AppSpacing.vGapSm,
               _buildRow(context, ['7', '8', '9']),
-              const SizedBox(height: Spacing.sm),
+              AppSpacing.vGapSm,
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -123,12 +124,13 @@ class PinPadWidget extends StatelessWidget {
   }
 
   Widget _buildDigitButton(BuildContext context, String digit) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Semantics(
       button: true,
       label: 'Digit $digit',
       child: Material(
-        color: isDark ? AppColors.surfaceDark : AppColors.cardLight,
+        color: isDark ? theme.colorScheme.surfaceContainerHighest : theme.colorScheme.surface,
         shape: const CircleBorder(),
         elevation: 1,
         child: InkWell(
@@ -141,17 +143,16 @@ class PinPadWidget extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: isDark ? AppColors.charcoal : AppColors.greyLight,
+                color: theme.colorScheme.outlineVariant,
               ),
             ),
             child: Text(
               digit,
-              style: TextStyle(
-                fontSize: 24,
+              style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: isEnabled
-                    ? (isDark ? AppColors.white : AppColors.textPrimary)
-                    : AppColors.greyDark,
+                    ? theme.colorScheme.onSurface
+                    : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -166,12 +167,12 @@ class PinPadWidget extends StatelessWidget {
     required String semanticLabel,
     required VoidCallback onTap,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
     return Semantics(
       button: true,
       label: semanticLabel,
       child: Material(
-        color: Colors.transparent,
+        color: AppColors.transparent,
         shape: const CircleBorder(),
         child: InkWell(
           customBorder: const CircleBorder(),
@@ -184,8 +185,8 @@ class PinPadWidget extends StatelessWidget {
               icon,
               size: 24,
               color: isEnabled
-                  ? (isDark ? AppColors.white : AppColors.textPrimary)
-                  : AppColors.greyDark,
+                  ? theme.colorScheme.onSurface
+                  : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
           ),
         ),

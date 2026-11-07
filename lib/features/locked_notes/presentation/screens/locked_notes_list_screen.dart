@@ -6,6 +6,7 @@ import '../../../../core/crypto/security_window_service.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/loading_state.dart';
+import '../../../../l10n/l10n_extension.dart';
 import '../../../notes/domain/note.dart';
 import '../../../notes/presentation/widgets/notes_empty_view.dart';
 import '../controllers/vault_providers.dart';
@@ -39,31 +40,30 @@ class _LockedNotesListScreenState extends ConsumerState<LockedNotesListScreen> {
   }
 
   void _showDeleteConfirmation(BuildContext context, Note note) {
+    final l10n = contextL10n(context);
     showDialog(
       context: context,
       builder: (dialogCtx) => AlertDialog(
-        title: const Text('Delete locked note?'),
-        content: const Text(
-          'This note will be PERMANENTLY deleted. It will not be moved to trash and cannot be recovered.',
-        ),
+        title: Text(l10n.deleteLockedNoteTitle),
+        content: Text(l10n.deleteLockedNoteMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogCtx).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () async {
               Navigator.of(dialogCtx).pop();
               await ref.read(lockedNotesProvider.notifier).deleteLockedNotePermanently(note.id);
               if (context.mounted) {
-                AppSnackBar.show(context, message: 'Locked note deleted permanently');
+                AppSnackBar.show(context, message: l10n.lockedNoteDeleted);
               }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.error,
               foregroundColor: AppColors.white,
             ),
-            child: const Text('Delete Permanently'),
+            child: Text(l10n.deletePermanently),
           ),
         ],
       ),
@@ -73,13 +73,14 @@ class _LockedNotesListScreenState extends ConsumerState<LockedNotesListScreen> {
   @override
   Widget build(BuildContext context) {
     final vaultNotifier = ref.watch(vaultProvider);
+    final l10n = contextL10n(context);
     if (!vaultNotifier.isUnlocked) {
       // Vault was locked (e.g. backgrounded or timeout) -> return to home or prompt
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) context.go('/unlock');
       });
-      return const Scaffold(
-        body: Center(child: LoadingState(message: 'Vault locked')),
+      return Scaffold(
+        body: Center(child: LoadingState(message: l10n.vaultLocked)),
       );
     }
 
@@ -87,11 +88,11 @@ class _LockedNotesListScreenState extends ConsumerState<LockedNotesListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Locked notes'),
+        title: Text(l10n.lockedNotes),
         actions: [
           IconButton(
             icon: const Icon(Icons.lock_outline),
-            tooltip: 'Lock vault now',
+            tooltip: l10n.lockVaultNow,
             onPressed: _lockAndExit,
           ),
         ],
@@ -99,13 +100,13 @@ class _LockedNotesListScreenState extends ConsumerState<LockedNotesListScreen> {
       body: Builder(
         builder: (context) {
           if (lockedState.isLoading) {
-            return const LoadingState(message: 'Decrypting notes...');
+            return LoadingState(message: l10n.decryptingNotes);
           }
 
           if (lockedState.notes.isEmpty) {
-            return const NotesEmptyView(
-              customTitle: 'No locked notes',
-              customSubtitle: 'Lock sensitive notes from the editor overflow menu.',
+            return NotesEmptyView(
+              customTitle: l10n.lockedNotesEmptyTitle,
+              customSubtitle: l10n.lockedNotesEmptyMessage,
               icon: Icons.lock_outline,
             );
           }
@@ -125,7 +126,10 @@ class _LockedNotesListScreenState extends ConsumerState<LockedNotesListScreen> {
   }
 
   Widget _buildLockedNoteTile(BuildContext context, Note note) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final l10n = contextL10n(context);
 
     return Card(
       elevation: 1,
@@ -155,9 +159,8 @@ class _LockedNotesListScreenState extends ConsumerState<LockedNotesListScreen> {
                   const SizedBox(width: Spacing.xs),
                   Expanded(
                     child: Text(
-                      note.title.isNotEmpty ? note.title : 'Untitled Note',
-                      style: const TextStyle(
-                        fontSize: 16,
+                      note.title.isNotEmpty ? note.title : l10n.untitledNote,
+                      style: textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 1,
@@ -166,35 +169,38 @@ class _LockedNotesListScreenState extends ConsumerState<LockedNotesListScreen> {
                   ),
                   PopupMenuButton<String>(
                     icon: const Icon(Icons.more_vert, size: 20),
-                    tooltip: 'Note actions',
+                    tooltip: l10n.noteActions,
                     onSelected: (val) async {
                       if (val == 'unlock') {
                         await ref.read(lockedNotesProvider.notifier).unlockNote(note.id);
                         if (context.mounted) {
-                          AppSnackBar.show(context, message: 'Note unlocked and returned to All');
+                          AppSnackBar.show(context, message: l10n.noteUnlocked);
                         }
                       } else if (val == 'delete') {
                         _showDeleteConfirmation(context, note);
                       }
                     },
                     itemBuilder: (context) => [
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'unlock',
                         child: Row(
                           children: [
-                            Icon(Icons.lock_open, size: 20, color: AppColors.primary),
-                            SizedBox(width: Spacing.sm),
-                            Text('Unlock note'),
+                            const Icon(Icons.lock_open, size: 20, color: AppColors.primary),
+                            const SizedBox(width: Spacing.sm),
+                            Text(l10n.unlockNote),
                           ],
                         ),
                       ),
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'delete',
                         child: Row(
                           children: [
-                            Icon(Icons.delete_forever, size: 20, color: AppColors.error),
-                            SizedBox(width: Spacing.sm),
-                            Text('Delete permanently', style: TextStyle(color: AppColors.error)),
+                            const Icon(Icons.delete_forever, size: 20, color: AppColors.error),
+                            const SizedBox(width: Spacing.sm),
+                            Text(
+                              l10n.deletePermanently,
+                              style: textTheme.bodyLarge?.copyWith(color: AppColors.error),
+                            ),
                           ],
                         ),
                       ),
@@ -208,9 +214,8 @@ class _LockedNotesListScreenState extends ConsumerState<LockedNotesListScreen> {
                   note.body,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isDark ? AppColors.greyLight : AppColors.textSecondary,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                   ),
                 ),
               ],
