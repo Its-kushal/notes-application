@@ -99,6 +99,14 @@ class AppSettingsNotifier extends ChangeNotifier {
       days.toString(),
     );
   }
+
+  Future<void> completeFirstRun() async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    _settings = _settings.copyWith(firstRunDone: true, firstRunAt: now);
+    notifyListeners();
+    await _repository.updateSetting(AppSettings.keyFirstRunDone, '1');
+    await _repository.updateSetting(AppSettings.keyFirstRunAt, now.toString());
+  }
 }
 
 final settingsProvider = ChangeNotifierProvider<AppSettingsNotifier>((ref) {

@@ -10,6 +10,8 @@ class AppSettings {
   final bool showTimestamps;
   final bool showWordCount;
   final int trashRetentionDays;
+  final bool firstRunDone;
+  final int? firstRunAt;
 
   const AppSettings({
     this.themeMode = ThemeMode.system,
@@ -19,6 +21,8 @@ class AppSettings {
     this.showTimestamps = true,
     this.showWordCount = true,
     this.trashRetentionDays = 30,
+    this.firstRunDone = false,
+    this.firstRunAt,
   });
 
   AppSettings copyWith({
@@ -29,6 +33,8 @@ class AppSettings {
     bool? showTimestamps,
     bool? showWordCount,
     int? trashRetentionDays,
+    bool? firstRunDone,
+    int? firstRunAt,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
@@ -38,6 +44,8 @@ class AppSettings {
       showTimestamps: showTimestamps ?? this.showTimestamps,
       showWordCount: showWordCount ?? this.showWordCount,
       trashRetentionDays: trashRetentionDays ?? this.trashRetentionDays,
+      firstRunDone: firstRunDone ?? this.firstRunDone,
+      firstRunAt: firstRunAt ?? this.firstRunAt,
     );
   }
 
@@ -49,9 +57,11 @@ class AppSettings {
   static const String keyShowTimestamps = 'show_timestamps';
   static const String keyShowWordCount = 'show_word_count';
   static const String keyTrashRetentionDays = 'trash_retention_days';
+  static const String keyFirstRunDone = 'first_run_done';
+  static const String keyFirstRunAt = 'first_run_at';
 
   Map<String, String> toMap() {
-    return {
+    final map = {
       keyThemeMode: themeMode.name,
       keyFontSizeMultiplier: fontSizeMultiplier.toString(),
       keyDefaultSortField: defaultSortField.name,
@@ -59,7 +69,12 @@ class AppSettings {
       keyShowTimestamps: showTimestamps ? '1' : '0',
       keyShowWordCount: showWordCount ? '1' : '0',
       keyTrashRetentionDays: trashRetentionDays.toString(),
+      keyFirstRunDone: firstRunDone ? '1' : '0',
     };
+    if (firstRunAt != null) {
+      map[keyFirstRunAt] = firstRunAt.toString();
+    }
+    return map;
   }
 
   factory AppSettings.fromMap(Map<String, String> map) {
@@ -95,6 +110,8 @@ class AppSettings {
     final showTimes = (map[keyShowTimestamps] ?? '1') == '1';
     final showWords = (map[keyShowWordCount] ?? '1') == '1';
     final retention = int.tryParse(map[keyTrashRetentionDays] ?? '30') ?? 30;
+    final firstDone = (map[keyFirstRunDone] ?? '0') == '1';
+    final firstAt = map[keyFirstRunAt] != null ? int.tryParse(map[keyFirstRunAt]!) : null;
 
     return AppSettings(
       themeMode: theme,
@@ -104,6 +121,8 @@ class AppSettings {
       showTimestamps: showTimes,
       showWordCount: showWords,
       trashRetentionDays: retention,
+      firstRunDone: firstDone,
+      firstRunAt: firstAt,
     );
   }
 }

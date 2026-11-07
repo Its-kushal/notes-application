@@ -24,6 +24,8 @@ import 'features/notes/presentation/screens/trash_screen.dart';
 import 'features/settings/presentation/controllers/settings_provider.dart';
 import 'features/settings/presentation/screens/about_screen.dart';
 import 'features/settings/presentation/screens/settings_screen.dart';
+import 'features/welcome/presentation/screens/welcome_screen.dart';
+import 'l10n/app_localizations.dart';
 
 final databaseInitProvider = FutureProvider<DatabaseStatus>((ref) async {
   final appDb = ref.watch(appDatabaseProvider);
@@ -45,7 +47,22 @@ final databaseInitProvider = FutureProvider<DatabaseStatus>((ref) async {
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/',
+    redirect: (context, state) {
+      final settings = ref.read(settingsProvider).settings;
+      if (!settings.firstRunDone) {
+        if (state.matchedLocation != '/welcome' && state.matchedLocation != '/file-viewer') {
+          return '/welcome';
+        }
+      } else if (state.matchedLocation == '/welcome') {
+        return '/';
+      }
+      return null;
+    },
     routes: [
+      GoRoute(
+        path: '/welcome',
+        builder: (context, state) => const WelcomeScreen(),
+      ),
       GoRoute(
         path: '/',
         builder: (context, state) => const NotesListScreen(),
@@ -192,6 +209,8 @@ class _PrivacyNotesAppState extends ConsumerState<PrivacyNotesApp>
           darkTheme: AppTheme.darkTheme,
           themeMode: settings.themeMode,
           routerConfig: router,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) {
             final systemScaler = MediaQuery.textScalerOf(context);
             final effectiveScale = systemScaler.scale(1.0) * settings.fontSizeMultiplier;
