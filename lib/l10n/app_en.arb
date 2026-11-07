@@ -1,0 +1,1596 @@
+{
+  "@@locale": "en",
+  "appTitle": "Privacy Notes",
+  "@appTitle": {
+    "description": "The name of the application"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Standard cancel action"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Standard save action"
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Standard delete action"
+  },
+  "moveToTrash": "Move to trash",
+  "@moveToTrash": {
+    "description": "Action to move a note to trash"
+  },
+  "create": "Create",
+  "@create": {
+    "description": "Standard create action"
+  },
+  "done": "Done",
+  "@done": {
+    "description": "Standard done action"
+  },
+  "close": "Close",
+  "@close": {
+    "description": "Standard close action"
+  },
+  "retry": "Retry",
+  "@retry": {
+    "description": "Standard retry action"
+  },
+  "getStarted": "Get Started",
+  "@getStarted": {
+    "description": "Button to dismiss the welcome screen and start using the app"
+  },
+  "skip": "Skip",
+  "@skip": {
+    "description": "Button to skip an introductory flow"
+  },
+
+  "sortBy": "Sort by",
+  "@sortBy": {
+    "description": "Title for sort dialog"
+  },
+  "order": "Order",
+  "@order": {
+    "description": "Section header for sort order"
+  },
+  "ascending": "Ascending",
+  "@ascending": {
+    "description": "Sort order ascending"
+  },
+  "descending": "Descending",
+  "@descending": {
+    "description": "Sort order descending"
+  },
+  "sortFieldUpdated": "Date modified",
+  "@sortFieldUpdated": {
+    "description": "Sort by last modified date"
+  },
+  "sortFieldCreated": "Date created",
+  "@sortFieldCreated": {
+    "description": "Sort by creation date"
+  },
+  "sortFieldTitle": "Title",
+  "@sortFieldTitle": {
+    "description": "Sort by note title"
+  },
+  "newNote": "New note",
+  "@newNote": {
+    "description": "Action and accessibility label to create a new note"
+  },
+  "searchNotes": "Search notes",
+  "@searchNotes": {
+    "description": "Search field hint text"
+  },
+  "clearSearch": "Clear search",
+  "@clearSearch": {
+    "description": "Tooltip and semantics label to clear search query"
+  },
+  "allNotes": "All",
+  "@allNotes": {
+    "description": "Filter tab for all notes"
+  },
+  "newFolder": "New Folder",
+  "@newFolder": {
+    "description": "Button and dialog title to create a new folder"
+  },
+  "folderName": "Folder name",
+  "@folderName": {
+    "description": "Hint text for folder name text field"
+  },
+  "renameFolder": "Rename Folder",
+  "@renameFolder": {
+    "description": "Dialog title and action to rename folder"
+  },
+  "deleteFolder": "Delete folder",
+  "@deleteFolder": {
+    "description": "Action to delete a folder"
+  },
+  "deleteFolderConfirmTitle": "Delete folder?",
+  "@deleteFolderConfirmTitle": {
+    "description": "Confirmation title for deleting a folder"
+  },
+  "deleteFolderConfirmMessage": "Notes inside \"{folderName}\" will not be deleted; they will stay in All notes.",
+  "@deleteFolderConfirmMessage": {
+    "description": "Confirmation message explaining notes remain safe when deleting a folder",
+    "placeholders": {
+      "folderName": {
+        "type": "String"
+      }
+    }
+  },
+  "noFoldersYet": "No folders created yet",
+  "@noFoldersYet": {
+    "description": "Empty state text in folder picker"
+  },
+  "moveToFolder": "Move to folder",
+  "@moveToFolder": {
+    "description": "Action and title to move note(s) to a folder"
+  },
+  "moveNotesToFolderTitle": "Move {count, plural, =1{1 note} other{{count} notes}} to...",
+  "@moveNotesToFolderTitle": {
+    "description": "Header for moving selected notes to folder",
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "notesCount": "{count, plural, =0{0 notes} =1{1 note} other{{count} notes}}",
+  "@notesCount": {
+    "description": "Pluralized note count",
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "pinnedSectionHeader": "PINNED",
+  "@pinnedSectionHeader": {
+    "description": "Section header for pinned notes"
+  },
+  "otherNotesSectionHeader": "NOTES",
+  "@otherNotesSectionHeader": {
+    "description": "Section header for unpinned notes"
+  },
+  "pin": "Pin",
+  "@pin": {
+    "description": "Action to pin a note"
+  },
+  "unpin": "Unpin",
+  "@unpin": {
+    "description": "Action to unpin a note"
+  },
+  "archive": "Archive",
+  "@archive": {
+    "description": "Action and navigation title for Archive"
+  },
+  "unarchive": "Unarchive",
+  "@unarchive": {
+    "description": "Action to unarchive a note"
+  },
+  "trash": "Trash",
+  "@trash": {
+    "description": "Action and navigation title for Trash"
+  },
+  "restore": "Restore",
+  "@restore": {
+    "description": "Action to restore a note from trash"
+  },
+  "deletePermanently": "Delete permanently",
+  "@deletePermanently": {
+    "description": "Action to permanently delete a note"
+  },
+  "deletePermanentlyConfirmTitle": "Delete note permanently?",
+  "@deletePermanentlyConfirmTitle": {
+    "description": "Dialog title for permanent note deletion"
+  },
+  "deletePermanentlyConfirmMessage": "This action cannot be undone. The note will be permanently erased.",
+  "@deletePermanentlyConfirmMessage": {
+    "description": "Dialog message for permanent note deletion"
+  },
+  "emptyTrash": "Empty Trash",
+  "@emptyTrash": {
+    "description": "Action to empty all notes from trash"
+  },
+  "emptyTrashConfirmTitle": "Empty trash?",
+  "@emptyTrashConfirmTitle": {
+    "description": "Dialog title for emptying trash"
+  },
+  "emptyTrashConfirmMessage": "All items in the trash will be permanently deleted.",
+  "@emptyTrashConfirmMessage": {
+    "description": "Dialog message for emptying trash"
+  },
+  "trashRetentionNotice": "Items in trash are automatically purged after {days, plural, =1{1 day} other{{days} days}}.",
+  "@trashRetentionNotice": {
+    "description": "Notice showing how long items stay in trash before automatic deletion",
+    "placeholders": {
+      "days": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "noNotesTitle": "No notes yet",
+  "@noNotesTitle": {
+    "description": "Empty state title when there are no notes"
+  },
+  "noNotesMessage": "Tap + to create your first note.",
+  "@noNotesMessage": {
+    "description": "Empty state subtitle when there are no notes"
+  },
+  "noSearchResultsTitle": "No notes found",
+  "@noSearchResultsTitle": {
+    "description": "Empty state title when search returns no matches"
+  },
+  "noSearchResultsMessage": "Try searching for different keywords.",
+  "@noSearchResultsMessage": {
+    "description": "Empty state subtitle when search returns no matches"
+  },
+  "trashEmptyTitle": "Trash is empty",
+  "@trashEmptyTitle": {
+    "description": "Empty state title for trash screen"
+  },
+  "trashEmptyMessage": "Deleted notes will appear here.",
+  "@trashEmptyMessage": {
+    "description": "Empty state subtitle for trash screen"
+  },
+  "archiveEmptyTitle": "Archive is empty",
+  "@archiveEmptyTitle": {
+    "description": "Empty state title for archive screen"
+  },
+  "archiveEmptyMessage": "Archived notes will appear here.",
+  "@archiveEmptyMessage": {
+    "description": "Empty state subtitle for archive screen"
+  },
+
+  "selectedNotesCount": "{count, plural, =1{1 selected} other{{count} selected}}",
+  "@selectedNotesCount": {
+    "description": "Bulk selection counter",
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "selectAll": "Select all",
+  "@selectAll": {
+    "description": "Action to select all notes in bulk mode"
+  },
+  "deselectAll": "Deselect all",
+  "@deselectAll": {
+    "description": "Action to deselect all notes in bulk mode"
+  },
+  "clearSelection": "Clear selection",
+  "@clearSelection": {
+    "description": "Action to clear bulk selection"
+  },
+  "noteTitleHint": "Title",
+  "@noteTitleHint": {
+    "description": "Hint text for note title in editor"
+  },
+  "noteBodyHint": "Note",
+  "@noteBodyHint": {
+    "description": "Hint text for note body in editor"
+  },
+  "addChecklistItem": "List item",
+  "@addChecklistItem": {
+    "description": "Hint text for a new checklist item row"
+  },
+  "switchToChecklist": "Switch to checklist mode",
+  "@switchToChecklist": {
+    "description": "Action to convert note to checklist"
+  },
+  "switchToText": "Switch to text mode",
+  "@switchToText": {
+    "description": "Action to convert checklist back to plain text"
+  },
+  "wordsCount": "{count, plural, =0{0 words} =1{1 word} other{{count} words}}",
+  "@wordsCount": {
+    "description": "Word count label in note editor and cards",
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "charactersCount": "{count, plural, =0{0 characters} =1{1 character} other{{count} characters}}",
+  "@charactersCount": {
+    "description": "Character count display",
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "savedStatus": "Saved",
+  "@savedStatus": {
+    "description": "Autosave status indicator when saved"
+  },
+  "savingStatus": "Saving...",
+  "@savingStatus": {
+    "description": "Autosave status indicator while saving"
+  },
+  "colorLabel": "Color label",
+  "@colorLabel": {
+    "description": "Action to pick a color label for a note"
+  },
+  "colorLabelNone": "None",
+  "@colorLabelNone": {
+    "description": "Label for default uncolored note"
+  },
+  "colorLabelRed": "Red",
+  "@colorLabelRed": {
+    "description": "Color label Red"
+  },
+  "colorLabelOrange": "Orange",
+  "@colorLabelOrange": {
+    "description": "Color label Orange"
+  },
+  "colorLabelYellow": "Yellow",
+  "@colorLabelYellow": {
+    "description": "Color label Yellow"
+  },
+  "colorLabelGreen": "Green",
+  "@colorLabelGreen": {
+    "description": "Color label Green"
+  },
+  "colorLabelBlue": "Blue",
+  "@colorLabelBlue": {
+    "description": "Color label Blue"
+  },
+  "colorLabelPurple": "Purple",
+  "@colorLabelPurple": {
+    "description": "Color label Purple"
+  },
+  "lockNote": "Lock note",
+  "@lockNote": {
+    "description": "Action to lock a note in the vault"
+  },
+  "lockNoteConfirmTitle": "Lock note?",
+  "@lockNoteConfirmTitle": {
+    "description": "Confirmation title when locking a note"
+  },
+  "lockNoteConfirmMessage": "Locking will encrypt this note with your vault key. Its folder, pin, archive status, and color label will be cleared.",
+  "@lockNoteConfirmMessage": {
+    "description": "Confirmation message when locking a note"
+  },
+  "unlockNote": "Unlock note",
+  "@unlockNote": {
+    "description": "Action to unlock a note from the vault"
+  },
+  "exportNote": "Export note",
+  "@exportNote": {
+    "description": "Action to export note as markdown or text file"
+  },
+  "exportNoteTitle": "Export Note",
+  "@exportNoteTitle": {
+    "description": "Title of the export note modal bottom sheet"
+  },
+  "exportAsMarkdown": "Export as Markdown (.md)",
+  "@exportAsMarkdown": {
+    "description": "Option to export note in Markdown format"
+  },
+  "exportAsText": "Export as Plain Text (.txt)",
+  "@exportAsText": {
+    "description": "Option to export note in plain text format"
+  },
+  "exportSuccess": "Note exported successfully",
+  "@exportSuccess": {
+    "description": "Snackbar message when export succeeds"
+  },
+  "exportFailed": "Failed to export note",
+  "@exportFailed": {
+    "description": "Snackbar message when export fails"
+  },
+  "noteMovedToTrash": "Note moved to trash",
+  "@noteMovedToTrash": {
+    "description": "Snackbar message when a note is moved to trash"
+  },
+  "noteRestored": "Note restored",
+  "@noteRestored": {
+    "description": "Snackbar message when a note is restored from trash"
+  },
+  "undo": "Undo",
+  "@undo": {
+    "description": "Undo action button in snackbars"
+  },
+
+  "lockedNotes": "Locked Notes",
+  "@lockedNotes": {
+    "description": "Title and navigation entry for Locked Notes vault"
+  },
+  "lockedNotesEmptyTitle": "No locked notes",
+  "@lockedNotesEmptyTitle": {
+    "description": "Empty state title in locked notes vault"
+  },
+  "lockedNotesEmptyMessage": "Notes you lock will be encrypted and shown here.",
+  "@lockedNotesEmptyMessage": {
+    "description": "Empty state message in locked notes vault"
+  },
+  "vaultSetupTitle": "Set Up Vault",
+  "@vaultSetupTitle": {
+    "description": "Title for vault setup screen"
+  },
+  "vaultSetupStepSecret": "Choose Credential",
+  "@vaultSetupStepSecret": {
+    "description": "Step title for credential selection in vault setup"
+  },
+  "vaultSetupStepRecovery": "Paper Recovery Key",
+  "@vaultSetupStepRecovery": {
+    "description": "Step title for paper recovery key in vault setup"
+  },
+  "vaultSetupStepConfirm": "Confirm Recovery Key",
+  "@vaultSetupStepConfirm": {
+    "description": "Step title for confirming recovery key in vault setup"
+  },
+  "pinCredential": "PIN",
+  "@pinCredential": {
+    "description": "Credential type PIN"
+  },
+  "patternCredential": "Pattern",
+  "@patternCredential": {
+    "description": "Credential type Pattern"
+  },
+  "enterPin": "Enter PIN",
+  "@enterPin": {
+    "description": "Prompt to enter PIN"
+  },
+  "confirmPin": "Confirm PIN",
+  "@confirmPin": {
+    "description": "Prompt to re-enter PIN for confirmation"
+  },
+  "enterPattern": "Draw Pattern",
+  "@enterPattern": {
+    "description": "Prompt to draw pattern"
+  },
+  "confirmPattern": "Confirm Pattern",
+  "@confirmPattern": {
+    "description": "Prompt to re-draw pattern for confirmation"
+  },
+  "pinMismatch": "PINs do not match. Please try again.",
+  "@pinMismatch": {
+    "description": "Error message when entered PIN does not match confirmation"
+  },
+  "patternMismatch": "Patterns do not match. Please try again.",
+  "@patternMismatch": {
+    "description": "Error message when entered pattern does not match confirmation"
+  },
+  "patternTooShort": "Connect at least 4 dots.",
+  "@patternTooShort": {
+    "description": "Error message when pattern has fewer than 4 points"
+  },
+  "patternAccessibilityNotice": "Pattern lock is not screen-reader friendly. Use a numeric PIN for full TalkBack support.",
+  "@patternAccessibilityNotice": {
+    "description": "Accessibility warning banner displayed on pattern setup screen"
+  },
+  "usePinInstead": "Use PIN instead",
+  "@usePinInstead": {
+    "description": "Button to switch from pattern lock to numeric PIN"
+  },
+  "paperRecoveryKeyTitle": "Write down your Paper Recovery Key",
+  "@paperRecoveryKeyTitle": {
+    "description": "Instruction to write down paper recovery key"
+  },
+  "paperRecoveryKeyNotice": "This 24-word key is the ONLY way to recover locked notes if you forget your secret. Write it on paper and keep it secure. Never store it digitally.",
+  "@paperRecoveryKeyNotice": {
+    "description": "Warning and explanation for the paper recovery key"
+  },
+  "iHaveWrittenItDown": "I have written it down",
+  "@iHaveWrittenItDown": {
+    "description": "Checkbox or confirmation button indicating recovery key has been copied"
+  },
+  "verifyRecoveryKeyPrompt": "Enter the following words from your recovery key to confirm:",
+  "@verifyRecoveryKeyPrompt": {
+    "description": "Verification prompt testing user's written copy of recovery key"
+  },
+  "wordNumber": "Word #{number}",
+  "@wordNumber": {
+    "description": "Label for specific word in recovery key verification",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "vaultUnlockTitle": "Unlock Vault",
+  "@vaultUnlockTitle": {
+    "description": "Title for vault unlock screen"
+  },
+  "incorrectSecret": "Incorrect secret. Please try again.",
+  "@incorrectSecret": {
+    "description": "Error message when entering an incorrect vault secret"
+  },
+  "lockoutMessage": "Too many failed attempts. Try again in {seconds, plural, =1{1 second} other{{seconds} seconds}}.",
+  "@lockoutMessage": {
+    "description": "Lockout message indicating cooldown period",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "forgotSecret": "Forgot Secret?",
+  "@forgotSecret": {
+    "description": "Button to navigate to recovery flow"
+  },
+  "recoverVaultTitle": "Recover Vault",
+  "@recoverVaultTitle": {
+    "description": "Title for vault recovery screen"
+  },
+  "enterRecoveryKeyPrompt": "Enter your 24-word paper recovery key separated by spaces:",
+  "@enterRecoveryKeyPrompt": {
+    "description": "Instruction on vault recovery screen"
+  },
+  "invalidRecoveryKey": "Invalid recovery key. Check spelling and word order.",
+  "@invalidRecoveryKey": {
+    "description": "Error message for invalid recovery key input"
+  },
+  "recoverySuccess": "Vault successfully recovered. Set a new credential.",
+  "@recoverySuccess": {
+    "description": "Message upon successful recovery key verification"
+  },
+
+  "welcomeTitle": "Privacy Notes",
+  "@welcomeTitle": {
+    "description": "Header title on first-run welcome screen"
+  },
+  "welcomeSubtitle": "A simple, private note space that stays strictly on this device.",
+  "@welcomeSubtitle": {
+    "description": "Header subtitle on first-run welcome screen"
+  },
+  "welcomePrinciple1Title": "On-Device Storage Only",
+  "@welcomePrinciple1Title": {
+    "description": "Title for principle 1"
+  },
+  "welcomePrinciple1Desc": "Your notes are stored in an encrypted database on this phone. Nothing is ever sent to any server or cloud.",
+  "@welcomePrinciple1Desc": {
+    "description": "Description for principle 1"
+  },
+  "welcomePrinciple2Title": "Zero Telemetry & Zero Trackers",
+  "@welcomePrinciple2Title": {
+    "description": "Title for principle 2"
+  },
+  "welcomePrinciple2Desc": "No accounts, no analytics, no advertising IDs, and no internet connection permissions requested.",
+  "@welcomePrinciple2Desc": {
+    "description": "Description for principle 2"
+  },
+  "welcomePrinciple3Title": "Locked Notes & Paper Key",
+  "@welcomePrinciple3Title": {
+    "description": "Title for principle 3"
+  },
+  "welcomePrinciple3Desc": "Protect private notes with AES-GCM encryption. A 24-word paper recovery key is created when you set up your vault.",
+  "@welcomePrinciple3Desc": {
+    "description": "Description for principle 3"
+  },
+
+  "fileViewerTitle": "File Viewer",
+  "@fileViewerTitle": {
+    "description": "Title for external file viewer screen"
+  },
+  "saveAsNoteAction": "Save as note",
+  "@saveAsNoteAction": {
+    "description": "Action in file viewer to save external file as an app note"
+  },
+  "toggleMonospace": "Toggle monospace font",
+  "@toggleMonospace": {
+    "description": "Action and tooltip to toggle monospace font in file viewer"
+  },
+  "errorFileTooLarge": "File exceeds 2 MB limit\nCannot open files larger than 2 MB.",
+  "@errorFileTooLarge": {
+    "description": "Error state message when opened external file exceeds 2 MB"
+  },
+  "errorFileBinary": "Not a text file\nBinary or unsupported file format detected.",
+  "@errorFileBinary": {
+    "description": "Error state message when opened file contains NUL bytes"
+  },
+  "errorFileEmpty": "File is empty\nThis file contains no text.",
+  "@errorFileEmpty": {
+    "description": "Error state message when opened file has 0 bytes"
+  },
+  "errorFileUnreadable": "Unable to read file\nThe file could not be accessed or read.",
+  "@errorFileUnreadable": {
+    "description": "Error state message when file stream read fails"
+  },
+
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings navigation and screen title"
+  },
+  "theme": "Theme",
+  "@theme": {
+    "description": "Settings section for theme"
+  },
+  "themeSystem": "System default",
+  "@themeSystem": {
+    "description": "System default theme option"
+  },
+  "themeLight": "Light",
+  "@themeLight": {
+    "description": "Light theme option"
+  },
+  "themeDark": "Dark",
+  "@themeDark": {
+    "description": "Dark theme option"
+  },
+  "trashRetentionTitle": "Trash auto-delete period",
+  "@trashRetentionTitle": {
+    "description": "Settings item for trash auto-delete period"
+  },
+  "trashRetention": "Trash retention",
+  "@trashRetention": {
+    "description": "Settings tile title for trash retention"
+  },
+  "trashRetentionPeriod": "Trash retention period",
+  "@trashRetentionPeriod": {
+    "description": "Dialog title for trash retention period selection"
+  },
+  "vaultSecurityTitle": "Vault & Security",
+  "@vaultSecurityTitle": {
+    "description": "Settings section header for vault"
+  },
+  "changeSecret": "Change Vault Secret",
+  "@changeSecret": {
+    "description": "Settings item to change PIN or Pattern"
+  },
+  "viewRecoveryKey": "View Recovery Key",
+  "@viewRecoveryKey": {
+    "description": "Settings item to view or re-record paper recovery key"
+  },
+  "defaultAppsSettings": "Default Apps Settings",
+  "@defaultAppsSettings": {
+    "description": "Settings item to open system default apps screen"
+  },
+  "defaultAppsSettingsSubtitle": "Set Privacy Notes as default text and Markdown reader",
+  "@defaultAppsSettingsSubtitle": {
+    "description": "Subtitle explaining default apps settings"
+  },
+  "about": "About",
+  "@about": {
+    "description": "About navigation and screen title"
+  },
+  "aboutDescription": "A simple, polished, privacy-first notes application.",
+  "@aboutDescription": {
+    "description": "App description shown on about screen"
+  },
+  "privacyPromiseTitle": "Our Privacy Promise",
+  "@privacyPromiseTitle": {
+    "description": "Section title on about screen"
+  },
+  "privacyPromiseBody": "Privacy Notes never communicates over the network. Your notes never leave this physical device. There are zero analytics, zero trackers, and zero third-party ads.",
+  "@privacyPromiseBody": {
+    "description": "Privacy promise text on about screen"
+  },
+  "securityBoundariesTitle": "Security Boundaries & Threat Model",
+  "@securityBoundariesTitle": {
+    "description": "Section title for security boundaries"
+  },
+  "securityBoundariesBody": "Locked notes are encrypted using AES-GCM with keys derived via PBKDF2 (200,000 iterations). However, if your device is rooted or compromised by malware with root privileges, encryption keys in memory could be extracted. Always safeguard your physical paper recovery key; anyone with physical access to your paper key can decrypt your locked notes.",
+  "@securityBoundariesBody": {
+    "description": "Honest security explanation on about screen"
+  },
+  "appVersion": "Version {version}",
+  "@appVersion": {
+    "description": "App version display",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+
+  "databaseRecoveryTitle": "Database Recovery",
+  "@databaseRecoveryTitle": {
+    "description": "Title for database recovery screen"
+  },
+  "databaseRecoveryMessage": "The database could not be opened. Your data file is preserved. You may retry initializing or contact support.",
+  "@databaseRecoveryMessage": {
+    "description": "Message shown when database fails integrity check on startup"
+  },
+  "exitSelection": "Exit selection",
+  "@exitSelection": {
+    "description": "Tooltip to exit multi-select mode"
+  },
+  "switchToList": "Switch to list",
+  "@switchToList": {
+    "description": "Tooltip to switch notes layout to single column list"
+  },
+  "switchToGrid": "Switch to grid",
+  "@switchToGrid": {
+    "description": "Tooltip to switch notes layout to two column grid"
+  },
+  "sortNotes": "Sort notes",
+  "@sortNotes": {
+    "description": "Tooltip to open sort modal"
+  },
+  "folderOptions": "Folder options",
+  "@folderOptions": {
+    "description": "Tooltip for folder chip options menu"
+  },
+  "notesArchived": "{count, plural, =1{1 note archived} other{{count} notes archived}}",
+  "@notesArchived": {
+    "description": "Snackbar message when notes are bulk archived",
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "notesMovedToTrash": "{count, plural, =1{1 note moved to trash} other{{count} notes moved to trash}}",
+  "@notesMovedToTrash": {
+    "description": "Snackbar message when notes are bulk moved to trash",
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "noteArchived": "Note archived",
+  "@noteArchived": {
+    "description": "Snackbar message when a single note is archived"
+  },
+  "encryptedVaultSubtitle": "Encrypted Vault (AES-256)",
+  "@encryptedVaultSubtitle": {
+    "description": "Subtitle in navigation drawer"
+  },
+  "recentSectionHeader": "RECENT",
+  "@recentSectionHeader": {
+    "description": "Section header for unpinned recent notes when pinned notes exist"
+  },
+  "notesSectionHeader": "NOTES",
+  "@notesSectionHeader": {
+    "description": "Section header for notes list"
+  },
+  "back": "Back",
+  "@back": {
+    "description": "Standard back navigation button tooltip or label"
+  },
+  "moreOptions": "More options",
+  "@moreOptions": {
+    "description": "Tooltip for overflow popup menu button"
+  },
+  "shareTextFile": "Share text file",
+  "@shareTextFile": {
+    "description": "Export action title to share note file"
+  },
+  "shareTextFileSubtitle": "Send note via Android share sheet",
+  "@shareTextFileSubtitle": {
+    "description": "Export action subtitle for share sheet"
+  },
+  "saveToDevice": "Save to device",
+  "@saveToDevice": {
+    "description": "Export action title to save file via storage framework"
+  },
+  "saveToDeviceSubtitle": "Choose folder via Storage Access Framework",
+  "@saveToDeviceSubtitle": {
+    "description": "Export action subtitle for storage framework"
+  },
+  "deleteLockedNoteTitle": "Delete locked note?",
+  "@deleteLockedNoteTitle": {
+    "description": "Confirmation title when permanently deleting a locked note"
+  },
+  "deleteLockedNoteMessage": "Are you sure you want to permanently delete this locked note? This action cannot be undone.",
+  "@deleteLockedNoteMessage": {
+    "description": "Confirmation message when deleting a locked note"
+  },
+  "lockVaultNow": "Lock vault now",
+  "@lockVaultNow": {
+    "description": "Tooltip for button to immediately lock the vault"
+  },
+  "noteActions": "Note actions",
+  "@noteActions": {
+    "description": "Tooltip for note options menu in locked notes list"
+  },
+  "securingRecoveryKey": "Securing recovery key",
+  "@securingRecoveryKey": {
+    "description": "Header title while displaying paper recovery key"
+  },
+  "continueAction": "Continue",
+  "@continueAction": {
+    "description": "Standard continue button label"
+  },
+  "viewKeyAgain": "View key again",
+  "@viewKeyAgain": {
+    "description": "Button to navigate back to recovery key display"
+  },
+  "verifyAndFinish": "Verify & Finish",
+  "@verifyAndFinish": {
+    "description": "Button to confirm and complete recovery key verification"
+  },
+  "securityNotice": "Security Notice",
+  "@securityNotice": {
+    "description": "Heading for security advisory banners"
+  },
+  "dismiss": "Dismiss",
+  "@dismiss": {
+    "description": "Action to dismiss notice banner"
+  },
+  "recoveringVault": "Recovering vault",
+  "@recoveringVault": {
+    "description": "App bar title during vault recovery"
+  },
+  "pinMinLength": "PIN (min 6)",
+  "@pinMinLength": {
+    "description": "Label for PIN option specifying minimum 6 digits"
+  },
+  "patternMinLength": "Pattern (min 5)",
+  "@patternMinLength": {
+    "description": "Label for Pattern option specifying minimum 5 dots"
+  },
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Action button label to confirm input"
+  },
+  "securingVault": "Securing vault",
+  "@securingVault": {
+    "description": "App bar title during vault setup"
+  },
+  "confirmAndCreateVault": "Confirm & Create Vault",
+  "@confirmAndCreateVault": {
+    "description": "Action button to finalize vault creation"
+  },
+  "unlockingVault": "Unlocking vault",
+  "@unlockingVault": {
+    "description": "App bar title during vault unlock"
+  },
+  "fontSizeMultiplier": "Font size multiplier",
+  "@fontSizeMultiplier": {
+    "description": "Settings title for font size slider"
+  },
+  "defaultSort": "Default sort",
+  "@defaultSort": {
+    "description": "Settings title for default sort order"
+  },
+  "showTimestamps": "Show timestamps",
+  "@showTimestamps": {
+    "description": "Settings title for toggling timestamp display"
+  },
+  "showTimestampsSubtitle": "Display note creation and update times on cards and editor",
+  "@showTimestampsSubtitle": {
+    "description": "Settings subtitle for timestamps"
+  },
+  "showWordCount": "Show word count",
+  "@showWordCount": {
+    "description": "Settings title for toggling word counts"
+  },
+  "showWordCountSubtitle": "Display word and checklist text counts",
+  "@showWordCountSubtitle": {
+    "description": "Settings subtitle for word counts"
+  },
+  "trashRetentionSubtitle": "{days, plural, =1{1 day (auto-purge expired notes)} other{{days} days (auto-purge expired notes)}}",
+  "@trashRetentionSubtitle": {
+    "description": "Subtitle showing active trash retention period",
+    "placeholders": {
+      "days": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "setUpLockedNotes": "Set up locked notes",
+  "@setUpLockedNotes": {
+    "description": "Settings title to create initial vault"
+  },
+  "setUpLockedNotesSubtitle": "Protect sensitive notes with a PIN or pattern",
+  "@setUpLockedNotesSubtitle": {
+    "description": "Settings subtitle for initial vault setup"
+  },
+  "createRecoveryKey": "Create recovery key",
+  "@createRecoveryKey": {
+    "description": "Settings title to generate first recovery key"
+  },
+  "createRecoveryKeySubtitle": "Generate a recovery key to write on paper",
+  "@createRecoveryKeySubtitle": {
+    "description": "Settings subtitle to generate first recovery key"
+  },
+  "generateNewRecoveryKey": "Generate a new recovery key",
+  "@generateNewRecoveryKey": {
+    "description": "Settings title to regenerate paper recovery key"
+  },
+  "generateNewRecoveryKeySubtitle": "Replace existing recovery key (invalidates old key)",
+  "@generateNewRecoveryKeySubtitle": {
+    "description": "Settings subtitle for regenerating recovery key"
+  },
+  "autoLockTimeout": "Auto-lock timeout",
+  "@autoLockTimeout": {
+    "description": "Settings title for auto-lock timeout duration"
+  },
+  "changeSecretSubtitle": "Change your current {credentialType}",
+  "@changeSecretSubtitle": {
+    "description": "Settings subtitle for changing secret",
+    "placeholders": {
+      "credentialType": {
+        "type": "String"
+      }
+    }
+  },
+  "switchCredentialType": "Switch credential type",
+  "@switchCredentialType": {
+    "description": "Settings title to switch between PIN and pattern"
+  },
+  "currentCredential": "Current: {type}",
+  "@currentCredential": {
+    "description": "Settings subtitle indicating active credential type",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "permanentlyDeleteVault": "Permanently delete vault and locked notes",
+  "@permanentlyDeleteVault": {
+    "description": "Settings title for nuclear vault reset"
+  },
+  "permanentlyDeleteVaultSubtitle": "Permanently delete all locked notes and vault",
+  "@permanentlyDeleteVaultSubtitle": {
+    "description": "Settings subtitle for nuclear vault reset"
+  },
+  "openTextMarkdownFiles": "Open text and Markdown files",
+  "@openTextMarkdownFiles": {
+    "description": "Settings section header for external file intent handling"
+  },
+  "openDefaultAppsSettings": "Open default apps settings",
+  "@openDefaultAppsSettings": {
+    "description": "Button label in settings to open Android default apps"
+  },
+  "aboutPrivacyNotes": "About Privacy Notes",
+  "@aboutPrivacyNotes": {
+    "description": "Settings entry title navigating to about screen"
+  },
+  "aboutSubtitle": "Version {version} • Local-first & offline privacy",
+  "@aboutSubtitle": {
+    "description": "Subtitle on settings about entry",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "retryAccess": "Retry Access",
+  "@retryAccess": {
+    "description": "Button to retry opening the database on recovery screen"
+  },
+  "debugPerformanceSeeder": "Performance Benchmark Seeder",
+  "@debugPerformanceSeeder": {
+    "description": "Settings section title for debug-only benchmark tools"
+  },
+  "seed5000Notes": "Seed 5,000 Notes",
+  "@seed5000Notes": {
+    "description": "Button to populate database with 5,000 test notes"
+  },
+  "purgeSeededNotes": "Purge Seeded Notes",
+  "@purgeSeededNotes": {
+    "description": "Button to delete all 5,000 seeded notes"
+  },
+  "seedingSuccess": "Successfully seeded 5,000 notes.",
+  "@seedingSuccess": {
+    "description": "Snackbar message when 5,000 notes are generated"
+  },
+  "purgingSuccess": "Successfully purged seeded notes.",
+  "@purgingSuccess": {
+    "description": "Snackbar message when seeded notes are purged"
+  },
+  "untitledNote": "Untitled",
+  "@untitledNote": {
+    "description": "Fallback title when note has no title"
+  },
+  "emptyNote": "Empty note",
+  "@emptyNote": {
+    "description": "Fallback text when note has neither title nor body"
+  },
+  "moreItemsCount": "+ {count, plural, =1{1 more item} other{{count} more items}}",
+  "@moreItemsCount": {
+    "description": "Count of remaining checklist items in collapsed preview",
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "compact"
+      }
+    }
+  },
+  "checklistProgress": "{completed}/{total} completed",
+  "@checklistProgress": {
+    "description": "Progress of completed checklist items",
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "noteUnarchived": "Note unarchived",
+  "@noteUnarchived": {
+    "description": "Snackbar message when note is unarchived"
+  },
+  "trashEmptied": "Trash emptied",
+  "@trashEmptied": {
+    "description": "Snackbar message when trash is emptied"
+  },
+  "deletedAtDate": "Deleted on {date}",
+  "@deletedAtDate": {
+    "description": "Timestamp indicating when note was moved to trash",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "editedAtDate": "Edited {date}",
+  "@editedAtDate": {
+    "description": "Timestamp showing when note was last edited",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "unsavedStatus": "Unsaved",
+  "@unsavedStatus": {
+    "description": "Autosave status when dirty edits exist"
+  },
+  "noteLocked": "Note locked",
+  "@noteLocked": {
+    "description": "Snackbar message when a note is locked into the vault"
+  },
+  "noteUnlocked": "Note unlocked and returned to All",
+  "@noteUnlocked": {
+    "description": "Snackbar message when a note is unlocked from the vault"
+  },
+  "noteSavedSuccessfully": "Note saved successfully",
+  "@noteSavedSuccessfully": {
+    "description": "Snackbar message when note is saved to device storage"
+  },
+  "lockedNoteDeleted": "Locked note deleted permanently",
+  "@lockedNoteDeleted": {
+    "description": "Snackbar message when a locked note is deleted"
+  },
+  "vaultLocked": "Vault locked",
+  "@vaultLocked": {
+    "description": "Loading message when vault is locked"
+  },
+  "failedToShareNote": "Failed to share note",
+  "@failedToShareNote": {
+    "description": "Snackbar error message when sharing note fails"
+  },
+  "failedToSaveNote": "Failed to save note",
+  "@failedToSaveNote": {
+    "description": "Snackbar error message when saving note fails"
+  },
+  "decryptingNotes": "Decrypting notes...",
+  "@decryptingNotes": {
+    "description": "Loading message when decrypting notes"
+  },
+  "confirmYourPin": "Confirm your PIN",
+  "@confirmYourPin": {
+    "description": "Title for confirming PIN in setup"
+  },
+  "enterNewPinPrompt": "Enter your new PIN",
+  "@enterNewPinPrompt": {
+    "description": "Step 1 title when entering new PIN"
+  },
+  "drawYourPatternPrompt": "Draw your pattern",
+  "@drawYourPatternPrompt": {
+    "description": "Step 1 title when entering pattern"
+  },
+  "confirmYourPattern": "Confirm your pattern",
+  "@confirmYourPattern": {
+    "description": "Title for confirming pattern in setup"
+  },
+  "writeDownRecoveryKey": "Write down your recovery key",
+  "@writeDownRecoveryKey": {
+    "description": "Title for writing down recovery key step"
+  },
+  "confirmRecoveryKey": "Confirm recovery key",
+  "@confirmRecoveryKey": {
+    "description": "Title for confirming recovery key step"
+  },
+  "confirmCurrentSecretSubtitle": "Confirm current secret before setting a new credential",
+  "@confirmCurrentSecretSubtitle": {
+    "description": "Subtitle when changing existing secret"
+  },
+  "minSixDigits": "Minimum 6 digits",
+  "@minSixDigits": {
+    "description": "PIN constraint subtitle"
+  },
+  "connectAtLeastFiveDots": "Connect at least 5 dots without repeats",
+  "@connectAtLeastFiveDots": {
+    "description": "Pattern constraint subtitle"
+  },
+  "enterSameSecretAgain": "Enter the same {secretType} again",
+  "@enterSameSecretAgain": {
+    "description": "Confirmation subtitle for secret entry",
+    "placeholders": {
+      "secretType": {
+        "type": "String"
+      }
+    }
+  },
+  "keepKeySafeSubtitle": "Keep this key safe. You will need to confirm it in the next step.",
+  "@keepKeySafeSubtitle": {
+    "description": "Subtitle instructing user to write down recovery key"
+  },
+  "typeWholeKeySubtitle": "Type the whole key correctly to finalize vault creation",
+  "@typeWholeKeySubtitle": {
+    "description": "Subtitle for recovery key verification step"
+  },
+  "securingVaultKey": "Securing vault key...",
+  "@securingVaultKey": {
+    "description": "Loading message during KDF derivation"
+  },
+  "changeSecretTitle": "Change secret",
+  "@changeSecretTitle": {
+    "description": "Title on change secret screen"
+  },
+  "setUpLockedNotesTitle": "Set up locked notes",
+  "@setUpLockedNotesTitle": {
+    "description": "Title on initial vault setup screen"
+  },
+  "paperKeyWarning": "Write it on paper; whoever has this key can open all your notes; it cannot be shown again.",
+  "@paperKeyWarning": {
+    "description": "Warning banner text for paper recovery key"
+  },
+  "forgotSecretNotice": "If you forget your secret, your written paper recovery key is the only way to recover your notes.",
+  "@forgotSecretNotice": {
+    "description": "Warning banner text for credential setup"
+  },
+  "recoveryKeyExplanation": "This recovery key can decrypt all your notes if you forget your secret. Keep it secret and write it down now.",
+  "@recoveryKeyExplanation": {
+    "description": "Detailed explanation of paper recovery key purpose"
+  },
+  "enterRecoveryKeyLabel": "Enter recovery key",
+  "@enterRecoveryKeyLabel": {
+    "description": "Input field label for recovery key confirmation"
+  },
+  "recoveryKeyDashesHint": "Dashes and spaces are optional. Case-insensitive.",
+  "@recoveryKeyDashesHint": {
+    "description": "Hint beneath recovery key input"
+  },
+  "unlockNotes": "Unlock notes",
+  "@unlockNotes": {
+    "description": "Title on unlock screen"
+  },
+  "authenticatingSecret": "Authenticating...",
+  "@authenticatingSecret": {
+    "description": "Loading message during unlock authentication"
+  },
+  "recoveringVaultKey": "Recovering vault key...",
+  "@recoveringVaultKey": {
+    "description": "Loading message during vault recovery"
+  },
+  "currentPinPrompt": "Enter your current PIN",
+  "@currentPinPrompt": {
+    "description": "Header prompt for current PIN verification"
+  },
+  "currentPatternPrompt": "Draw your current pattern",
+  "@currentPatternPrompt": {
+    "description": "Header prompt for current pattern verification"
+  },
+  "confirmSecretPrompt": "Confirm secret before proceeding",
+  "@confirmSecretPrompt": {
+    "description": "Subtitle prompt before proceeding"
+  },
+  "enterSecretToAuthenticate": "Enter your current secret to authenticate before creating a recovery key.",
+  "@enterSecretToAuthenticate": {
+    "description": "Notice banner in recovery key setup"
+  },
+  "verifyingSecret": "Verifying secret...",
+  "@verifyingSecret": {
+    "description": "Loading message when verifying secret"
+  },
+  "vaultResetRequestedOn": "A vault reset was requested on {date}",
+  "@vaultResetRequestedOn": {
+    "description": "Notice banner showing when delayed reset was requested",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultResetReadyToComplete": "Vault reset ready to complete (72h passed)",
+  "@vaultResetReadyToComplete": {
+    "description": "Notice banner when 72h delayed reset period has passed"
+  },
+  "timeRemaining": "Time remaining: {duration}",
+  "@timeRemaining": {
+    "description": "Countdown display for delayed vault reset",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "completeResetNow": "Complete Reset Now",
+  "@completeResetNow": {
+    "description": "Button to finalize completed 72h reset"
+  },
+  "manageCancelResetRequest": "Manage / Cancel Reset Request",
+  "@manageCancelResetRequest": {
+    "description": "Button to cancel delayed reset"
+  },
+  "lockedOutTryAgainIn": "Locked out. Try again in {seconds, plural, =1{1 second} other{{seconds} seconds}}.",
+  "@lockedOutTryAgainIn": {
+    "description": "Lockout banner text",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "forgotPinOrPattern": "Forgot PIN/pattern?",
+  "@forgotPinOrPattern": {
+    "description": "Button to recover vault using 24-word paper key"
+  },
+  "forgotSecretResetVault": "Forgot secret? Reset locked notes",
+  "@forgotSecretResetVault": {
+    "description": "Button to initiate emergency vault reset"
+  },
+  "lockedNotesVaultReset": "Locked notes and vault reset",
+  "@lockedNotesVaultReset": {
+    "description": "Snackbar message when vault reset completes"
+  },
+  "enterYourPin": "Enter your PIN",
+  "@enterYourPin": {
+    "description": "Title prompt to enter PIN"
+  },
+  "drawYourPattern": "Draw your pattern",
+  "@drawYourPattern": {
+    "description": "Title prompt to draw pattern"
+  },
+  "resetLockedNotes": "Reset locked notes",
+  "@resetLockedNotes": {
+    "description": "Settings item to reset locked notes and vault"
+  },
+  "appearanceSection": "Appearance",
+  "@appearanceSection": {
+    "description": "Section header in settings for appearance"
+  },
+  "notesAndDisplaySection": "Notes & Display",
+  "@notesAndDisplaySection": {
+    "description": "Section header in settings for notes and display"
+  },
+  "trashAndStorageSection": "Trash & Storage",
+  "@trashAndStorageSection": {
+    "description": "Section header in settings for trash and storage"
+  },
+  "securitySection": "Security",
+  "@securitySection": {
+    "description": "Section header in settings for security"
+  },
+  "fileHandlingSection": "File Handling",
+  "@fileHandlingSection": {
+    "description": "Section header in settings for file handling"
+  },
+  "informationSection": "Information",
+  "@informationSection": {
+    "description": "Section header in settings for information"
+  },
+  "fileHandlingExplanation": "Open any .txt or .md file in your file manager, choose Privacy Notes, and tap Always/Remember my choice. If another app (such as ChatGPT) is already the default, clear it in Android Settings > Apps > that app > Open by default.\n\nNote: Android decides the default app, and some file managers may open files in their own built-in viewer.",
+  "@fileHandlingExplanation": {
+    "description": "Help text explaining how to set Privacy Notes as default file handler"
+  },
+  "noRecoveryKeyWarning": "No recovery key created. If you forget your secret, you cannot recover locked notes.",
+  "@noRecoveryKeyWarning": {
+    "description": "Warning banner in settings when vault has no recovery key"
+  },
+  "secretChangedSuccessfully": "Secret changed successfully",
+  "@secretChangedSuccessfully": {
+    "description": "Snackbar message when vault secret is changed"
+  },
+  "credentialUpdatedSuccessfully": "Credential type updated successfully",
+  "@credentialUpdatedSuccessfully": {
+    "description": "Snackbar message when vault credential type is switched"
+  },
+  "smallFont": "Small (85%)",
+  "@smallFont": {
+    "description": "Font size option 85%"
+  },
+  "defaultFont": "Default (100%)",
+  "@defaultFont": {
+    "description": "Font size option 100%"
+  },
+  "largeFont": "Large (115%)",
+  "@largeFont": {
+    "description": "Font size option 115%"
+  },
+  "extraLargeFont": "Extra Large (130%)",
+  "@extraLargeFont": {
+    "description": "Font size option 130%"
+  },
+  "whenBackgrounded": "When backgrounded (Default)",
+  "@whenBackgrounded": {
+    "description": "Auto-lock timeout option for background"
+  },
+  "immediately": "Immediately",
+  "@immediately": {
+    "description": "Auto-lock timeout option immediately"
+  },
+  "afterOneMinute": "After 1 minute",
+  "@afterOneMinute": {
+    "description": "Auto-lock timeout option 1 minute"
+  },
+  "afterFiveMinutes": "After 5 minutes",
+  "@afterFiveMinutes": {
+    "description": "Auto-lock timeout option 5 minutes"
+  },
+  "afterFifteenMinutes": "After 15 minutes",
+  "@afterFifteenMinutes": {
+    "description": "Auto-lock timeout option 15 minutes"
+  },
+  "sortField": "Sort field",
+  "@sortField": {
+    "description": "Section title in sort dialog"
+  },
+  "daysRetentionCount": "{days, plural, =1{1 day} other{{days} days}}",
+  "@daysRetentionCount": {
+    "description": "Selection item for trash retention days",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "daysRetentionCountDefault": "{days} days (Default)",
+  "@daysRetentionCountDefault": {
+    "description": "Default selection item for trash retention days",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "lastEdited": "Last edited",
+  "@lastEdited": {
+    "description": "Sort option label for last modified"
+  },
+  "dateCreated": "Date created",
+  "@dateCreated": {
+    "description": "Sort option label for date created"
+  },
+  "insert5000BenchmarkNotes": "Insert 5,000 realistic benchmark notes in batch transaction",
+  "@insert5000BenchmarkNotes": {
+    "description": "Subtitle for seeding benchmark notes"
+  },
+  "remove5000BenchmarkNotes": "Remove all 5,000 seeded benchmark notes",
+  "@remove5000BenchmarkNotes": {
+    "description": "Subtitle for purging benchmark notes"
+  },
+  "seedingProgress": "Seeding 5,000 notes in background...",
+  "@seedingProgress": {
+    "description": "Snackbar message while seeding notes"
+  },
+  "ourPrivacyGuarantee": "Our Privacy Guarantee",
+  "@ourPrivacyGuarantee": {
+    "description": "Header for privacy guarantee card"
+  },
+  "nothingLeavesYourDeviceBody": "Nothing leaves your device. All notes, folders, checklists, and cryptographic encryption keys remain strictly on your local hardware. There are no tracking scripts, no third-party telemetry, no cloud sync, and absolutely no internet permissions in this application.",
+  "@nothingLeavesYourDeviceBody": {
+    "description": "Full privacy commitment text"
+  },
+  "hardwareBackedSqlCipher": "Hardware-Backed SQLCipher",
+  "@hardwareBackedSqlCipher": {
+    "description": "Architecture card title"
+  },
+  "hardwareBackedSqlCipherDesc": "Database is encrypted at rest using AES-256 with keys secured in Android Keystore.",
+  "@hardwareBackedSqlCipherDesc": {
+    "description": "Architecture card description"
+  },
+  "noInternetPermission": "No Internet Permission",
+  "@noInternetPermission": {
+    "description": "Architecture card title"
+  },
+  "noInternetPermissionDesc": "The app binary requests zero network permissions (INTERNET is absent from AndroidManifest).",
+  "@noInternetPermissionDesc": {
+    "description": "Architecture card description"
+  },
+  "storageAccessFramework": "Storage Access Framework",
+  "@storageAccessFramework": {
+    "description": "Architecture card title"
+  },
+  "storageAccessFrameworkDesc": "Text exports use Android SAF, keeping full storage permissions completely off your device.",
+  "@storageAccessFrameworkDesc": {
+    "description": "Architecture card description"
+  },
+  "lockedNotesCryptography": "Locked Notes Cryptography & Threat Model",
+  "@lockedNotesCryptography": {
+    "description": "Architecture card title"
+  },
+  "lockedNotesCryptographyDesc": "Locked notes protect sensitive content with AES-256-GCM and PBKDF2 key derivation. What they protect: unauthorized access if someone picks up your unlocked phone or reads raw app storage. What they do NOT protect: rooted devices (where root malware can extract keys from RAM) or physical compromise if someone discovers your written 24-word paper recovery key.",
+  "@lockedNotesCryptographyDesc": {
+    "description": "Architecture card description"
+  },
+  "openSourceAndTransparent": "Open Source & Transparent",
+  "@openSourceAndTransparent": {
+    "description": "Architecture card title"
+  },
+  "openSourceAndTransparentDesc": "Licensed under the Apache 2.0 license. Fully inspectable code with no proprietary lock-in.",
+  "@openSourceAndTransparentDesc": {
+    "description": "Architecture card description"
+  },
+  "enterRecoveryKeyHeading": "Enter your recovery key",
+  "@enterRecoveryKeyHeading": {
+    "description": "Heading on vault recovery step 0"
+  },
+  "enter28CharRecoveryKeyDesc": "Enter the 28-character recovery key written on paper to reset your secret without losing notes.",
+  "@enter28CharRecoveryKeyDesc": {
+    "description": "Description on vault recovery step 0"
+  },
+  "pleaseEnterYourRecoveryKey": "Please enter your recovery key.",
+  "@pleaseEnterYourRecoveryKey": {
+    "description": "Validation message when recovery key field is empty"
+  },
+  "checkForTypingMistakes": "Check for typing mistakes.",
+  "@checkForTypingMistakes": {
+    "description": "Validation error when checksum or format fails on recovery key"
+  },
+  "noRecoveryKeyWrapExists": "No recovery key wrap exists for this vault.",
+  "@noRecoveryKeyWrapExists": {
+    "description": "Error when vault metadata lacks recovery key wrap"
+  },
+  "incorrectRecoveryKeyCheckPaper": "Incorrect recovery key. Please check your paper copy.",
+  "@incorrectRecoveryKeyCheckPaper": {
+    "description": "Error when recovery key fails authentication"
+  },
+  "recoveryErrorWithDetails": "Recovery error: {error}",
+  "@recoveryErrorWithDetails": {
+    "description": "Generic recovery error message",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "pinMustBeAtLeastSixDigits": "PIN must be at least 6 digits",
+  "@pinMustBeAtLeastSixDigits": {
+    "description": "Validation error for short PIN"
+  },
+  "patternMustConnectAtLeastFiveDots": "Pattern must connect at least 5 dots",
+  "@patternMustConnectAtLeastFiveDots": {
+    "description": "Validation error for short pattern"
+  },
+  "patternsDoNotMatch": "Patterns do not match. Please try again.",
+  "@patternsDoNotMatch": {
+    "description": "Validation error when confirmation pattern differs"
+  },
+  "pinsDoNotMatch": "PINs do not match. Please try again.",
+  "@pinsDoNotMatch": {
+    "description": "Validation error when confirmation PIN differs"
+  },
+  "newSecretSetVaultUnlocked": "New secret set. Vault unlocked.",
+  "@newSecretSetVaultUnlocked": {
+    "description": "Success snackbar after recovering vault"
+  },
+  "recoveryFailedWithDetails": "Recovery failed: {error}",
+  "@recoveryFailedWithDetails": {
+    "description": "Error message when vault recovery fails during execution",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "vaultResetCancelledNotice": "A vault reset was requested on {date}.\n\nBecause you have successfully recovered the vault, this reset request has been automatically cancelled.",
+  "@vaultResetCancelledNotice": {
+    "description": "Dialog notice when pending reset is cancelled by recovery",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "securingNewSecret": "Securing new secret...",
+  "@securingNewSecret": {
+    "description": "Loading message when saving new secret during recovery"
+  },
+  "recoverVaultTitle": "Recover vault",
+  "@recoverVaultTitle": {
+    "description": "Screen title for recovering vault"
+  },
+  "verifyRecoveryKeyButton": "Verify Recovery Key",
+  "@verifyRecoveryKeyButton": {
+    "description": "Button to verify entered recovery key"
+  },
+  "currentSecretIncorrect": "Current secret is incorrect.",
+  "@currentSecretIncorrect": {
+    "description": "Error message when entering wrong current secret"
+  },
+  "regenerateRecoveryKeyTitle": "Regenerate recovery key",
+  "@regenerateRecoveryKeyTitle": {
+    "description": "Title when re-generating recovery key"
+  },
+  "createRecoveryKeyTitle": "Create recovery key",
+  "@createRecoveryKeyTitle": {
+    "description": "Title when creating initial recovery key"
+  },
+  "typeDeleteToConfirm": "Type DELETE exactly to confirm.",
+  "@typeDeleteToConfirm": {
+    "description": "Error message when user does not type DELETE in nuclear reset"
+  },
+  "pleaseEnterCurrentSecret": "Please enter your current secret.",
+  "@pleaseEnterCurrentSecret": {
+    "description": "Validation error when current secret is empty in reset dialog"
+  },
+  "resetWithSecretOption": "Reset with Current Secret",
+  "@resetWithSecretOption": {
+    "description": "Option in reset dialog"
+  },
+  "resetWithRecoveryKeyOption": "Reset with Paper Recovery Key",
+  "@resetWithRecoveryKeyOption": {
+    "description": "Option in reset dialog"
+  },
+  "resetWithDelayedGraceOption": "Emergency 72-Hour Reset",
+  "@resetWithDelayedGraceOption": {
+    "description": "Option in reset dialog"
+  },
+  "resetLockedNotesTitle": "Reset locked notes?",
+  "@resetLockedNotesTitle": {
+    "description": "Dialog title for resetting locked notes"
+  },
+  "vaultAccessError": "Vault Access Error",
+  "@vaultAccessError": {
+    "description": "Heading on database recovery screen"
+  },
+  "resetWarningMessage": "This action will permanently delete all locked notes. Unlocked notes will remain untouched.",
+  "@resetWarningMessage": {
+    "description": "Warning message in reset dialog"
+  },
+  "deleteConfirmationPrompt": "To confirm permanent deletion, type DELETE below:",
+  "@deleteConfirmationPrompt": {
+    "description": "Prompt in reset dialog"
+  },
+  "requestDelayedReset": "Request 72-Hour Delayed Reset",
+  "@requestDelayedReset": {
+    "description": "Button to request delayed reset"
+  },
+  "cancelPendingReset": "Cancel Pending Reset",
+  "@cancelPendingReset": {
+    "description": "Button to cancel pending reset"
+  },
+  "undecodedCharactersWarning": "Some characters could not be decoded and were replaced with \uFFFD.",
+  "@undecodedCharactersWarning": {
+    "description": "Banner warning in file viewer when invalid UTF-8 bytes were replaced"
+  },
+  "variableWidthFontTooltip": "Variable width font",
+  "@variableWidthFontTooltip": {
+    "description": "Tooltip in file viewer"
+  },
+  "monospaceFontTooltip": "Monospace font",
+  "@monospaceFontTooltip": {
+    "description": "Tooltip in file viewer"
+  },
+  "failedToSaveNoteRetry": "Failed to save note. Please try again.",
+  "@failedToSaveNoteRetry": {
+    "description": "Snackbar message when saving external file as note fails"
+  },
+  "closeAction": "Close",
+  "@closeAction": {
+    "description": "Generic close action button or tooltip"
+  },
+  "vaultSecretOption": "Vault Secret",
+  "@vaultSecretOption": {
+    "description": "Segment option in reset dialog"
+  },
+  "recoveryKeyOption": "Recovery Key",
+  "@recoveryKeyOption": {
+    "description": "Segment option in reset dialog"
+  },
+  "proveCurrentSecretOrRecoveryKey": "Prove current secret or recovery key to reset immediately:",
+  "@proveCurrentSecretOrRecoveryKey": {
+    "description": "Instruction heading in reset dialog"
+  },
+  "recoveryKeyMismatchError": "Recovery key does not match. Check for typing mistakes.",
+  "@recoveryKeyMismatchError": {
+    "description": "Error in recovery key entry when retype does not match"
+  },
+  "deleteEverything": "Delete Everything",
+  "@deleteEverything": {
+    "description": "Action button in reset vault dialog to permanently delete vault"
+  }
+}

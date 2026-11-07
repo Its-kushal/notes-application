@@ -327,8 +327,8 @@ void main() {
       expect(find.text('Second task'), findsOneWidget);
       expect(find.text('Third task'), findsOneWidget);
 
-      // Verify "+ 1 more items" is rendered because there are 4 items
-      expect(find.text('+ 1 more items'), findsOneWidget);
+      // Verify "+ 1 more item" is rendered because there are 4 items (1 hidden)
+      expect(find.text('+ 1 more item'), findsOneWidget);
 
       // Verify completed count indicator
       expect(find.text('1/4 completed'), findsOneWidget);
