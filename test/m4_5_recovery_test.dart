@@ -1005,6 +1005,9 @@ class _FakeVaultService implements VaultService {
   Future<VaultMetadata?> getVaultMetadata() async => metadata;
 
   @override
+  Future<bool> hasBackupSubkey() async => false;
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 

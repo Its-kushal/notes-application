@@ -243,6 +243,18 @@ class VaultService {
     );
 
     _vaultKey = vaultKey;
+    if (recoveryKeyString != null) {
+      final recoveryBytes = RecoveryKeyService.decodeKey(recoveryKeyString);
+      final backupSubkey = await RecoveryKeyService.deriveBackupSubkey(recoveryBytes);
+      await _db.insert(
+        'app_settings',
+        {
+          'key': 'backup_subkey',
+          'value': base64Encode(backupSubkey),
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
     await _resetFailedAttempts();
     await _resetFailedRecoveryAttempts();
   }
@@ -379,23 +391,31 @@ class VaultService {
 
     final now = clock().millisecondsSinceEpoch;
 
-    await _db.update(
-      'vault_metadata',
-      {
-        'salt': newSalt,
-        'kdf_algorithm': standardKdfAlgorithm,
-        'kdf_iterations': iterations,
-        'credential_type': newCredentialType.name,
-        'wrapped_vault_key': secretBox.cipherText,
-        'wrapped_vault_key_iv': newIv,
-        'wrapped_vault_key_tag': secretBox.mac.bytes,
-        'updated_at': now,
-      },
-      where: 'id = 1',
-    );
+    await _db.transaction((txn) async {
+      await txn.update(
+        'vault_metadata',
+        {
+          'salt': newSalt,
+          'kdf_algorithm': standardKdfAlgorithm,
+          'kdf_iterations': iterations,
+          'credential_type': newCredentialType.name,
+          'wrapped_vault_key': secretBox.cipherText,
+          'wrapped_vault_key_iv': newIv,
+          'wrapped_vault_key_tag': secretBox.mac.bytes,
+          'updated_at': now,
+        },
+        where: 'id = 1',
+      );
+
+      await txn.delete(
+        'app_settings',
+        where: "key IN ("
+            "'vault_failed_attempts', 'vault_next_allowed_time', 'vault_last_attempt_time', 'vault_lockout_elapsed_realtime', 'vault_lockout_recorded_elapsed'"
+            ")",
+      );
+    });
 
     _vaultKey = currentVaultKey;
-    await _resetFailedAttempts();
   }
 
   /// Returns true if a recovery key wrap is stored in vault_metadata.
@@ -447,23 +467,124 @@ class VaultService {
       iv: recoveryIv,
     );
 
+    final backupSubkey = await RecoveryKeyService.deriveBackupSubkey(recoveryBytes);
+
     final now = clock().millisecondsSinceEpoch;
 
-    await _db.update(
-      'vault_metadata',
-      {
-        'recovery_salt': recoverySalt,
-        'recovery_wrapped_key': box.cipherText,
-        'recovery_iv': recoveryIv,
-        'recovery_tag': box.mac.bytes,
-        'recovery_version': 1,
-        'updated_at': now,
-      },
-      where: 'id = 1',
-    );
+    await _db.transaction((txn) async {
+      await txn.update(
+        'vault_metadata',
+        {
+          'recovery_salt': recoverySalt,
+          'recovery_wrapped_key': box.cipherText,
+          'recovery_iv': recoveryIv,
+          'recovery_tag': box.mac.bytes,
+          'recovery_version': 1,
+          'updated_at': now,
+        },
+        where: 'id = 1',
+      );
+
+      await txn.insert(
+        'app_settings',
+        {
+          'key': 'backup_subkey',
+          'value': base64Encode(backupSubkey),
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+
+      await txn.delete(
+        'app_settings',
+        where: "key IN ("
+            "'vault_recovery_failed_attempts', 'vault_recovery_next_allowed_time', 'vault_recovery_last_attempt_time', 'vault_recovery_lockout_elapsed_realtime', 'vault_recovery_lockout_recorded_elapsed'"
+            ")",
+      );
+    });
 
     _vaultKey = currentVaultKey;
-    await _resetFailedRecoveryAttempts();
+  }
+
+  /// Checks whether a derived backup subkey exists in app_settings.
+  Future<bool> hasBackupSubkey() async {
+    if (!_appDatabase.isReady) return false;
+    final res = await _db.query(
+      'app_settings',
+      columns: ['value'],
+      where: 'key = ?',
+      whereArgs: ['backup_subkey'],
+    );
+    return res.isNotEmpty && (res.first['value'] as String?)?.isNotEmpty == true;
+  }
+
+  /// Verifies an existing paper recovery key against the vault's recovery wrap (Case 2).
+  /// Returns true if the key successfully unwraps the vault key.
+  /// Throws [VaultLockoutException] if recovery attempts are locked out.
+  /// Format and checksum errors throw and do NOT count as failed attempts.
+  /// Well-formed but incorrect keys count as a failed recovery attempt.
+  Future<bool> verifyRecoveryKeyAgainstVault(String recoveryKeyString) async {
+    await checkRecoveryLockout();
+    final recoveryBytes = RecoveryKeyService.decodeKey(recoveryKeyString);
+    final metadata = await getVaultMetadata();
+    if (metadata == null ||
+        metadata.recoveryWrappedKey == null ||
+        metadata.recoverySalt == null ||
+        metadata.recoveryIv == null ||
+        metadata.recoveryTag == null) {
+      return false;
+    }
+
+    try {
+      await RecoveryKeyService.unwrapVaultKey(
+        wrappedVaultKey: metadata.recoveryWrappedKey!,
+        iv: metadata.recoveryIv!,
+        tag: metadata.recoveryTag!,
+        recoveryKeyBytes: recoveryBytes,
+        salt: metadata.recoverySalt!,
+      );
+      await _resetFailedRecoveryAttempts();
+      return true;
+    } on RecoveryKeyAuthException {
+      await _recordFailedRecoveryAttempt();
+      return false;
+    }
+  }
+
+  /// Verifies a paper recovery key against the stored backup subkey using constant-time comparison (Case 4).
+  Future<bool> verifyRecoveryKeyAgainstBackupSubkey(String recoveryKeyString) async {
+    if (!_appDatabase.isReady) return false;
+    final recoveryBytes = RecoveryKeyService.decodeKey(recoveryKeyString);
+    final derived = await RecoveryKeyService.deriveBackupSubkey(recoveryBytes);
+    final res = await _db.query(
+      'app_settings',
+      columns: ['value'],
+      where: 'key = ?',
+      whereArgs: ['backup_subkey'],
+    );
+    if (res.isEmpty) return false;
+    final val = res.first['value'] as String?;
+    if (val == null || val.isEmpty) return false;
+    try {
+      final stored = base64Decode(val);
+      return RecoveryKeyService.constantTimeEquals(derived, stored);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Stores a derived backup subkey directly in app_settings.
+  Future<void> storeBackupSubkey(Uint8List subkey) async {
+    if (subkey.length != 32) {
+      throw ArgumentError('Subkey must be 32 bytes');
+    }
+    await _db.insert(
+      'app_settings',
+      {
+        'key': 'backup_subkey',
+        'value': base64Encode(subkey),
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   /// Recovers the vault using a paper recovery key (R6).

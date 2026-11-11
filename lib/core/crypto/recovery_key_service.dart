@@ -137,6 +137,19 @@ class RecoveryKeyService {
     return encodeBytes(bytes);
   }
 
+  /// Returns true if [input] is a valid 28-character Crockford Base32 recovery key with valid checksum.
+  static bool isValidKey(String input) {
+    try {
+      decodeKey(input);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Alias for [isValidKey].
+  static bool isValidFormat(String input) => isValidKey(input);
+
   /// Decodes and validates a recovery key string.
   /// Throws [RecoveryKeyFormatException] if length or characters are invalid.
   /// Throws [RecoveryKeyChecksumException] if checksum does not match.
@@ -194,6 +207,43 @@ class RecoveryKeyService {
       val = val >> 8;
     }
     return bytes;
+  }
+
+  static const String vaultInfoString = 'pn-vault-recovery-v1';
+  static const String backupInfoString = 'pn-backup-v1';
+  static const String backupFileInfoString = 'pn-backup-file-v1';
+
+  /// Derives the 32-byte backup subkey from 16-byte raw recovery key bytes using HKDF-SHA256 (B1, B2).
+  static Future<Uint8List> deriveBackupSubkey(Uint8List recoveryKeyBytes) async {
+    return deriveWrappingKey(
+      recoveryKeyBytes: recoveryKeyBytes,
+      salt: Uint8List(0),
+      infoString: backupInfoString,
+      keyLength: 32,
+    );
+  }
+
+  /// Derives the 32-byte AES-256-GCM file key from the backup subkey and a 16-byte per-backup salt (B1, B3).
+  static Future<Uint8List> deriveBackupFileKey({
+    required Uint8List backupSubkey,
+    required Uint8List fileSalt,
+  }) async {
+    return deriveWrappingKey(
+      recoveryKeyBytes: backupSubkey,
+      salt: fileSalt,
+      infoString: backupFileInfoString,
+      keyLength: 32,
+    );
+  }
+
+  /// Constant-time comparison of two byte buffers to prevent timing side-channels.
+  static bool constantTimeEquals(Uint8List a, Uint8List b) {
+    if (a.length != b.length) return false;
+    int result = 0;
+    for (int i = 0; i < a.length; i++) {
+      result |= a[i] ^ b[i];
+    }
+    return result == 0;
   }
 
   /// Derives a wrapping key using HKDF-SHA256 (RFC 5869) with a caller-supplied info string (R9).
