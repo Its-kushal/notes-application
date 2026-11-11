@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Centralized spacing and border radius design tokens for Privacy Notes.
+/// Centralized spacing and border radius design tokens for LeafLock.
 /// Adheres strictly to the 4, 8, 12, 16, 24, 32 spacing scale
 /// and 8, 12, 16 border radii.
 abstract final class AppSpacing {

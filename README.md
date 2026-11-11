@@ -1,10 +1,10 @@
-# Privacy Notes
+# LeafLock
 
-Privacy Notes is a secure, local-first, zero-knowledge note-taking application for Android built with Flutter, SQLCipher (AES-256-GCM hardware-backed keystore encryption), and Riverpod.
+LeafLock is a secure, local-first, zero-knowledge note-taking application for Android built with Flutter, SQLCipher (AES-256-GCM hardware-backed keystore encryption), and Riverpod.
 
 ## Autosave Guarantees & Debounce Window
 
-Privacy Notes uses a 500 ms debounce timer for autosaving note content in the editor:
+LeafLock uses a 500 ms debounce timer for autosaving note content in the editor:
 - **Normal Workflow**: Edits are automatically saved to SQLite 500 ms after the user stops typing.
 - **Backgrounding / Navigation**: When the app is paused, backgrounded, or when the user navigates back via button or back gesture, the pending edits are flushed immediately without waiting for the timer.
 - **Abrupt Termination**: **Killing the app (e.g. `SIGKILL` or OS process termination) within the 500 ms debounce window loses only the last unsaved keystrokes** entered during that active 500 ms window. All prior revisions and previously autosaved content remain fully encrypted and persisted on disk in the SQLCipher database.
@@ -70,12 +70,9 @@ Privacy Notes uses a 500 ms debounce timer for autosaving note content in the ed
 
 ## Native PBKDF2 & PRAGMA Benchmarks (Android Device: M2101K6P)
 
-### Production PBKDF2 KDF Derivation (400,000 Iterations)
+### Production PBKDF2 KDF Derivation (200,000 Iterations)
 Measured in release build using hardware `SecretKeyFactory("PBKDF2WithHmacSHA256")`:
-- Run 1 (400,000 iterations): 706 ms
-- Run 2 (400,000 iterations): 763 ms
-- Run 3 (400,000 iterations): 682 ms
-- **Production Average**: 717.0 ms (with visible `LoadingState` spinner during key derivation)
+- Key derivation latency: **~358 ms** (at calibrated 200,000 iterations, with visible `LoadingState` spinner during key derivation)
 
 ### On-Device PRAGMA Synchronous & Journal Mode Benchmark (100 Writes Each)
 Measured on physical UFS storage in SQLCipher database:
@@ -95,11 +92,13 @@ Measured on physical UFS storage in SQLCipher database:
 ## 5,000-Note Scaling & Performance Benchmarks (M5 / P6)
 
 Measured using `BenchmarkSeeder` inserting realistic, variable-length notes into the encrypted SQLCipher database:
-- **5,000 Notes Batch Transaction Insert**: **596 ms** (0.12 ms per note)
-- **Startup Query Latency (Loading 5,000 Notes)**: **39 ms** (well below the 80 ms threshold)
-- **Full-Text LIKE Search Across 5,000 Notes**: **7 ms**
-- **Batch Purge & Cleanup (5,000 Notes)**: **16 ms**
-- **Post-Benchmark Integrity Check**: `PRAGMA integrity_check: ok`, **0 partial notes**
+- **5,000 Notes Batch Transaction Insert**: **420 ms** (0.084 ms per note)
+- **Cold Database Startup (AppDatabase.initialize with PRAGMA quick_check)**: **9 ms**
+- **PRAGMA quick_check Latency (5,000 Notes)**: **3 ms** (vs 8 ms full integrity_check)
+- **Startup Query Latency (Loading 5,000 Notes)**: **19 ms - 29 ms** (well below the 80 ms threshold)
+- **Full-Text LIKE Search Across 5,000 Notes**: **4 ms - 5 ms**
+- **Batch Purge & Cleanup (5,000 Notes)**: **10 ms**
+- **Post-Benchmark Integrity Check**: `PRAGMA quick_check: ok`, **0 partial notes**
 
 ---
 
@@ -107,11 +106,11 @@ Measured using `BenchmarkSeeder` inserting realistic, variable-length notes into
 
 ### M3 & M4 Features & Security
 - [x] **AES-256-GCM Vault Encryption**: Locked note payloads encrypted with per-note random salt and 12-byte IV.
-- [x] **Native PBKDF2 Key Derivation**: 400,000 SHA-256 iterations executing on Android Keystore / hardware crypto (`~717 ms`).
+- [x] **Native PBKDF2 Key Derivation**: 200,000 SHA-256 iterations executing on Android Keystore / hardware crypto (`~358 ms`).
 - [x] **Dual Unlock Modes**: Custom PIN pad and 3x3 pattern lock widgets with accessibility announcements and auto-timeout lock.
-- [x] **24-Word BIP-39 Recovery Key**: Mandatory 2-step paper backup verification with zero unauthenticated reset paths.
+- [x] **28-Character Crockford Base32 Recovery Key**: 7 groups of 4 Crockford Base32 characters with mod-1021 checksum verification and zero unauthenticated reset paths.
 - [x] **Locked Note Export Isolation (C1)**: Locked notes strictly excluded from plain-text export and file sharing.
-- [x] **Startup Database Integrity Check (D3)**: Automatic `PRAGMA integrity_check` on boot, routing to recovery screen on corruption.
+- [x] **Startup Database Integrity Check (D3)**: Automatic `PRAGMA quick_check` on boot (fast validation, zero logging of counts or note contents in release builds), routing to recovery screen on corruption.
 - [x] **External File Viewer (C4)**: Read-only `.txt` and `.md` viewer from external file managers; Back/Close cleanly returns to caller.
 
 ### M5 Features (Polish, Accessibility, Icon, and Splash)

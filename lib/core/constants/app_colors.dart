@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Centralized color palette for Privacy Notes.
+/// Centralized color palette for LeafLock.
 /// All colors in the app must originate from this class.
 abstract final class AppColors {
   // Brand / Seed

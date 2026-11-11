@@ -379,7 +379,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('About'), findsOneWidget);
-      expect(find.text('Privacy Notes'), findsOneWidget);
+      expect(find.text('LeafLock'), findsOneWidget);
       expect(find.text('Version 1.0.0'), findsOneWidget);
       expect(find.text('Our Privacy Guarantee'), findsOneWidget);
       expect(find.text('Hardware-Backed SQLCipher'), findsOneWidget);

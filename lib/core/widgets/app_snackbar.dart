@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Centralized SnackBar utility for Privacy Notes.
+/// Centralized SnackBar utility for LeafLock.
 /// Enforces:
 /// 1. Always clears existing SnackBars first (never stacks/queues).
 /// 2. Auto-dismisses after 5 seconds (even with actions).

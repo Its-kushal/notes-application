@@ -8,7 +8,7 @@ import '../../../settings/presentation/controllers/settings_provider.dart';
 
 /// Single clean vertical card welcoming users on first launch (P2).
 /// Explains that notes remain strictly on this device, zero telemetry leaves it,
-/// and that locked notes use a 24-word paper recovery key created upon vault setup.
+/// and that locked notes use a 28-character paper recovery key created upon vault setup.
 class WelcomeScreen extends ConsumerWidget {
   const WelcomeScreen({super.key});
 

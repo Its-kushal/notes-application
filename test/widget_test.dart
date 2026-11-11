@@ -336,7 +336,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 50));
 
-      expect(find.text('Privacy Notes'), findsOneWidget);
+      expect(find.text('LeafLock'), findsOneWidget);
       expect(find.byType(NotesEmptyView), findsOneWidget);
       expect(find.text('No notes yet'), findsOneWidget);
       expect(find.byType(FloatingActionButton), findsOneWidget);

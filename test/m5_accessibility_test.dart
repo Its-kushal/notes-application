@@ -90,7 +90,7 @@ void main() {
 
       // No RenderFlex overflow exception
       expect(tester.takeException(), isNull);
-      expect(find.text('Privacy Notes'), findsOneWidget);
+      expect(find.text('LeafLock'), findsOneWidget);
       expect(find.text('Our Privacy Guarantee'), findsOneWidget);
     });
 
