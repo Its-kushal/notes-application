@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'database_key_service.dart';
 
@@ -9,7 +8,7 @@ enum DatabaseStatus {
   recoveryNeeded,
 }
 
-/// Central database manager for Privacy Notes utilizing SQLCipher.
+/// Central database manager for LeafLock utilizing SQLCipher.
 class AppDatabase {
   static const String databaseFileName = 'privacy_notes.db';
   static const int currentDatabaseVersion = 4;
@@ -28,6 +27,7 @@ class AppDatabase {
   }) : _keyService = keyService ?? DatabaseKeyService();
 
   DatabaseStatus get status => _status;
+  bool get isReady => _db != null && _db!.isOpen;
   Database get database {
     final db = _db;
     if (db == null || !db.isOpen) {
@@ -136,26 +136,16 @@ class AppDatabase {
 
       _db = await factory.openDatabase(dbPath, options: options);
 
-      // D3: Startup PRAGMA integrity_check & quick_check verification
-      final integrityRows = await _db!.rawQuery('PRAGMA integrity_check;');
-      final integrityStatus = integrityRows.isNotEmpty ? integrityRows.first.values.first?.toString() : null;
-      debugPrint('[DB_INTEGRITY] integrity_check: $integrityStatus');
+      // Fast startup PRAGMA quick_check verification (no content logging)
+      final quickRows = await _db!.rawQuery('PRAGMA quick_check;');
+      final quickStatus = quickRows.isNotEmpty ? quickRows.first.values.first?.toString() : null;
 
-      if (integrityStatus != 'ok') {
+      if (quickStatus != 'ok') {
         await _db!.close();
         _db = null;
         _status = DatabaseStatus.recoveryNeeded;
         return _status;
       }
-
-      final notesRows = await _db!.rawQuery('SELECT id, title, length(body) as body_len, is_locked, trashed_at FROM notes;');
-      int partialNotes = 0;
-      for (final row in notesRows) {
-        if (row['title'] == null || row['body_len'] == null) {
-          partialNotes++;
-        }
-      }
-      debugPrint('[DB_INTEGRITY] notes_found: ${notesRows.length}, partial_notes: $partialNotes');
 
       _status = DatabaseStatus.ready;
       return _status;
@@ -373,6 +363,15 @@ class AppDatabase {
       _db = null;
       _status = DatabaseStatus.uninitialized;
     }
+  }
+
+  /// Performs full SQLite PRAGMA integrity_check.
+  /// Used only in tests and manual diagnostics (not at standard startup).
+  Future<String?> performFullIntegrityCheck() async {
+    final db = _db;
+    if (db == null || !db.isOpen) return null;
+    final rows = await db.rawQuery('PRAGMA integrity_check;');
+    return rows.isNotEmpty ? rows.first.values.first?.toString() : null;
   }
 
 }
