@@ -11,7 +11,7 @@ class SectionHeader extends StatelessWidget {
     super.key,
     required this.title,
     this.padding = const EdgeInsets.fromLTRB(
-      AppSpacing.xl,
+      AppSpacing.lg,
       AppSpacing.md,
       AppSpacing.lg,
       AppSpacing.xs,
@@ -28,15 +28,22 @@ class SectionHeader extends StatelessWidget {
       padding: padding,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            title.toUpperCase(),
-            style: textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.1,
+          Flexible(
+            child: Text(
+              title.toUpperCase(),
+              style: textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.1,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          ?trailing,
+          if (trailing != null) ...[
+            const SizedBox(width: AppSpacing.md),
+            trailing!,
+          ],
         ],
       ),
     );
