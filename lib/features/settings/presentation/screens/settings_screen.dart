@@ -465,6 +465,15 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           const Divider(),
+          SectionHeader(title: l10n.backupAndRestore),
+          ListTile(
+            leading: const Icon(Icons.backup_outlined),
+            title: Text(l10n.backupAndRestore),
+            subtitle: Text(l10n.backupAndRestoreSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/settings/backup'),
+          ),
+          const Divider(),
           SectionHeader(title: l10n.informationSection),
           ListTile(
             leading: const Icon(Icons.info_outline),

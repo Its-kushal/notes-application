@@ -27,7 +27,7 @@ class AboutScreen extends StatelessWidget {
             AppSpacing.vGapLg,
             // App Shield Icon
             Semantics(
-              label: 'Privacy Notes shield logo',
+              label: 'LeafLock shield logo',
               child: Container(
                 width: 80,
                 height: 80,
@@ -140,6 +140,13 @@ class AboutScreen extends StatelessWidget {
               icon: Icons.folder_shared_outlined,
               title: l10n.storageAccessFramework,
               description: l10n.storageAccessFrameworkDesc,
+            ),
+            AppSpacing.vGapSm,
+            _buildArchitectureCard(
+              context,
+              icon: Icons.backup_outlined,
+              title: l10n.backupAboutArchitectureTitle,
+              description: l10n.backupAboutArchitectureDesc,
             ),
             AppSpacing.vGapSm,
             _buildArchitectureCard(

@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "Privacy Notes",
+  "appTitle": "LeafLock",
   "@appTitle": {
     "description": "The name of the application"
   },
@@ -476,7 +476,7 @@
   "@paperRecoveryKeyTitle": {
     "description": "Instruction to write down paper recovery key"
   },
-  "paperRecoveryKeyNotice": "This 24-word key is the ONLY way to recover locked notes if you forget your secret. Write it on paper and keep it secure. Never store it digitally.",
+  "paperRecoveryKeyNotice": "This 28-character key is the ONLY way to recover locked notes if you forget your secret. Write it on paper and keep it secure. Never store it digitally.",
   "@paperRecoveryKeyNotice": {
     "description": "Warning and explanation for the paper recovery key"
   },
@@ -484,13 +484,13 @@
   "@iHaveWrittenItDown": {
     "description": "Checkbox or confirmation button indicating recovery key has been copied"
   },
-  "verifyRecoveryKeyPrompt": "Enter the following words from your recovery key to confirm:",
+  "verifyRecoveryKeyPrompt": "Enter your 28-character recovery key to confirm:",
   "@verifyRecoveryKeyPrompt": {
     "description": "Verification prompt testing user's written copy of recovery key"
   },
-  "wordNumber": "Word #{number}",
+  "wordNumber": "Group #{number}",
   "@wordNumber": {
-    "description": "Label for specific word in recovery key verification",
+    "description": "Label for specific group in recovery key verification",
     "placeholders": {
       "number": {
         "type": "int"
@@ -522,11 +522,11 @@
   "@recoverVaultTitle": {
     "description": "Title for vault recovery screen"
   },
-  "enterRecoveryKeyPrompt": "Enter your 24-word paper recovery key separated by spaces:",
+  "enterRecoveryKeyPrompt": "Enter your 28-character recovery key:",
   "@enterRecoveryKeyPrompt": {
     "description": "Instruction on vault recovery screen"
   },
-  "invalidRecoveryKey": "Invalid recovery key. Check spelling and word order.",
+  "invalidRecoveryKey": "Invalid recovery key. Check for typing mistakes.",
   "@invalidRecoveryKey": {
     "description": "Error message for invalid recovery key input"
   },
@@ -535,7 +535,7 @@
     "description": "Message upon successful recovery key verification"
   },
 
-  "welcomeTitle": "Privacy Notes",
+  "welcomeTitle": "LeafLock",
   "@welcomeTitle": {
     "description": "Header title on first-run welcome screen"
   },
@@ -559,11 +559,11 @@
   "@welcomePrinciple2Desc": {
     "description": "Description for principle 2"
   },
-  "welcomePrinciple3Title": "Locked Notes & Paper Key",
+  "welcomePrinciple3Title": "Locked Notes & Backups",
   "@welcomePrinciple3Title": {
     "description": "Title for principle 3"
   },
-  "welcomePrinciple3Desc": "Protect private notes with AES-GCM encryption. A 24-word paper recovery key is created when you set up your vault.",
+  "welcomePrinciple3Desc": "Protect private notes with AES-GCM encryption. A single 28-character paper recovery key secures both your vault and encrypted backups.",
   "@welcomePrinciple3Desc": {
     "description": "Description for principle 3"
   },
@@ -645,7 +645,7 @@
   "@defaultAppsSettings": {
     "description": "Settings item to open system default apps screen"
   },
-  "defaultAppsSettingsSubtitle": "Set Privacy Notes as default text and Markdown reader",
+  "defaultAppsSettingsSubtitle": "Set LeafLock as default text and Markdown reader",
   "@defaultAppsSettingsSubtitle": {
     "description": "Subtitle explaining default apps settings"
   },
@@ -661,7 +661,7 @@
   "@privacyPromiseTitle": {
     "description": "Section title on about screen"
   },
-  "privacyPromiseBody": "Privacy Notes never communicates over the network. Your notes never leave this physical device. There are zero analytics, zero trackers, and zero third-party ads.",
+  "privacyPromiseBody": "LeafLock never communicates over the network. Your notes never leave this physical device. There are zero analytics, zero trackers, and zero third-party ads.",
   "@privacyPromiseBody": {
     "description": "Privacy promise text on about screen"
   },
@@ -939,7 +939,7 @@
   "@openDefaultAppsSettings": {
     "description": "Button label in settings to open Android default apps"
   },
-  "aboutPrivacyNotes": "About Privacy Notes",
+  "aboutPrivacyNotes": "About LeafLock",
   "@aboutPrivacyNotes": {
     "description": "Settings entry title navigating to about screen"
   },
@@ -1226,7 +1226,7 @@
   },
   "forgotPinOrPattern": "Forgot PIN/pattern?",
   "@forgotPinOrPattern": {
-    "description": "Button to recover vault using 24-word paper key"
+    "description": "Button to recover vault using paper recovery key"
   },
   "forgotSecretResetVault": "Forgot secret? Reset locked notes",
   "@forgotSecretResetVault": {
@@ -1272,9 +1272,9 @@
   "@informationSection": {
     "description": "Section header in settings for information"
   },
-  "fileHandlingExplanation": "Open any .txt or .md file in your file manager, choose Privacy Notes, and tap Always/Remember my choice. If another app (such as ChatGPT) is already the default, clear it in Android Settings > Apps > that app > Open by default.\n\nNote: Android decides the default app, and some file managers may open files in their own built-in viewer.",
+  "fileHandlingExplanation": "Open any .txt or .md file in your file manager, choose LeafLock, and tap Always/Remember my choice. If another app (such as ChatGPT) is already the default, clear it in Android Settings > Apps > that app > Open by default.\n\nNote: Android decides the default app, and some file managers may open files in their own built-in viewer.",
   "@fileHandlingExplanation": {
-    "description": "Help text explaining how to set Privacy Notes as default file handler"
+    "description": "Help text explaining how to set LeafLock as default file handler"
   },
   "noRecoveryKeyWarning": "No recovery key created. If you forget your secret, you cannot recover locked notes.",
   "@noRecoveryKeyWarning": {
@@ -1402,7 +1402,7 @@
   "@lockedNotesCryptography": {
     "description": "Architecture card title"
   },
-  "lockedNotesCryptographyDesc": "Locked notes protect sensitive content with AES-256-GCM and PBKDF2 key derivation. What they protect: unauthorized access if someone picks up your unlocked phone or reads raw app storage. What they do NOT protect: rooted devices (where root malware can extract keys from RAM) or physical compromise if someone discovers your written 24-word paper recovery key.",
+  "lockedNotesCryptographyDesc": "Locked notes protect sensitive content with AES-256-GCM and PBKDF2 key derivation. What they protect: unauthorized access if someone picks up your unlocked phone or reads raw app storage. What they do NOT protect: rooted devices (where root malware can extract keys from RAM) or physical compromise if someone discovers your written 28-character paper recovery key.",
   "@lockedNotesCryptographyDesc": {
     "description": "Architecture card description"
   },
@@ -1438,14 +1438,13 @@
   "@incorrectRecoveryKeyCheckPaper": {
     "description": "Error when recovery key fails authentication"
   },
-  "recoveryErrorWithDetails": "Recovery error: {error}",
+  "recoveryErrorWithDetails": "An error occurred during recovery. Please try again.",
   "@recoveryErrorWithDetails": {
-    "description": "Generic recovery error message",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
+    "description": "Generic recovery error message"
+  },
+  "recoveryError": "An error occurred during recovery. Please try again.",
+  "@recoveryError": {
+    "description": "Generic recovery error message"
   },
   "pinMustBeAtLeastSixDigits": "PIN must be at least 6 digits",
   "@pinMustBeAtLeastSixDigits": {
@@ -1467,14 +1466,13 @@
   "@newSecretSetVaultUnlocked": {
     "description": "Success snackbar after recovering vault"
   },
-  "recoveryFailedWithDetails": "Recovery failed: {error}",
+  "recoveryFailedWithDetails": "Vault recovery failed. Please verify your recovery key and try again.",
   "@recoveryFailedWithDetails": {
-    "description": "Error message when vault recovery fails during execution",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
+    "description": "Error message when vault recovery fails during execution"
+  },
+  "recoveryFailed": "Vault recovery failed. Please verify your recovery key and try again.",
+  "@recoveryFailed": {
+    "description": "Error message when vault recovery fails during execution"
   },
   "vaultResetCancelledNotice": "A vault reset was requested on {date}.\n\nBecause you have successfully recovered the vault, this reset request has been automatically cancelled.",
   "@vaultResetCancelledNotice": {
@@ -1592,5 +1590,274 @@
   "deleteEverything": "Delete Everything",
   "@deleteEverything": {
     "description": "Action button in reset vault dialog to permanently delete vault"
+  },
+  "backupAndRestore": "Backup & Restore",
+  "@backupAndRestore": {
+    "description": "Navigation title and screen header for backup and restore"
+  },
+  "backupAndRestoreSubtitle": "Encrypted offline backups saved to device storage",
+  "@backupAndRestoreSubtitle": {
+    "description": "Settings subtitle for backup and restore tile"
+  },
+  "backupSectionHeader": "Backup",
+  "@backupSectionHeader": {
+    "description": "Section header for backup operations"
+  },
+  "restoreSectionHeader": "Restore",
+  "@restoreSectionHeader": {
+    "description": "Section header for restore operations"
+  },
+  "backupNow": "Back up now",
+  "@backupNow": {
+    "description": "Button to create an encrypted backup now"
+  },
+  "backupNowSubtitle": "Create an encrypted backup of all notes, folders, and settings",
+  "@backupNowSubtitle": {
+    "description": "Subtitle describing the backup now action"
+  },
+  "restoreBackup": "Restore backup",
+  "@restoreBackup": {
+    "description": "Button to restore notes from an encrypted backup file"
+  },
+  "restoreBackupSubtitle": "Import missing notes and folders from a .llbackup file",
+  "@restoreBackupSubtitle": {
+    "description": "Subtitle describing the restore backup action"
+  },
+  "lastBackupLabel": "Last backup: {date}",
+  "@lastBackupLabel": {
+    "description": "Label showing the date and time of the last successful backup",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "lastBackupNever": "Last backup: Never",
+  "@lastBackupNever": {
+    "description": "Label when no backup has been completed yet"
+  },
+  "backupReminderTitle": "Backup reminder",
+  "@backupReminderTitle": {
+    "description": "Title for the 30-day backup reminder setting"
+  },
+  "backupReminderSubtitle": "Remind me on the home screen after 30 days without a backup",
+  "@backupReminderSubtitle": {
+    "description": "Subtitle for the backup reminder setting"
+  },
+  "backupReminderBannerTitle": "Back up your notes",
+  "@backupReminderBannerTitle": {
+    "description": "Title for the 30-day backup reminder banner on the notes list"
+  },
+  "backupReminderBannerMessage": "It's been over 30 days since your last backup. Back up your notes now to keep them safe.",
+  "@backupReminderBannerMessage": {
+    "description": "Message for the 30-day backup reminder banner"
+  },
+  "remindInThreeDays": "Remind in 3 days",
+  "@remindInThreeDays": {
+    "description": "Action button to snooze the backup reminder banner for 3 days"
+  },
+  "backupCreating": "Creating encrypted backup...",
+  "@backupCreating": {
+    "description": "Progress message while backup is being encrypted and created"
+  },
+  "backupSuccess": "Backup saved successfully",
+  "@backupSuccess": {
+    "description": "Snackbar message when a backup file is successfully saved"
+  },
+  "backupSharePromptTitle": "Confirm Backup Save",
+  "@backupSharePromptTitle": {
+    "description": "Dialog title asking user if share sheet resulted in a safe save"
+  },
+  "backupSharePromptMessage": "Did you save the backup file somewhere safe?",
+  "@backupSharePromptMessage": {
+    "description": "Dialog message after closing share sheet to confirm saving"
+  },
+  "saveConfirmed": "Yes, saved",
+  "@saveConfirmed": {
+    "description": "Affirmative button confirming backup was safely saved"
+  },
+  "saveNotConfirmed": "No",
+  "@saveNotConfirmed": {
+    "description": "Negative button indicating backup was not saved"
+  },
+  "backupShareTitle": "LeafLock Backup",
+  "@backupShareTitle": {
+    "description": "Subject or title when sharing a backup file"
+  },
+  "enterPaperKeyToBackupTitle": "Enter Paper Recovery Key",
+  "@enterPaperKeyToBackupTitle": {
+    "description": "Title when prompting for existing paper key to derive backup subkey"
+  },
+  "enterPaperKeyToBackupPrompt": "Enter your 28-character paper recovery key to enable backup encryption. You will only need to enter this once.",
+  "@enterPaperKeyToBackupPrompt": {
+    "description": "Prompt explaining why paper key is needed to derive backup subkey"
+  },
+  "setupPaperKeyForBackupTitle": "Create Paper Recovery Key",
+  "@setupPaperKeyForBackupTitle": {
+    "description": "Title when creating a paper key for the first time during backup"
+  },
+  "setupPaperKeyForBackupPrompt": "LeafLock uses a single 28-character paper recovery key for vault recovery and encrypted backups. Write down this key on paper and keep it safe.",
+  "@setupPaperKeyForBackupPrompt": {
+    "description": "Prompt when generating the root recovery key during backup setup"
+  },
+  "enterExistingPaperKeyForVaultTitle": "Enter Paper Recovery Key",
+  "@enterExistingPaperKeyForVaultTitle": {
+    "description": "Title when prompting user for existing paper key during vault setup"
+  },
+  "enterExistingPaperKeyForVaultPrompt": "Enter the 28-character paper recovery key you created during backup setup to link your locked notes vault.",
+  "@enterExistingPaperKeyForVaultPrompt": {
+    "description": "Prompt explaining why existing paper key is needed for vault setup"
+  },
+  "regenerateKeyWarningTitle": "Regenerating Recovery Key",
+  "@regenerateKeyWarningTitle": {
+    "description": "Dialog title warning about recovery key regeneration"
+  },
+  "regenerateKeyWarningMessage": "Important: Backups created before this change will always require your previous paper key to restore. Keep your old paper key if you still need those backups.",
+  "@regenerateKeyWarningMessage": {
+    "description": "Warning message before or after regenerating recovery key"
+  },
+  "regenerateKeyOfferBackupTitle": "Create New Backup?",
+  "@regenerateKeyOfferBackupTitle": {
+    "description": "Dialog title offering a new backup after recovery key rotation"
+  },
+  "regenerateKeyOfferBackupMessage": "Your recovery key has been updated. Backups made with your old key cannot be restored with the new key. Would you like to create a fresh backup now?",
+  "@regenerateKeyOfferBackupMessage": {
+    "description": "Dialog message offering immediate backup creation after key rotation"
+  },
+  "backupNowButton": "Back up now",
+  "@backupNowButton": {
+    "description": "Generic button to initiate backup"
+  },
+  "notNowButton": "Not now",
+  "@notNowButton": {
+    "description": "Dismiss button for offers and reminders"
+  },
+  "restoreSummaryTitle": "Restore Complete",
+  "@restoreSummaryTitle": {
+    "description": "Title of dialog summarizing restore results"
+  },
+  "restoreSummaryNotesRestored": "{count, plural, =1{1 note restored} other{{count} notes restored}}",
+  "@restoreSummaryNotesRestored": {
+    "description": "Summary item showing count of newly restored notes",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "restoreSummaryFoldersRestored": "{count, plural, =1{1 folder restored} other{{count} folders restored}}",
+  "@restoreSummaryFoldersRestored": {
+    "description": "Summary item showing count of newly restored folders",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "restoreSummaryLockedNotesRestored": "{count, plural, =1{1 locked note restored} other{{count} locked notes restored}}",
+  "@restoreSummaryLockedNotesRestored": {
+    "description": "Summary item showing count of restored locked notes",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "restoreSummaryLockedNotesSkipped": "{count, plural, =1{1 locked note skipped (different vault)} other{{count} locked notes skipped (different vault)}}",
+  "@restoreSummaryLockedNotesSkipped": {
+    "description": "Summary item showing count of locked notes skipped due to vault mismatch",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "restoreSummaryNoNewNotes": "No new notes were found in the backup. Your existing notes were preserved.",
+  "@restoreSummaryNoNewNotes": {
+    "description": "Summary message when all notes in backup already exist in the database"
+  },
+  "restoreSummarySafetyNotice": "A pre-restore safety copy of your database was preserved.",
+  "@restoreSummarySafetyNotice": {
+    "description": "Informational line in restore summary dialog"
+  },
+  "wrongRecoveryKeyOrDamagedFile": "Wrong recovery key or damaged file.",
+  "@wrongRecoveryKeyOrDamagedFile": {
+    "description": "Unified friendly error when restore authentication or integrity check fails"
+  },
+  "backupFileExceedsLimit": "Backup file exceeds the 64 MB limit.",
+  "@backupFileExceedsLimit": {
+    "description": "Error message when selected backup file is larger than 64 MB"
+  },
+  "backupNewerVersionError": "This backup was created with a newer version of LeafLock.",
+  "@backupNewerVersionError": {
+    "description": "Error message when backup format version is newer than supported"
+  },
+  "decompressionBombError": "Decompressed backup exceeds the 64 MB limit.",
+  "@decompressionBombError": {
+    "description": "Error message when decompressed backup exceeds safe size limit"
+  },
+  "restorePickFileTitle": "Select Backup File",
+  "@restorePickFileTitle": {
+    "description": "Title or picker label when selecting a backup file to restore"
+  },
+  "enterRecoveryKeyToRestoreTitle": "Enter Paper Recovery Key",
+  "@enterRecoveryKeyToRestoreTitle": {
+    "description": "Dialog title prompting for recovery key during restore"
+  },
+  "enterRecoveryKeyToRestorePrompt": "Enter the 28-character paper recovery key that was active when this backup was created:",
+  "@enterRecoveryKeyToRestorePrompt": {
+    "description": "Instruction in restore key entry dialog"
+  },
+  "backupAboutArchitectureTitle": "Offline Encrypted Backups",
+  "@backupAboutArchitectureTitle": {
+    "description": "Title of About screen section describing backups"
+  },
+  "backupAboutArchitectureDesc": "Full-database authenticated backups (.llbackup) encrypted with AES-256-GCM. Uses the root 28-character recovery key with HKDF subkey derivation. Never sends data off-device.",
+  "@backupAboutArchitectureDesc": {
+    "description": "Description of About screen backup architecture"
+  },
+  "linkAndCompleteSetup": "Link and Complete Setup",
+  "@linkAndCompleteSetup": {
+    "description": "Button to verify existing paper key and complete vault setup"
+  },
+  "shareBackupAction": "Share backup file",
+  "@shareBackupAction": {
+    "description": "Button or menu action to share backup file"
+  },
+  "saveToFileAction": "Save to device",
+  "@saveToFileAction": {
+    "description": "Button to save backup file via Storage Access Framework"
+  },
+  "backupFailed": "Backup failed. Please try again.",
+  "@backupFailed": {
+    "description": "Friendly error message when backup creation or export fails"
+  },
+  "restoreRestoring": "Restoring backup...",
+  "@restoreRestoring": {
+    "description": "Progress status message while backup is being restored"
+  },
+  "backupFileOversizeTitle": "File Too Large",
+  "@backupFileOversizeTitle": {
+    "description": "Dialog title when selected backup file exceeds size limit"
+  },
+  "restoreSafetyCopyFailed": "Could not create safety copy of database. Restore was cancelled.",
+  "@restoreSafetyCopyFailed": {
+    "description": "Error message when pre-restore database safety copy fails"
+  },
+  "restoreSafetyCopySizeMismatch": "Safety copy size mismatch. Restore was cancelled.",
+  "@restoreSafetyCopySizeMismatch": {
+    "description": "Error message when safety copy file size differs from source database"
+  },
+  "restoreInvalidData": "The backup contains invalid or corrupted data.",
+  "@restoreInvalidData": {
+    "description": "Error message when backup contents fail schema or data validation"
+  },
+  "lockedNotesVaultReady": "Locked notes vault ready",
+  "@lockedNotesVaultReady": {
+    "description": "Snackbar message when vault setup is successfully completed"
+  },
+  "vaultSetupFailed": "Vault setup failed. Please try again.",
+  "@vaultSetupFailed": {
+    "description": "Error message when setting up locked notes vault fails"
   }
 }

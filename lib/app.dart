@@ -15,6 +15,7 @@ import 'features/locked_notes/presentation/screens/vault_recovery_key_screen.dar
 import 'features/locked_notes/presentation/screens/vault_recovery_screen.dart';
 import 'features/locked_notes/presentation/screens/vault_setup_screen.dart';
 import 'features/locked_notes/presentation/screens/vault_unlock_screen.dart';
+import 'features/backup/presentation/screens/backup_settings_screen.dart';
 import 'features/notes/domain/note.dart';
 import 'features/notes/presentation/controllers/notes_providers.dart';
 import 'features/notes/presentation/screens/archive_screen.dart';
@@ -119,6 +120,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SettingsScreen(),
       ),
       GoRoute(
+        path: '/settings/backup',
+        builder: (context, state) => const BackupSettingsScreen(),
+      ),
+      GoRoute(
         path: '/about',
         builder: (context, state) => const AboutScreen(),
       ),
@@ -180,11 +185,13 @@ class _PrivacyNotesAppState extends ConsumerState<PrivacyNotesApp>
       data: (status) {
         if (status == DatabaseStatus.recoveryNeeded) {
           return MaterialApp(
-            title: 'Privacy Notes',
+            onGenerateTitle: (context) => AppLocalizations.of(context)?.appTitle ?? 'LeafLock',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: ThemeCacheService.cachedTheme,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: DatabaseRecoveryScreen(
               onRetry: () => ref.refresh(databaseInitProvider),
             ),
@@ -203,7 +210,7 @@ class _PrivacyNotesAppState extends ConsumerState<PrivacyNotesApp>
         final settings = ref.watch(settingsProvider).settings;
 
         return MaterialApp.router(
-          title: 'Privacy Notes',
+          title: 'LeafLock',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
@@ -224,7 +231,7 @@ class _PrivacyNotesAppState extends ConsumerState<PrivacyNotesApp>
         );
       },
       loading: () => MaterialApp(
-        title: 'Privacy Notes',
+        title: 'LeafLock',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
@@ -234,7 +241,7 @@ class _PrivacyNotesAppState extends ConsumerState<PrivacyNotesApp>
         ),
       ),
       error: (error, stack) => MaterialApp(
-        title: 'Privacy Notes',
+        title: 'LeafLock',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,

@@ -97,7 +97,7 @@ abstract class AppLocalizations {
   /// The name of the application
   ///
   /// In en, this message translates to:
-  /// **'Privacy Notes'**
+  /// **'LeafLock'**
   String get appTitle;
 
   /// Standard cancel action
@@ -745,7 +745,7 @@ abstract class AppLocalizations {
   /// Warning and explanation for the paper recovery key
   ///
   /// In en, this message translates to:
-  /// **'This 24-word key is the ONLY way to recover locked notes if you forget your secret. Write it on paper and keep it secure. Never store it digitally.'**
+  /// **'This 28-character key is the ONLY way to recover locked notes if you forget your secret. Write it on paper and keep it secure. Never store it digitally.'**
   String get paperRecoveryKeyNotice;
 
   /// Checkbox or confirmation button indicating recovery key has been copied
@@ -757,13 +757,13 @@ abstract class AppLocalizations {
   /// Verification prompt testing user's written copy of recovery key
   ///
   /// In en, this message translates to:
-  /// **'Enter the following words from your recovery key to confirm:'**
+  /// **'Enter your 28-character recovery key to confirm:'**
   String get verifyRecoveryKeyPrompt;
 
-  /// Label for specific word in recovery key verification
+  /// Label for specific group in recovery key verification
   ///
   /// In en, this message translates to:
-  /// **'Word #{number}'**
+  /// **'Group #{number}'**
   String wordNumber(int number);
 
   /// Title for vault unlock screen
@@ -799,13 +799,13 @@ abstract class AppLocalizations {
   /// Instruction on vault recovery screen
   ///
   /// In en, this message translates to:
-  /// **'Enter your 24-word paper recovery key separated by spaces:'**
+  /// **'Enter your 28-character recovery key:'**
   String get enterRecoveryKeyPrompt;
 
   /// Error message for invalid recovery key input
   ///
   /// In en, this message translates to:
-  /// **'Invalid recovery key. Check spelling and word order.'**
+  /// **'Invalid recovery key. Check for typing mistakes.'**
   String get invalidRecoveryKey;
 
   /// Message upon successful recovery key verification
@@ -817,7 +817,7 @@ abstract class AppLocalizations {
   /// Header title on first-run welcome screen
   ///
   /// In en, this message translates to:
-  /// **'Privacy Notes'**
+  /// **'LeafLock'**
   String get welcomeTitle;
 
   /// Header subtitle on first-run welcome screen
@@ -853,13 +853,13 @@ abstract class AppLocalizations {
   /// Title for principle 3
   ///
   /// In en, this message translates to:
-  /// **'Locked Notes & Paper Key'**
+  /// **'Locked Notes & Backups'**
   String get welcomePrinciple3Title;
 
   /// Description for principle 3
   ///
   /// In en, this message translates to:
-  /// **'Protect private notes with AES-GCM encryption. A 24-word paper recovery key is created when you set up your vault.'**
+  /// **'Protect private notes with AES-GCM encryption. A single 28-character paper recovery key secures both your vault and encrypted backups.'**
   String get welcomePrinciple3Desc;
 
   /// Title for external file viewer screen
@@ -979,7 +979,7 @@ abstract class AppLocalizations {
   /// Subtitle explaining default apps settings
   ///
   /// In en, this message translates to:
-  /// **'Set Privacy Notes as default text and Markdown reader'**
+  /// **'Set LeafLock as default text and Markdown reader'**
   String get defaultAppsSettingsSubtitle;
 
   /// About navigation and screen title
@@ -1003,7 +1003,7 @@ abstract class AppLocalizations {
   /// Privacy promise text on about screen
   ///
   /// In en, this message translates to:
-  /// **'Privacy Notes never communicates over the network. Your notes never leave this physical device. There are zero analytics, zero trackers, and zero third-party ads.'**
+  /// **'LeafLock never communicates over the network. Your notes never leave this physical device. There are zero analytics, zero trackers, and zero third-party ads.'**
   String get privacyPromiseBody;
 
   /// Section title for security boundaries
@@ -1369,7 +1369,7 @@ abstract class AppLocalizations {
   /// Settings entry title navigating to about screen
   ///
   /// In en, this message translates to:
-  /// **'About Privacy Notes'**
+  /// **'About LeafLock'**
   String get aboutPrivacyNotes;
 
   /// Subtitle on settings about entry
@@ -1720,7 +1720,7 @@ abstract class AppLocalizations {
   /// **'Locked out. Try again in {seconds, plural, =1{1 second} other{{seconds} seconds}}.'**
   String lockedOutTryAgainIn(int seconds);
 
-  /// Button to recover vault using 24-word paper key
+  /// Button to recover vault using paper recovery key
   ///
   /// In en, this message translates to:
   /// **'Forgot PIN/pattern?'**
@@ -1792,10 +1792,10 @@ abstract class AppLocalizations {
   /// **'Information'**
   String get informationSection;
 
-  /// Help text explaining how to set Privacy Notes as default file handler
+  /// Help text explaining how to set LeafLock as default file handler
   ///
   /// In en, this message translates to:
-  /// **'Open any .txt or .md file in your file manager, choose Privacy Notes, and tap Always/Remember my choice. If another app (such as ChatGPT) is already the default, clear it in Android Settings > Apps > that app > Open by default.\n\nNote: Android decides the default app, and some file managers may open files in their own built-in viewer.'**
+  /// **'Open any .txt or .md file in your file manager, choose LeafLock, and tap Always/Remember my choice. If another app (such as ChatGPT) is already the default, clear it in Android Settings > Apps > that app > Open by default.\n\nNote: Android decides the default app, and some file managers may open files in their own built-in viewer.'**
   String get fileHandlingExplanation;
 
   /// Warning banner in settings when vault has no recovery key
@@ -1975,7 +1975,7 @@ abstract class AppLocalizations {
   /// Architecture card description
   ///
   /// In en, this message translates to:
-  /// **'Locked notes protect sensitive content with AES-256-GCM and PBKDF2 key derivation. What they protect: unauthorized access if someone picks up your unlocked phone or reads raw app storage. What they do NOT protect: rooted devices (where root malware can extract keys from RAM) or physical compromise if someone discovers your written 24-word paper recovery key.'**
+  /// **'Locked notes protect sensitive content with AES-256-GCM and PBKDF2 key derivation. What they protect: unauthorized access if someone picks up your unlocked phone or reads raw app storage. What they do NOT protect: rooted devices (where root malware can extract keys from RAM) or physical compromise if someone discovers your written 28-character paper recovery key.'**
   String get lockedNotesCryptographyDesc;
 
   /// Architecture card title
@@ -2029,8 +2029,14 @@ abstract class AppLocalizations {
   /// Generic recovery error message
   ///
   /// In en, this message translates to:
-  /// **'Recovery error: {error}'**
-  String recoveryErrorWithDetails(String error);
+  /// **'An error occurred during recovery. Please try again.'**
+  String get recoveryErrorWithDetails;
+
+  /// Generic recovery error message
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred during recovery. Please try again.'**
+  String get recoveryError;
 
   /// Validation error for short PIN
   ///
@@ -2065,8 +2071,14 @@ abstract class AppLocalizations {
   /// Error message when vault recovery fails during execution
   ///
   /// In en, this message translates to:
-  /// **'Recovery failed: {error}'**
-  String recoveryFailedWithDetails(String error);
+  /// **'Vault recovery failed. Please verify your recovery key and try again.'**
+  String get recoveryFailedWithDetails;
+
+  /// Error message when vault recovery fails during execution
+  ///
+  /// In en, this message translates to:
+  /// **'Vault recovery failed. Please verify your recovery key and try again.'**
+  String get recoveryFailed;
 
   /// Dialog notice when pending reset is cancelled by recovery
   ///
@@ -2229,6 +2241,372 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete Everything'**
   String get deleteEverything;
+
+  /// Navigation title and screen header for backup and restore
+  ///
+  /// In en, this message translates to:
+  /// **'Backup & Restore'**
+  String get backupAndRestore;
+
+  /// Settings subtitle for backup and restore tile
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypted offline backups saved to device storage'**
+  String get backupAndRestoreSubtitle;
+
+  /// Section header for backup operations
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get backupSectionHeader;
+
+  /// Section header for restore operations
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get restoreSectionHeader;
+
+  /// Button to create an encrypted backup now
+  ///
+  /// In en, this message translates to:
+  /// **'Back up now'**
+  String get backupNow;
+
+  /// Subtitle describing the backup now action
+  ///
+  /// In en, this message translates to:
+  /// **'Create an encrypted backup of all notes, folders, and settings'**
+  String get backupNowSubtitle;
+
+  /// Button to restore notes from an encrypted backup file
+  ///
+  /// In en, this message translates to:
+  /// **'Restore backup'**
+  String get restoreBackup;
+
+  /// Subtitle describing the restore backup action
+  ///
+  /// In en, this message translates to:
+  /// **'Import missing notes and folders from a .llbackup file'**
+  String get restoreBackupSubtitle;
+
+  /// Label showing the date and time of the last successful backup
+  ///
+  /// In en, this message translates to:
+  /// **'Last backup: {date}'**
+  String lastBackupLabel(String date);
+
+  /// Label when no backup has been completed yet
+  ///
+  /// In en, this message translates to:
+  /// **'Last backup: Never'**
+  String get lastBackupNever;
+
+  /// Title for the 30-day backup reminder setting
+  ///
+  /// In en, this message translates to:
+  /// **'Backup reminder'**
+  String get backupReminderTitle;
+
+  /// Subtitle for the backup reminder setting
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me on the home screen after 30 days without a backup'**
+  String get backupReminderSubtitle;
+
+  /// Title for the 30-day backup reminder banner on the notes list
+  ///
+  /// In en, this message translates to:
+  /// **'Back up your notes'**
+  String get backupReminderBannerTitle;
+
+  /// Message for the 30-day backup reminder banner
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s been over 30 days since your last backup. Back up your notes now to keep them safe.'**
+  String get backupReminderBannerMessage;
+
+  /// Action button to snooze the backup reminder banner for 3 days
+  ///
+  /// In en, this message translates to:
+  /// **'Remind in 3 days'**
+  String get remindInThreeDays;
+
+  /// Progress message while backup is being encrypted and created
+  ///
+  /// In en, this message translates to:
+  /// **'Creating encrypted backup...'**
+  String get backupCreating;
+
+  /// Snackbar message when a backup file is successfully saved
+  ///
+  /// In en, this message translates to:
+  /// **'Backup saved successfully'**
+  String get backupSuccess;
+
+  /// Dialog title asking user if share sheet resulted in a safe save
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Backup Save'**
+  String get backupSharePromptTitle;
+
+  /// Dialog message after closing share sheet to confirm saving
+  ///
+  /// In en, this message translates to:
+  /// **'Did you save the backup file somewhere safe?'**
+  String get backupSharePromptMessage;
+
+  /// Affirmative button confirming backup was safely saved
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, saved'**
+  String get saveConfirmed;
+
+  /// Negative button indicating backup was not saved
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get saveNotConfirmed;
+
+  /// Subject or title when sharing a backup file
+  ///
+  /// In en, this message translates to:
+  /// **'LeafLock Backup'**
+  String get backupShareTitle;
+
+  /// Title when prompting for existing paper key to derive backup subkey
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Paper Recovery Key'**
+  String get enterPaperKeyToBackupTitle;
+
+  /// Prompt explaining why paper key is needed to derive backup subkey
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your 28-character paper recovery key to enable backup encryption. You will only need to enter this once.'**
+  String get enterPaperKeyToBackupPrompt;
+
+  /// Title when creating a paper key for the first time during backup
+  ///
+  /// In en, this message translates to:
+  /// **'Create Paper Recovery Key'**
+  String get setupPaperKeyForBackupTitle;
+
+  /// Prompt when generating the root recovery key during backup setup
+  ///
+  /// In en, this message translates to:
+  /// **'LeafLock uses a single 28-character paper recovery key for vault recovery and encrypted backups. Write down this key on paper and keep it safe.'**
+  String get setupPaperKeyForBackupPrompt;
+
+  /// Title when prompting user for existing paper key during vault setup
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Paper Recovery Key'**
+  String get enterExistingPaperKeyForVaultTitle;
+
+  /// Prompt explaining why existing paper key is needed for vault setup
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 28-character paper recovery key you created during backup setup to link your locked notes vault.'**
+  String get enterExistingPaperKeyForVaultPrompt;
+
+  /// Dialog title warning about recovery key regeneration
+  ///
+  /// In en, this message translates to:
+  /// **'Regenerating Recovery Key'**
+  String get regenerateKeyWarningTitle;
+
+  /// Warning message before or after regenerating recovery key
+  ///
+  /// In en, this message translates to:
+  /// **'Important: Backups created before this change will always require your previous paper key to restore. Keep your old paper key if you still need those backups.'**
+  String get regenerateKeyWarningMessage;
+
+  /// Dialog title offering a new backup after recovery key rotation
+  ///
+  /// In en, this message translates to:
+  /// **'Create New Backup?'**
+  String get regenerateKeyOfferBackupTitle;
+
+  /// Dialog message offering immediate backup creation after key rotation
+  ///
+  /// In en, this message translates to:
+  /// **'Your recovery key has been updated. Backups made with your old key cannot be restored with the new key. Would you like to create a fresh backup now?'**
+  String get regenerateKeyOfferBackupMessage;
+
+  /// Generic button to initiate backup
+  ///
+  /// In en, this message translates to:
+  /// **'Back up now'**
+  String get backupNowButton;
+
+  /// Dismiss button for offers and reminders
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get notNowButton;
+
+  /// Title of dialog summarizing restore results
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Complete'**
+  String get restoreSummaryTitle;
+
+  /// Summary item showing count of newly restored notes
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 note restored} other{{count} notes restored}}'**
+  String restoreSummaryNotesRestored(int count);
+
+  /// Summary item showing count of newly restored folders
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 folder restored} other{{count} folders restored}}'**
+  String restoreSummaryFoldersRestored(int count);
+
+  /// Summary item showing count of restored locked notes
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 locked note restored} other{{count} locked notes restored}}'**
+  String restoreSummaryLockedNotesRestored(int count);
+
+  /// Summary item showing count of locked notes skipped due to vault mismatch
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 locked note skipped (different vault)} other{{count} locked notes skipped (different vault)}}'**
+  String restoreSummaryLockedNotesSkipped(int count);
+
+  /// Summary message when all notes in backup already exist in the database
+  ///
+  /// In en, this message translates to:
+  /// **'No new notes were found in the backup. Your existing notes were preserved.'**
+  String get restoreSummaryNoNewNotes;
+
+  /// Informational line in restore summary dialog
+  ///
+  /// In en, this message translates to:
+  /// **'A pre-restore safety copy of your database was preserved.'**
+  String get restoreSummarySafetyNotice;
+
+  /// Unified friendly error when restore authentication or integrity check fails
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong recovery key or damaged file.'**
+  String get wrongRecoveryKeyOrDamagedFile;
+
+  /// Error message when selected backup file is larger than 64 MB
+  ///
+  /// In en, this message translates to:
+  /// **'Backup file exceeds the 64 MB limit.'**
+  String get backupFileExceedsLimit;
+
+  /// Error message when backup format version is newer than supported
+  ///
+  /// In en, this message translates to:
+  /// **'This backup was created with a newer version of LeafLock.'**
+  String get backupNewerVersionError;
+
+  /// Error message when decompressed backup exceeds safe size limit
+  ///
+  /// In en, this message translates to:
+  /// **'Decompressed backup exceeds the 64 MB limit.'**
+  String get decompressionBombError;
+
+  /// Title or picker label when selecting a backup file to restore
+  ///
+  /// In en, this message translates to:
+  /// **'Select Backup File'**
+  String get restorePickFileTitle;
+
+  /// Dialog title prompting for recovery key during restore
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Paper Recovery Key'**
+  String get enterRecoveryKeyToRestoreTitle;
+
+  /// Instruction in restore key entry dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 28-character paper recovery key that was active when this backup was created:'**
+  String get enterRecoveryKeyToRestorePrompt;
+
+  /// Title of About screen section describing backups
+  ///
+  /// In en, this message translates to:
+  /// **'Offline Encrypted Backups'**
+  String get backupAboutArchitectureTitle;
+
+  /// Description of About screen backup architecture
+  ///
+  /// In en, this message translates to:
+  /// **'Full-database authenticated backups (.llbackup) encrypted with AES-256-GCM. Uses the root 28-character recovery key with HKDF subkey derivation. Never sends data off-device.'**
+  String get backupAboutArchitectureDesc;
+
+  /// Button to verify existing paper key and complete vault setup
+  ///
+  /// In en, this message translates to:
+  /// **'Link and Complete Setup'**
+  String get linkAndCompleteSetup;
+
+  /// Button or menu action to share backup file
+  ///
+  /// In en, this message translates to:
+  /// **'Share backup file'**
+  String get shareBackupAction;
+
+  /// Button to save backup file via Storage Access Framework
+  ///
+  /// In en, this message translates to:
+  /// **'Save to device'**
+  String get saveToFileAction;
+
+  /// Friendly error message when backup creation or export fails
+  ///
+  /// In en, this message translates to:
+  /// **'Backup failed. Please try again.'**
+  String get backupFailed;
+
+  /// Progress status message while backup is being restored
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring backup...'**
+  String get restoreRestoring;
+
+  /// Dialog title when selected backup file exceeds size limit
+  ///
+  /// In en, this message translates to:
+  /// **'File Too Large'**
+  String get backupFileOversizeTitle;
+
+  /// Error message when pre-restore database safety copy fails
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create safety copy of database. Restore was cancelled.'**
+  String get restoreSafetyCopyFailed;
+
+  /// Error message when safety copy file size differs from source database
+  ///
+  /// In en, this message translates to:
+  /// **'Safety copy size mismatch. Restore was cancelled.'**
+  String get restoreSafetyCopySizeMismatch;
+
+  /// Error message when backup contents fail schema or data validation
+  ///
+  /// In en, this message translates to:
+  /// **'The backup contains invalid or corrupted data.'**
+  String get restoreInvalidData;
+
+  /// Snackbar message when vault setup is successfully completed
+  ///
+  /// In en, this message translates to:
+  /// **'Locked notes vault ready'**
+  String get lockedNotesVaultReady;
+
+  /// Error message when setting up locked notes vault fails
+  ///
+  /// In en, this message translates to:
+  /// **'Vault setup failed. Please try again.'**
+  String get vaultSetupFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Privacy Notes';
+  String get appTitle => 'LeafLock';
 
   @override
   String get cancel => 'Cancel';
@@ -423,18 +423,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paperRecoveryKeyNotice =>
-      'This 24-word key is the ONLY way to recover locked notes if you forget your secret. Write it on paper and keep it secure. Never store it digitally.';
+      'This 28-character key is the ONLY way to recover locked notes if you forget your secret. Write it on paper and keep it secure. Never store it digitally.';
 
   @override
   String get iHaveWrittenItDown => 'I have written it down';
 
   @override
   String get verifyRecoveryKeyPrompt =>
-      'Enter the following words from your recovery key to confirm:';
+      'Enter your 28-character recovery key to confirm:';
 
   @override
   String wordNumber(int number) {
-    return 'Word #$number';
+    return 'Group #$number';
   }
 
   @override
@@ -461,19 +461,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recoverVaultTitle => 'Recover vault';
 
   @override
-  String get enterRecoveryKeyPrompt =>
-      'Enter your 24-word paper recovery key separated by spaces:';
+  String get enterRecoveryKeyPrompt => 'Enter your 28-character recovery key:';
 
   @override
   String get invalidRecoveryKey =>
-      'Invalid recovery key. Check spelling and word order.';
+      'Invalid recovery key. Check for typing mistakes.';
 
   @override
   String get recoverySuccess =>
       'Vault successfully recovered. Set a new credential.';
 
   @override
-  String get welcomeTitle => 'Privacy Notes';
+  String get welcomeTitle => 'LeafLock';
 
   @override
   String get welcomeSubtitle =>
@@ -494,11 +493,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'No accounts, no analytics, no advertising IDs, and no internet connection permissions requested.';
 
   @override
-  String get welcomePrinciple3Title => 'Locked Notes & Paper Key';
+  String get welcomePrinciple3Title => 'Locked Notes & Backups';
 
   @override
   String get welcomePrinciple3Desc =>
-      'Protect private notes with AES-GCM encryption. A 24-word paper recovery key is created when you set up your vault.';
+      'Protect private notes with AES-GCM encryption. A single 28-character paper recovery key secures both your vault and encrypted backups.';
 
   @override
   String get fileViewerTitle => 'File Viewer';
@@ -562,7 +561,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get defaultAppsSettingsSubtitle =>
-      'Set Privacy Notes as default text and Markdown reader';
+      'Set LeafLock as default text and Markdown reader';
 
   @override
   String get about => 'About';
@@ -576,7 +575,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyPromiseBody =>
-      'Privacy Notes never communicates over the network. Your notes never leave this physical device. There are zero analytics, zero trackers, and zero third-party ads.';
+      'LeafLock never communicates over the network. Your notes never leave this physical device. There are zero analytics, zero trackers, and zero third-party ads.';
 
   @override
   String get securityBoundariesTitle => 'Security Boundaries & Threat Model';
@@ -814,7 +813,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openDefaultAppsSettings => 'Open default apps settings';
 
   @override
-  String get aboutPrivacyNotes => 'About Privacy Notes';
+  String get aboutPrivacyNotes => 'About LeafLock';
 
   @override
   String aboutSubtitle(String version) {
@@ -1073,7 +1072,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fileHandlingExplanation =>
-      'Open any .txt or .md file in your file manager, choose Privacy Notes, and tap Always/Remember my choice. If another app (such as ChatGPT) is already the default, clear it in Android Settings > Apps > that app > Open by default.\n\nNote: Android decides the default app, and some file managers may open files in their own built-in viewer.';
+      'Open any .txt or .md file in your file manager, choose LeafLock, and tap Always/Remember my choice. If another app (such as ChatGPT) is already the default, clear it in Android Settings > Apps > that app > Open by default.\n\nNote: Android decides the default app, and some file managers may open files in their own built-in viewer.';
 
   @override
   String get noRecoveryKeyWarning =>
@@ -1183,7 +1182,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lockedNotesCryptographyDesc =>
-      'Locked notes protect sensitive content with AES-256-GCM and PBKDF2 key derivation. What they protect: unauthorized access if someone picks up your unlocked phone or reads raw app storage. What they do NOT protect: rooted devices (where root malware can extract keys from RAM) or physical compromise if someone discovers your written 24-word paper recovery key.';
+      'Locked notes protect sensitive content with AES-256-GCM and PBKDF2 key derivation. What they protect: unauthorized access if someone picks up your unlocked phone or reads raw app storage. What they do NOT protect: rooted devices (where root malware can extract keys from RAM) or physical compromise if someone discovers your written 28-character paper recovery key.';
 
   @override
   String get openSourceAndTransparent => 'Open Source & Transparent';
@@ -1214,9 +1213,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Incorrect recovery key. Please check your paper copy.';
 
   @override
-  String recoveryErrorWithDetails(String error) {
-    return 'Recovery error: $error';
-  }
+  String get recoveryErrorWithDetails =>
+      'An error occurred during recovery. Please try again.';
+
+  @override
+  String get recoveryError =>
+      'An error occurred during recovery. Please try again.';
 
   @override
   String get pinMustBeAtLeastSixDigits => 'PIN must be at least 6 digits';
@@ -1235,9 +1237,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newSecretSetVaultUnlocked => 'New secret set. Vault unlocked.';
 
   @override
-  String recoveryFailedWithDetails(String error) {
-    return 'Recovery failed: $error';
-  }
+  String get recoveryFailedWithDetails =>
+      'Vault recovery failed. Please verify your recovery key and try again.';
+
+  @override
+  String get recoveryFailed =>
+      'Vault recovery failed. Please verify your recovery key and try again.';
 
   @override
   String vaultResetCancelledNotice(String date) {
@@ -1326,4 +1331,242 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteEverything => 'Delete Everything';
+
+  @override
+  String get backupAndRestore => 'Backup & Restore';
+
+  @override
+  String get backupAndRestoreSubtitle =>
+      'Encrypted offline backups saved to device storage';
+
+  @override
+  String get backupSectionHeader => 'Backup';
+
+  @override
+  String get restoreSectionHeader => 'Restore';
+
+  @override
+  String get backupNow => 'Back up now';
+
+  @override
+  String get backupNowSubtitle =>
+      'Create an encrypted backup of all notes, folders, and settings';
+
+  @override
+  String get restoreBackup => 'Restore backup';
+
+  @override
+  String get restoreBackupSubtitle =>
+      'Import missing notes and folders from a .llbackup file';
+
+  @override
+  String lastBackupLabel(String date) {
+    return 'Last backup: $date';
+  }
+
+  @override
+  String get lastBackupNever => 'Last backup: Never';
+
+  @override
+  String get backupReminderTitle => 'Backup reminder';
+
+  @override
+  String get backupReminderSubtitle =>
+      'Remind me on the home screen after 30 days without a backup';
+
+  @override
+  String get backupReminderBannerTitle => 'Back up your notes';
+
+  @override
+  String get backupReminderBannerMessage =>
+      'It\'s been over 30 days since your last backup. Back up your notes now to keep them safe.';
+
+  @override
+  String get remindInThreeDays => 'Remind in 3 days';
+
+  @override
+  String get backupCreating => 'Creating encrypted backup...';
+
+  @override
+  String get backupSuccess => 'Backup saved successfully';
+
+  @override
+  String get backupSharePromptTitle => 'Confirm Backup Save';
+
+  @override
+  String get backupSharePromptMessage =>
+      'Did you save the backup file somewhere safe?';
+
+  @override
+  String get saveConfirmed => 'Yes, saved';
+
+  @override
+  String get saveNotConfirmed => 'No';
+
+  @override
+  String get backupShareTitle => 'LeafLock Backup';
+
+  @override
+  String get enterPaperKeyToBackupTitle => 'Enter Paper Recovery Key';
+
+  @override
+  String get enterPaperKeyToBackupPrompt =>
+      'Enter your 28-character paper recovery key to enable backup encryption. You will only need to enter this once.';
+
+  @override
+  String get setupPaperKeyForBackupTitle => 'Create Paper Recovery Key';
+
+  @override
+  String get setupPaperKeyForBackupPrompt =>
+      'LeafLock uses a single 28-character paper recovery key for vault recovery and encrypted backups. Write down this key on paper and keep it safe.';
+
+  @override
+  String get enterExistingPaperKeyForVaultTitle => 'Enter Paper Recovery Key';
+
+  @override
+  String get enterExistingPaperKeyForVaultPrompt =>
+      'Enter the 28-character paper recovery key you created during backup setup to link your locked notes vault.';
+
+  @override
+  String get regenerateKeyWarningTitle => 'Regenerating Recovery Key';
+
+  @override
+  String get regenerateKeyWarningMessage =>
+      'Important: Backups created before this change will always require your previous paper key to restore. Keep your old paper key if you still need those backups.';
+
+  @override
+  String get regenerateKeyOfferBackupTitle => 'Create New Backup?';
+
+  @override
+  String get regenerateKeyOfferBackupMessage =>
+      'Your recovery key has been updated. Backups made with your old key cannot be restored with the new key. Would you like to create a fresh backup now?';
+
+  @override
+  String get backupNowButton => 'Back up now';
+
+  @override
+  String get notNowButton => 'Not now';
+
+  @override
+  String get restoreSummaryTitle => 'Restore Complete';
+
+  @override
+  String restoreSummaryNotesRestored(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count notes restored',
+      one: '1 note restored',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restoreSummaryFoldersRestored(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count folders restored',
+      one: '1 folder restored',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restoreSummaryLockedNotesRestored(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count locked notes restored',
+      one: '1 locked note restored',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String restoreSummaryLockedNotesSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count locked notes skipped (different vault)',
+      one: '1 locked note skipped (different vault)',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get restoreSummaryNoNewNotes =>
+      'No new notes were found in the backup. Your existing notes were preserved.';
+
+  @override
+  String get restoreSummarySafetyNotice =>
+      'A pre-restore safety copy of your database was preserved.';
+
+  @override
+  String get wrongRecoveryKeyOrDamagedFile =>
+      'Wrong recovery key or damaged file.';
+
+  @override
+  String get backupFileExceedsLimit => 'Backup file exceeds the 64 MB limit.';
+
+  @override
+  String get backupNewerVersionError =>
+      'This backup was created with a newer version of LeafLock.';
+
+  @override
+  String get decompressionBombError =>
+      'Decompressed backup exceeds the 64 MB limit.';
+
+  @override
+  String get restorePickFileTitle => 'Select Backup File';
+
+  @override
+  String get enterRecoveryKeyToRestoreTitle => 'Enter Paper Recovery Key';
+
+  @override
+  String get enterRecoveryKeyToRestorePrompt =>
+      'Enter the 28-character paper recovery key that was active when this backup was created:';
+
+  @override
+  String get backupAboutArchitectureTitle => 'Offline Encrypted Backups';
+
+  @override
+  String get backupAboutArchitectureDesc =>
+      'Full-database authenticated backups (.llbackup) encrypted with AES-256-GCM. Uses the root 28-character recovery key with HKDF subkey derivation. Never sends data off-device.';
+
+  @override
+  String get linkAndCompleteSetup => 'Link and Complete Setup';
+
+  @override
+  String get shareBackupAction => 'Share backup file';
+
+  @override
+  String get saveToFileAction => 'Save to device';
+
+  @override
+  String get backupFailed => 'Backup failed. Please try again.';
+
+  @override
+  String get restoreRestoring => 'Restoring backup...';
+
+  @override
+  String get backupFileOversizeTitle => 'File Too Large';
+
+  @override
+  String get restoreSafetyCopyFailed =>
+      'Could not create safety copy of database. Restore was cancelled.';
+
+  @override
+  String get restoreSafetyCopySizeMismatch =>
+      'Safety copy size mismatch. Restore was cancelled.';
+
+  @override
+  String get restoreInvalidData =>
+      'The backup contains invalid or corrupted data.';
+
+  @override
+  String get lockedNotesVaultReady => 'Locked notes vault ready';
+
+  @override
+  String get vaultSetupFailed => 'Vault setup failed. Please try again.';
 }

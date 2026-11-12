@@ -150,18 +150,44 @@ class _VaultRecoveryKeyScreenState extends ConsumerState<VaultRecoveryKeyScreen>
         recoveryKeyString: _generatedKey!,
       );
       if (mounted) {
-        AppSnackBar.show(
-          context,
-          message: widget.isRegenerating
-              ? l10n.generateNewRecoveryKey
-              : l10n.createRecoveryKey,
-        );
-        context.pop(true);
+        if (widget.isRegenerating) {
+          await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) => AlertDialog(
+              title: Text(l10n.regenerateKeyOfferBackupTitle),
+              content: Text(l10n.regenerateKeyOfferBackupMessage),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                  child: Text(l10n.notNowButton),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    context.push('/settings/backup');
+                  },
+                  child: Text(l10n.backupNowButton),
+                ),
+              ],
+            ),
+          );
+        } else {
+          AppSnackBar.show(
+            context,
+            message: l10n.createRecoveryKey,
+          );
+        }
+        if (mounted) {
+          context.pop(true);
+        }
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = l10n.recoveryFailedWithDetails(e.toString());
+          _errorMessage = l10n.recoveryFailed;
         });
       }
     }

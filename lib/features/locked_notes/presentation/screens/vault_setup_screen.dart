@@ -39,6 +39,7 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
   bool _isPatternError = false;
   int _patternResetKey = 0;
   bool _isTransitioning = false;
+  bool _isLinkingExistingKey = false;
 
   @override
   void initState() {
@@ -220,25 +221,92 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
           newCredentialType: _selectedType,
         );
         if (mounted) {
-          AppSnackBar.show(context, message: 'Vault secret updated');
+          final l10n = contextL10n(context);
+          AppSnackBar.show(context, message: l10n.secretChangedSuccessfully);
           context.pop(true);
         }
-      } catch (e) {
+      } catch (_) {
         if (mounted) {
+          final l10n = contextL10n(context);
           setState(() {
-            _errorMessage = 'Setup failed: $e';
+            _errorMessage = l10n.vaultSetupFailed;
           });
         }
       }
     } else {
-      // Mandatory Step 3: Show recovery key (R4)
+      // Check if a backup subkey already exists (Case 4: single root key architecture)
+      final vaultService = ref.read(vaultServiceProvider);
+      final hasSubkey = await vaultService.hasBackupSubkey();
+      if (hasSubkey) {
+        setState(() {
+          _isLinkingExistingKey = true;
+          _step = 3;
+          _retypeController.clear();
+          _errorMessage = null;
+          _isPatternError = false;
+        });
+      } else {
+        setState(() {
+          _isLinkingExistingKey = false;
+          _step = 3;
+          _generatedRecoveryKey ??= RecoveryKeyService.generateKey();
+          _retypeController.clear();
+          _errorMessage = null;
+          _isPatternError = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _proceedStep3Linking() async {
+    final l10n = contextL10n(context);
+    final typed = RecoveryKeyService.normalize(_retypeController.text);
+    if (typed.isEmpty) {
       setState(() {
-        _step = 3;
-        _generatedRecoveryKey ??= RecoveryKeyService.generateKey();
-        _retypeController.clear();
-        _errorMessage = null;
-        _isPatternError = false;
+        _errorMessage = l10n.pleaseEnterYourRecoveryKey;
       });
+      return;
+    }
+
+    if (!RecoveryKeyService.isValidFormat(typed)) {
+      setState(() {
+        _errorMessage = l10n.invalidRecoveryKey;
+      });
+      return;
+    }
+
+    final vaultService = ref.read(vaultServiceProvider);
+    final isMatch = await vaultService.verifyRecoveryKeyAgainstBackupSubkey(typed);
+    if (!isMatch) {
+      setState(() {
+        _errorMessage = l10n.invalidRecoveryKey;
+      });
+      return;
+    }
+
+    try {
+      final vaultNotifier = ref.read(vaultProvider);
+      await vaultNotifier.setupVault(
+        secret: _firstSecret,
+        credentialType: _selectedType,
+        recoveryKeyString: typed,
+      );
+      if (mounted) {
+        final l10n = contextL10n(context);
+        AppSnackBar.show(context, message: l10n.lockedNotesVaultReady);
+        if (Navigator.of(context).canPop()) {
+          context.pop(true);
+        } else {
+          context.go('/locked');
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        final l10n = contextL10n(context);
+        setState(() {
+          _errorMessage = l10n.vaultSetupFailed;
+        });
+      }
     }
   }
 
@@ -250,19 +318,20 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
   }
 
   Future<void> _proceedStep4() async {
+    final l10n = contextL10n(context);
     final typed = RecoveryKeyService.normalize(_retypeController.text);
     final expected = RecoveryKeyService.normalize(_generatedRecoveryKey ?? '');
 
     if (typed.isEmpty) {
       setState(() {
-        _errorMessage = 'Please type your recovery key.';
+        _errorMessage = l10n.pleaseEnterYourRecoveryKey;
       });
       return;
     }
 
     if (typed != expected) {
       setState(() {
-        _errorMessage = 'Recovery key does not match. Check for typing mistakes.';
+        _errorMessage = l10n.recoveryKeyMismatchError;
       });
       return;
     }
@@ -275,17 +344,17 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
         recoveryKeyString: _generatedRecoveryKey!,
       );
       if (mounted) {
-        AppSnackBar.show(context, message: 'Locked notes vault ready');
+        AppSnackBar.show(context, message: l10n.lockedNotesVaultReady);
         if (Navigator.of(context).canPop()) {
           context.pop(true);
         } else {
           context.go('/locked');
         }
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Setup failed: $e';
+          _errorMessage = l10n.vaultSetupFailed;
         });
       }
     }
@@ -301,7 +370,7 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
     } else if (_step == 2) {
       return _selectedType == CredentialType.pin ? l10n.confirmYourPin : l10n.confirmYourPattern;
     } else if (_step == 3) {
-      return l10n.writeDownRecoveryKey;
+      return _isLinkingExistingKey ? l10n.enterExistingPaperKeyForVaultTitle : l10n.writeDownRecoveryKey;
     } else {
       return l10n.confirmRecoveryKey;
     }
@@ -317,7 +386,7 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
     } else if (_step == 2) {
       return l10n.enterSameSecretAgain(_selectedType == CredentialType.pin ? l10n.pinCredential : l10n.patternCredential);
     } else if (_step == 3) {
-      return l10n.keepKeySafeSubtitle;
+      return _isLinkingExistingKey ? l10n.enterExistingPaperKeyForVaultPrompt : l10n.keepKeySafeSubtitle;
     } else {
       return l10n.typeWholeKeySubtitle;
     }
@@ -580,51 +649,93 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
                         ),
                     ],
                   ] else if (_step == 3) ...[
-                    // Step 3: Show recovery key (R1, R2, R4)
-                    Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.symmetric(vertical: Spacing.sm),
-                      padding: const EdgeInsets.all(Spacing.md),
-                      decoration: BoxDecoration(
-                        color: isDark ? AppColors.charcoal : AppColors.greyLight,
-                        borderRadius: BorderRadius.circular(Spacing.sm),
-                        border: Border.all(color: AppColors.primary, width: 1.5),
+                    if (_isLinkingExistingKey) ...[
+                      TextField(
+                        controller: _retypeController,
+                        autofocus: true,
+                        autocorrect: false,
+                        enableSuggestions: false,
+                        enableIMEPersonalizedLearning: false,
+                        keyboardType: TextInputType.visiblePassword,
+                        textCapitalization: TextCapitalization.characters,
+                        decoration: InputDecoration(
+                          labelText: l10n.enterRecoveryKeyLabel,
+                          hintText: 'XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX',
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.vpn_key_outlined),
+                        ),
+                        onChanged: (_) {
+                          if (_errorMessage != null) {
+                            setState(() {
+                              _errorMessage = null;
+                            });
+                          }
+                        },
                       ),
-                      child: Column(
-                        children: [
-                          const Icon(Icons.vpn_key_rounded, size: 36, color: AppColors.primary),
-                          const SizedBox(height: Spacing.sm),
-                          Text(
-                            _generatedRecoveryKey ?? '',
-                            key: const ValueKey('recovery_key_display_text'),
-                            textAlign: TextAlign.center,
-                            style: textTheme.titleMedium?.copyWith(
-                              fontFamily: 'monospace',
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.2,
+                      const SizedBox(height: Spacing.xs),
+                      Text(
+                        l10n.recoveryKeyDashesHint,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: Spacing.lg),
+                      ElevatedButton(
+                        onPressed: _proceedStep3Linking,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: AppColors.white,
+                          minimumSize: const Size(220, 48),
+                        ),
+                        child: Text(l10n.linkAndCompleteSetup),
+                      ),
+                    ] else ...[
+                      // Step 3: Show recovery key (R1, R2, R4)
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.symmetric(vertical: Spacing.sm),
+                        padding: const EdgeInsets.all(Spacing.md),
+                        decoration: BoxDecoration(
+                          color: isDark ? AppColors.charcoal : AppColors.greyLight,
+                          borderRadius: BorderRadius.circular(Spacing.sm),
+                          border: Border.all(color: AppColors.primary, width: 1.5),
+                        ),
+                        child: Column(
+                          children: [
+                            const Icon(Icons.vpn_key_rounded, size: 36, color: AppColors.primary),
+                            const SizedBox(height: Spacing.sm),
+                            Text(
+                              _generatedRecoveryKey ?? '',
+                              key: const ValueKey('recovery_key_display_text'),
+                              textAlign: TextAlign.center,
+                              style: textTheme.titleMedium?.copyWith(
+                                fontFamily: 'monospace',
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: Spacing.sm),
-                    Text(
-                      l10n.recoveryKeyExplanation,
-                      style: textTheme.bodySmall?.copyWith(
-                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                      const SizedBox(height: Spacing.sm),
+                      Text(
+                        l10n.recoveryKeyExplanation,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: Spacing.lg),
-                    ElevatedButton(
-                      onPressed: _proceedStep3,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.white,
-                        minimumSize: const Size(220, 48),
+                      const SizedBox(height: Spacing.lg),
+                      ElevatedButton(
+                        onPressed: _proceedStep3,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: AppColors.white,
+                          minimumSize: const Size(220, 48),
+                        ),
+                        child: Text(l10n.iHaveWrittenItDown),
                       ),
-                      child: Text(l10n.iHaveWrittenItDown),
-                    ),
+                    ],
                   ] else if (_step == 4) ...[
                     // Step 4: Mandatory re-type confirmation (R4)
                     TextField(

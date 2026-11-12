@@ -13,6 +13,7 @@ import '../widgets/note_card.dart';
 import '../widgets/notes_empty_view.dart';
 import '../widgets/notes_search_bar.dart';
 import '../../../locked_notes/presentation/controllers/vault_providers.dart';
+import '../../../backup/presentation/widgets/backup_reminder_banner.dart';
 
 class NotesListScreen extends ConsumerStatefulWidget {
   const NotesListScreen({super.key});
@@ -501,9 +502,10 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                   notifier.setSearchQuery('');
                 },
               ),
+              const BackupReminderBanner(),
               // Folder Filter Chips
               SizedBox(
-                height: 44,
+                height: 64 * MediaQuery.textScalerOf(context).scale(1.0).clamp(1.0, 2.0),
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(
@@ -560,7 +562,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                                     SliverToBoxAdapter(
                                       child: SectionHeader(
                                         title: l10n.pinnedSectionHeader,
-                                        trailing: (notifier.isSelectionMode && otherNotes.isEmpty)
+                                        trailing: notifier.isSelectionMode
                                             ? _buildSelectAllAction(context, notifier, l10n)
                                             : null,
                                       ),
@@ -610,7 +612,7 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
                                         title: pinnedNotes.isNotEmpty
                                             ? l10n.recentSectionHeader
                                             : l10n.notesSectionHeader,
-                                        trailing: notifier.isSelectionMode
+                                        trailing: (notifier.isSelectionMode && pinnedNotes.isEmpty)
                                             ? _buildSelectAllAction(context, notifier, l10n)
                                             : null,
                                       ),
@@ -684,26 +686,41 @@ class _NotesListScreenState extends ConsumerState<NotesListScreen> {
     final theme = Theme.of(context);
     final allSelected =
         notifier.selectedCount == notifier.notes.length && notifier.notes.isNotEmpty;
+    final label = allSelected ? l10n.deselectAll : l10n.selectAll;
 
-    return TextButton(
-      style: TextButton.styleFrom(
-        visualDensity: VisualDensity.compact,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-        minimumSize: const Size(48, 48),
-        foregroundColor: AppColors.primary,
-      ),
-      onPressed: () {
-        if (allSelected) {
-          notifier.clearSelection();
-        } else {
-          notifier.selectAll();
-        }
-      },
-      child: Text(
-        allSelected ? l10n.deselectAll : l10n.selectAll,
-        style: theme.textTheme.labelLarge?.copyWith(
-          color: AppColors.primary,
-          fontWeight: FontWeight.w600,
+    return Semantics(
+      button: true,
+      label: label,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minWidth: 48,
+          minHeight: 48,
+        ),
+        child: TextButton(
+          style: TextButton.styleFrom(
+            visualDensity: VisualDensity.standard,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
+            minimumSize: const Size(48, 48),
+            tapTargetSize: MaterialTapTargetSize.padded,
+            foregroundColor: AppColors.primary,
+          ),
+          onPressed: () {
+            if (allSelected) {
+              notifier.clearSelection();
+            } else {
+              notifier.selectAll();
+            }
+          },
+          child: Text(
+            label,
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: AppColors.primary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
       ),
     );

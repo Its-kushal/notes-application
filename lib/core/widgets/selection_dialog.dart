@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n_extension.dart';
 import '../constants/app_colors.dart';
 
 /// Single item in a selection dialog.
@@ -134,7 +135,7 @@ class SelectionDialog extends StatelessWidget {
           ? [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Close'),
+                child: Text(contextL10n(context).closeAction),
               ),
             ]
           : null,

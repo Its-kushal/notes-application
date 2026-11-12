@@ -126,7 +126,7 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = l10n.recoveryErrorWithDetails(e.toString());
+        _errorMessage = l10n.recoveryError;
       });
     }
   }
@@ -259,7 +259,7 @@ class _VaultRecoveryScreenState extends ConsumerState<VaultRecoveryScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = l10n.recoveryFailedWithDetails(e.toString());
+          _errorMessage = l10n.recoveryFailed;
         });
       }
     }

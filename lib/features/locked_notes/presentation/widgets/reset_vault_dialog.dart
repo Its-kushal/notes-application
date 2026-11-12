@@ -141,7 +141,7 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
     } catch (e) {
       setState(() {
         _isResetting = false;
-        _errorMessage = l10n.recoveryFailedWithDetails(e.toString());
+        _errorMessage = l10n.recoveryFailed;
       });
     }
   }
@@ -169,7 +169,7 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
     } catch (e) {
       setState(() {
         _isResetting = false;
-        _errorMessage = l10n.recoveryFailedWithDetails(e.toString());
+        _errorMessage = l10n.recoveryFailed;
       });
     }
   }
@@ -222,7 +222,7 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
         if (mounted) {
           setState(() {
             _isResetting = false;
-            _errorMessage = l10n.recoveryFailedWithDetails(e.toString());
+            _errorMessage = l10n.recoveryFailed;
           });
         }
       }
@@ -246,7 +246,7 @@ class _ResetVaultDialogState extends ConsumerState<ResetVaultDialog> {
       if (mounted) {
         setState(() {
           _isResetting = false;
-          _errorMessage = l10n.recoveryFailedWithDetails(e.toString());
+          _errorMessage = l10n.recoveryFailed;
         });
       }
     }
