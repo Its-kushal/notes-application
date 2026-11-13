@@ -225,11 +225,12 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
           AppSnackBar.show(context, message: l10n.secretChangedSuccessfully);
           context.pop(true);
         }
-      } catch (_) {
+      } catch (e, st) {
+        debugPrint('Vault changeSecret error: $e\n$st');
         if (mounted) {
           final l10n = contextL10n(context);
           setState(() {
-            _errorMessage = l10n.vaultSetupFailed;
+            _errorMessage = '${l10n.vaultSetupFailed} ($e)';
           });
         }
       }
@@ -300,11 +301,12 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
           context.go('/locked');
         }
       }
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('Vault setup linking error: $e\n$st');
       if (mounted) {
         final l10n = contextL10n(context);
         setState(() {
-          _errorMessage = l10n.vaultSetupFailed;
+          _errorMessage = '${l10n.vaultSetupFailed} ($e)';
         });
       }
     }
@@ -351,10 +353,11 @@ class _VaultSetupScreenState extends ConsumerState<VaultSetupScreen> {
           context.go('/locked');
         }
       }
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('Vault setup error: $e\n$st');
       if (mounted) {
         setState(() {
-          _errorMessage = l10n.vaultSetupFailed;
+          _errorMessage = '${l10n.vaultSetupFailed} ($e)';
         });
       }
     }

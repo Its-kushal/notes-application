@@ -590,9 +590,9 @@ class SqlNotesRepository implements NotesRepository {
       final rowsUpdated = await txn.update(
         'notes',
         {
-          'encrypted_payload': secretBox.cipherText,
+          'encrypted_payload': Uint8List.fromList(secretBox.cipherText),
           'payload_iv': iv,
-          'payload_tag': secretBox.mac.bytes,
+          'payload_tag': Uint8List.fromList(secretBox.mac.bytes),
           'is_locked': 1,
           'title': '',
           'body': '',
@@ -706,9 +706,9 @@ class SqlNotesRepository implements NotesRepository {
     await _db.update(
       'notes',
       {
-        'encrypted_payload': secretBox.cipherText,
+        'encrypted_payload': Uint8List.fromList(secretBox.cipherText),
         'payload_iv': iv,
-        'payload_tag': secretBox.mac.bytes,
+        'payload_tag': Uint8List.fromList(secretBox.mac.bytes),
         'updated_at': now,
         'title': '',
         'body': '',

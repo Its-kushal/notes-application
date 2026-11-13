@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:cryptography/cryptography.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 abstract class KdfService {
@@ -10,7 +12,8 @@ abstract class KdfService {
   });
 }
 
-/// Production implementation executing PBKDF2-HMAC-SHA256 natively in Kotlin via MethodChannel.
+/// Production implementation executing PBKDF2-HMAC-SHA256 natively in Kotlin via MethodChannel,
+/// with a resilient pure-Dart fallback if the platform channel is unavailable or fails.
 class NativeKdfService implements KdfService {
   static const MethodChannel _channel = MethodChannel('com.leaflock.app/security');
 
@@ -21,16 +24,30 @@ class NativeKdfService implements KdfService {
     required int iterations,
     int keyLength = 32,
   }) async {
-    final result = await _channel.invokeMethod<Uint8List>('pbkdf2', {
-      'secret': secret,
-      'salt': salt,
-      'iterations': iterations,
-      'keyLengthBits': keyLength * 8,
-    });
-    if (result == null) {
-      throw StateError('Native PBKDF2 derivation failed to return a key.');
+    try {
+      final result = await _channel.invokeMethod<Uint8List>('pbkdf2', {
+        'secret': secret,
+        'salt': salt,
+        'iterations': iterations,
+        'keyLengthBits': keyLength * 8,
+      });
+      if (result != null && result.length == keyLength) {
+        return result;
+      }
+    } catch (e) {
+      debugPrint('Native PBKDF2 channel unavailable or failed ($e); using pure-Dart Pbkdf2 fallback.');
     }
-    return result;
+
+    // Resilient fallback using package:cryptography
+    final pbkdf2 = Pbkdf2(
+      macAlgorithm: Hmac.sha256(),
+      iterations: iterations,
+      bits: keyLength * 8,
+    );
+    final secretKey = SecretKey(utf8.encode(secret));
+    final derived = await pbkdf2.deriveKey(secretKey: secretKey, nonce: salt);
+    final bytes = await derived.extractBytes();
+    return Uint8List.fromList(bytes);
   }
 }
 
