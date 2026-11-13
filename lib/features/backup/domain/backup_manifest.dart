@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import '../../../core/constants/app_info.dart';
 import '../services/backup_service.dart';
 
 /// Manifest containing all exported data for a .llbackup container (B3).
 @immutable
 class BackupManifest {
   static const int currentSchemaVersion = 1;
-  static const String currentAppVersion = '1.0.0';
+  static const String currentAppVersion = AppInfo.appVersion;
 
   /// Settings keys that are permitted to be included in an exported backup (B3, M6 Closure Requirement 6).
   static const Set<String> allowedSettingsKeys = {

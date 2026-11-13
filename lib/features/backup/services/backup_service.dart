@@ -503,7 +503,7 @@ class BackupService {
       }
 
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final copyPath = '${backupDir.path}/privacy_notes_pre_restore_$timestamp.db';
+      final copyPath = '${backupDir.path}/leaflock_pre_restore_$timestamp.db';
       final copyFile = await dbFile.copy(copyPath);
 
       final copySize = await copyFile.length();

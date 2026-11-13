@@ -144,14 +144,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   );
 });
 
-class PrivacyNotesApp extends ConsumerStatefulWidget {
-  const PrivacyNotesApp({super.key});
+class LeafLockApp extends ConsumerStatefulWidget {
+  const LeafLockApp({super.key});
 
   @override
-  ConsumerState<PrivacyNotesApp> createState() => _PrivacyNotesAppState();
+  ConsumerState<LeafLockApp> createState() => _LeafLockAppState();
 }
 
-class _PrivacyNotesAppState extends ConsumerState<PrivacyNotesApp>
+class _LeafLockAppState extends ConsumerState<LeafLockApp>
     with WidgetsBindingObserver {
   FileIntentService? _fileIntentService;
 

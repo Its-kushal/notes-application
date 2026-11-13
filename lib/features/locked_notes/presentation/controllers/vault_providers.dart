@@ -22,7 +22,7 @@ final vaultServiceProvider = Provider<VaultService>((ref) {
     kdfService: kdfService,
     elapsedRealtimeProvider: () async {
       try {
-        const channel = MethodChannel('com.privacynotes.app/security');
+        const channel = MethodChannel('com.leaflock.app/security');
         final res = await channel.invokeMethod<int>('getElapsedRealtime');
         return res ?? DateTime.now().millisecondsSinceEpoch;
       } catch (_) {

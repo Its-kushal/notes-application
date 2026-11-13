@@ -12,7 +12,7 @@ abstract class KdfService {
 
 /// Production implementation executing PBKDF2-HMAC-SHA256 natively in Kotlin via MethodChannel.
 class NativeKdfService implements KdfService {
-  static const MethodChannel _channel = MethodChannel('com.privacynotes.app/security');
+  static const MethodChannel _channel = MethodChannel('com.leaflock.app/security');
 
   @override
   Future<Uint8List> deriveKey({

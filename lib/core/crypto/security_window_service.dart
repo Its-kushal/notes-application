@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 /// Ensures FLAG_SECURE is active only while sensitive screens (vault setup,
 /// unlock, locked list, or locked note editor) are visible.
 class SecurityWindowService {
-  static const MethodChannel _channel = MethodChannel('com.privacynotes.app/security');
+  static const MethodChannel _channel = MethodChannel('com.leaflock.app/security');
   static int _activeSecureContexts = 0;
 
   static int get activeSecureContexts => _activeSecureContexts;

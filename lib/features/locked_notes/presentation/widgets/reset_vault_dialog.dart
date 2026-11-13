@@ -6,7 +6,7 @@ import '../../../../core/crypto/recovery_key_service.dart';
 import '../../../../core/crypto/security_window_service.dart';
 import '../../../../core/crypto/vault_service.dart';
 import '../../../../core/theme/spacing.dart';
-import 'package:privacy_notes/l10n/l10n_extension.dart';
+import 'package:leaflock/l10n/l10n_extension.dart';
 import '../controllers/vault_providers.dart';
 
 enum ResetAuthMethod {

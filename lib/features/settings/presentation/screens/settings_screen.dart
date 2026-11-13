@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_info.dart';
 import '../../../../core/crypto/vault_service.dart';
 import '../../../../core/database/benchmark_seeder.dart';
 import '../../../../core/theme/spacing.dart';
@@ -457,7 +458,7 @@ class SettingsScreen extends ConsumerWidget {
                 label: Text(l10n.openDefaultAppsSettings),
                 onPressed: () async {
                   try {
-                    const channel = MethodChannel('com.privacynotes.app/security');
+                    const channel = MethodChannel('com.leaflock.app/security');
                     await channel.invokeMethod('openDefaultAppsSettings');
                   } catch (_) {}
                 },
@@ -478,7 +479,7 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: Text(l10n.aboutPrivacyNotes),
-            subtitle: Text(l10n.aboutSubtitle('1.0.0')),
+            subtitle: Text(l10n.aboutSubtitle(AppInfo.appVersion)),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/about'),
           ),

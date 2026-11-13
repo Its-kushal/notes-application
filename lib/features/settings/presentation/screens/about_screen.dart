@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_info.dart';
 import '../../../../core/theme/spacing.dart';
-import 'package:privacy_notes/l10n/l10n_extension.dart';
+import 'package:leaflock/l10n/l10n_extension.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -60,7 +61,7 @@ class AboutScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
               ),
               child: Text(
-                l10n.appVersion('1.0.0'),
+                l10n.appVersion(AppInfo.appVersion),
                 style: textTheme.labelMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),

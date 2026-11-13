@@ -9,7 +9,7 @@ import '../../../../core/crypto/vault_service.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/app_snackbar.dart';
 import '../../../../core/widgets/loading_state.dart';
-import 'package:privacy_notes/l10n/l10n_extension.dart';
+import 'package:leaflock/l10n/l10n_extension.dart';
 import '../controllers/vault_providers.dart';
 import '../widgets/pattern_lock_widget.dart';
 import '../widgets/pin_pad_widget.dart';

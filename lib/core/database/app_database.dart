@@ -10,7 +10,7 @@ enum DatabaseStatus {
 
 /// Central database manager for LeafLock utilizing SQLCipher.
 class AppDatabase {
-  static const String databaseFileName = 'privacy_notes.db';
+  static const String databaseFileName = 'leaflock.db';
   static const int currentDatabaseVersion = 4;
 
   final DatabaseKeyService _keyService;
@@ -191,7 +191,7 @@ class AppDatabase {
 
     // 2. Copy database file to backups directory
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final backupPath = '${backupDir.path}/privacy_notes_v${diskVersion}_backup_$timestamp.db';
+    final backupPath = '${backupDir.path}/leaflock_v${diskVersion}_backup_$timestamp.db';
     await dbFile.copy(backupPath);
 
     // 3. Verify the copy opens with the exact same SQLCipher key

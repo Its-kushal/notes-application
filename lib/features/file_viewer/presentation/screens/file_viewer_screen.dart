@@ -7,7 +7,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/database_recovery_screen.dart';
 import '../../../../core/theme/spacing.dart';
 import '../../../../core/widgets/shared_widgets.dart';
-import 'package:privacy_notes/l10n/l10n_extension.dart';
+import 'package:leaflock/l10n/l10n_extension.dart';
 import '../../../notes/domain/note.dart';
 import '../../../notes/presentation/controllers/notes_providers.dart';
 import '../../domain/file_decoder.dart';
@@ -56,7 +56,7 @@ class _FileViewerScreenState extends ConsumerState<FileViewerScreen> {
   Future<void> _close() async {
     if (widget.file.isFromExternalApp) {
       try {
-        const MethodChannel('com.privacynotes.app/security')
+        const MethodChannel('com.leaflock.app/security')
             .invokeMethod('exitExternalViewer');
       } catch (_) {}
     }
