@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:privacy_notes/core/theme/theme_cache_service.dart';
+import 'package:leaflock/core/theme/theme_cache_service.dart';
 
 void main() {
   group('ThemeCacheService', () {

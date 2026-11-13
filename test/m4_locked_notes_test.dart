@@ -2,19 +2,19 @@ import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:privacy_notes/core/crypto/id_generator.dart';
-import 'package:privacy_notes/core/crypto/kdf_service.dart';
-import 'package:privacy_notes/core/crypto/vault_service.dart';
-import 'package:privacy_notes/core/database/app_database.dart';
+import 'package:leaflock/core/crypto/id_generator.dart';
+import 'package:leaflock/core/crypto/kdf_service.dart';
+import 'package:leaflock/core/crypto/vault_service.dart';
+import 'package:leaflock/core/database/app_database.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:privacy_notes/features/locked_notes/presentation/controllers/vault_providers.dart';
-import 'package:privacy_notes/features/locked_notes/presentation/screens/vault_setup_screen.dart';
-import 'package:privacy_notes/features/locked_notes/presentation/screens/vault_unlock_screen.dart';
-import 'package:privacy_notes/features/locked_notes/presentation/widgets/pattern_lock_widget.dart';
-import 'package:privacy_notes/features/locked_notes/presentation/widgets/pin_pad_widget.dart';
-import 'package:privacy_notes/features/notes/data/notes_repository.dart';
-import 'package:privacy_notes/features/notes/domain/checklist_item.dart';
-import 'package:privacy_notes/features/notes/domain/note.dart';
+import 'package:leaflock/features/locked_notes/presentation/controllers/vault_providers.dart';
+import 'package:leaflock/features/locked_notes/presentation/screens/vault_setup_screen.dart';
+import 'package:leaflock/features/locked_notes/presentation/screens/vault_unlock_screen.dart';
+import 'package:leaflock/features/locked_notes/presentation/widgets/pattern_lock_widget.dart';
+import 'package:leaflock/features/locked_notes/presentation/widgets/pin_pad_widget.dart';
+import 'package:leaflock/features/notes/data/notes_repository.dart';
+import 'package:leaflock/features/notes/domain/checklist_item.dart';
+import 'package:leaflock/features/notes/domain/note.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
@@ -691,13 +691,13 @@ void main() {
     testWidgets('VaultUnlockScreen pattern unlock layout is horizontally centered', (tester) async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-        const MethodChannel('com.privacynotes.app/security'),
+        const MethodChannel('com.leaflock.app/security'),
         (call) async => null,
       );
       addTearDown(() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(
-          const MethodChannel('com.privacynotes.app/security'),
+          const MethodChannel('com.leaflock.app/security'),
           null,
         );
       });
@@ -751,13 +751,13 @@ void main() {
     testWidgets('VaultUnlockScreen PIN unlock layout is horizontally centered', (tester) async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-        const MethodChannel('com.privacynotes.app/security'),
+        const MethodChannel('com.leaflock.app/security'),
         (call) async => null,
       );
       addTearDown(() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(
-          const MethodChannel('com.privacynotes.app/security'),
+          const MethodChannel('com.leaflock.app/security'),
           null,
         );
       });
@@ -810,13 +810,13 @@ void main() {
     testWidgets('VaultSetupScreen clears pattern board on step 2 and resets to step 1 on mismatch', (tester) async {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
-        const MethodChannel('com.privacynotes.app/security'),
+        const MethodChannel('com.leaflock.app/security'),
         (call) async => null,
       );
       addTearDown(() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(
-          const MethodChannel('com.privacynotes.app/security'),
+          const MethodChannel('com.leaflock.app/security'),
           null,
         );
       });

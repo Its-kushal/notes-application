@@ -2,19 +2,19 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:privacy_notes/core/theme/app_theme.dart';
-import 'package:privacy_notes/features/notes/data/notes_repository.dart';
-import 'package:privacy_notes/features/notes/domain/checklist_item.dart';
-import 'package:privacy_notes/features/notes/domain/folder.dart';
-import 'package:privacy_notes/features/notes/domain/note.dart';
-import 'package:privacy_notes/features/notes/domain/note_sort.dart';
-import 'package:privacy_notes/features/notes/presentation/controllers/notes_providers.dart';
-import 'package:privacy_notes/features/notes/presentation/screens/note_editor_screen.dart';
-import 'package:privacy_notes/features/notes/presentation/widgets/note_card.dart';
-import 'package:privacy_notes/features/settings/data/settings_repository.dart';
-import 'package:privacy_notes/features/settings/domain/app_settings.dart';
-import 'package:privacy_notes/features/settings/presentation/controllers/settings_provider.dart';
-import 'package:privacy_notes/features/settings/presentation/screens/about_screen.dart';
+import 'package:leaflock/core/theme/app_theme.dart';
+import 'package:leaflock/features/notes/data/notes_repository.dart';
+import 'package:leaflock/features/notes/domain/checklist_item.dart';
+import 'package:leaflock/features/notes/domain/folder.dart';
+import 'package:leaflock/features/notes/domain/note.dart';
+import 'package:leaflock/features/notes/domain/note_sort.dart';
+import 'package:leaflock/features/notes/presentation/controllers/notes_providers.dart';
+import 'package:leaflock/features/notes/presentation/screens/note_editor_screen.dart';
+import 'package:leaflock/features/notes/presentation/widgets/note_card.dart';
+import 'package:leaflock/features/settings/data/settings_repository.dart';
+import 'package:leaflock/features/settings/domain/app_settings.dart';
+import 'package:leaflock/features/settings/presentation/controllers/settings_provider.dart';
+import 'package:leaflock/features/settings/presentation/screens/about_screen.dart';
 
 class InMemoryNotesRepository implements NotesRepository {
   final List<Note> notes = [];
@@ -380,7 +380,7 @@ void main() {
 
       expect(find.text('About'), findsOneWidget);
       expect(find.text('LeafLock'), findsOneWidget);
-      expect(find.text('Version 1.0.0'), findsOneWidget);
+      expect(find.text('Version 0.9.0'), findsOneWidget);
       expect(find.text('Our Privacy Guarantee'), findsOneWidget);
       expect(find.text('Hardware-Backed SQLCipher'), findsOneWidget);
       expect(find.text('No Internet Permission'), findsOneWidget);

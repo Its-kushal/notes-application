@@ -3,9 +3,9 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:privacy_notes/core/crypto/recovery_key_service.dart';
-import 'package:privacy_notes/features/backup/domain/backup_manifest.dart';
-import 'package:privacy_notes/features/backup/services/backup_service.dart';
+import 'package:leaflock/core/crypto/recovery_key_service.dart';
+import 'package:leaflock/features/backup/domain/backup_manifest.dart';
+import 'package:leaflock/features/backup/services/backup_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

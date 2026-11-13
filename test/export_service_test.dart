@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:privacy_notes/features/export/export_service.dart';
-import 'package:privacy_notes/features/notes/domain/checklist_item.dart';
-import 'package:privacy_notes/features/notes/domain/note.dart';
+import 'package:leaflock/features/export/export_service.dart';
+import 'package:leaflock/features/notes/domain/checklist_item.dart';
+import 'package:leaflock/features/notes/domain/note.dart';
 
 void main() {
   group('ExportService Formatting & P3 Guard Tests', () {

@@ -4,20 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:privacy_notes/core/crypto/kdf_service.dart';
-import 'package:privacy_notes/core/crypto/recovery_key_service.dart';
-import 'package:privacy_notes/core/crypto/vault_service.dart';
-import 'package:privacy_notes/core/database/app_database.dart';
-import 'package:privacy_notes/features/locked_notes/presentation/controllers/vault_providers.dart';
-import 'package:privacy_notes/features/locked_notes/presentation/screens/vault_recovery_key_screen.dart';
-import 'package:privacy_notes/features/locked_notes/presentation/screens/vault_recovery_screen.dart';
-import 'package:privacy_notes/features/locked_notes/presentation/screens/vault_setup_screen.dart';
-import 'package:privacy_notes/features/locked_notes/presentation/widgets/reset_vault_dialog.dart';
-import 'package:privacy_notes/features/notes/data/notes_repository.dart';
-import 'package:privacy_notes/features/notes/domain/note.dart';
-import 'package:privacy_notes/features/settings/presentation/screens/settings_screen.dart';
-import 'package:privacy_notes/features/settings/presentation/controllers/settings_provider.dart';
-import 'package:privacy_notes/features/settings/domain/app_settings.dart';
+import 'package:leaflock/core/crypto/kdf_service.dart';
+import 'package:leaflock/core/crypto/recovery_key_service.dart';
+import 'package:leaflock/core/crypto/vault_service.dart';
+import 'package:leaflock/core/database/app_database.dart';
+import 'package:leaflock/features/locked_notes/presentation/controllers/vault_providers.dart';
+import 'package:leaflock/features/locked_notes/presentation/screens/vault_recovery_key_screen.dart';
+import 'package:leaflock/features/locked_notes/presentation/screens/vault_recovery_screen.dart';
+import 'package:leaflock/features/locked_notes/presentation/screens/vault_setup_screen.dart';
+import 'package:leaflock/features/locked_notes/presentation/widgets/reset_vault_dialog.dart';
+import 'package:leaflock/features/notes/data/notes_repository.dart';
+import 'package:leaflock/features/notes/domain/note.dart';
+import 'package:leaflock/features/settings/presentation/screens/settings_screen.dart';
+import 'package:leaflock/features/settings/presentation/controllers/settings_provider.dart';
+import 'package:leaflock/features/settings/domain/app_settings.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
@@ -26,7 +26,7 @@ void main() {
     databaseFactory = databaseFactoryFfi;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('com.privacynotes.app/security'),
+      const MethodChannel('com.leaflock.app/security'),
       (call) async {
         if (call.method == 'getElapsedRealtime') {
           return 500000;
@@ -39,7 +39,7 @@ void main() {
   tearDownAll(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('com.privacynotes.app/security'),
+      const MethodChannel('com.leaflock.app/security'),
       null,
     );
   });

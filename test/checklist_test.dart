@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:privacy_notes/features/notes/domain/checklist_item.dart';
+import 'package:leaflock/features/notes/domain/checklist_item.dart';
 
 void main() {
   group('ChecklistItem Logic & Round-Trip Tests', () {

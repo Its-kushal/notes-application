@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:privacy_notes/app.dart';
-import 'package:privacy_notes/core/database/app_database.dart';
-import 'package:privacy_notes/core/database/database_recovery_screen.dart';
-import 'package:privacy_notes/core/widgets/error_state.dart';
-import 'package:privacy_notes/features/file_viewer/domain/opened_file.dart';
-import 'package:privacy_notes/features/file_viewer/presentation/screens/file_viewer_screen.dart';
-import 'package:privacy_notes/features/notes/data/notes_repository.dart';
-import 'package:privacy_notes/features/notes/domain/note.dart';
-import 'package:privacy_notes/features/notes/presentation/controllers/notes_providers.dart';
+import 'package:leaflock/app.dart';
+import 'package:leaflock/core/database/app_database.dart';
+import 'package:leaflock/core/database/database_recovery_screen.dart';
+import 'package:leaflock/core/widgets/error_state.dart';
+import 'package:leaflock/features/file_viewer/domain/opened_file.dart';
+import 'package:leaflock/features/file_viewer/presentation/screens/file_viewer_screen.dart';
+import 'package:leaflock/features/notes/data/notes_repository.dart';
+import 'package:leaflock/features/notes/domain/note.dart';
+import 'package:leaflock/features/notes/presentation/controllers/notes_providers.dart';
 
 class FakeNotesRepository implements NotesRepository {
   final List<Note> notes = [];

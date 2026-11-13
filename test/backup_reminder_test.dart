@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:privacy_notes/core/database/app_database.dart';
-import 'package:privacy_notes/features/backup/services/backup_service.dart';
+import 'package:leaflock/core/database/app_database.dart';
+import 'package:leaflock/features/backup/services/backup_service.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {

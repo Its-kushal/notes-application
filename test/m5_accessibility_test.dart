@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:privacy_notes/core/constants/app_colors.dart';
-import 'package:privacy_notes/core/database/database_recovery_screen.dart';
-import 'package:privacy_notes/core/theme/app_theme.dart';
-import 'package:privacy_notes/features/locked_notes/presentation/widgets/pattern_lock_widget.dart';
-import 'package:privacy_notes/features/locked_notes/presentation/widgets/pin_pad_widget.dart';
-import 'package:privacy_notes/features/settings/presentation/screens/about_screen.dart';
-import 'package:privacy_notes/features/welcome/presentation/screens/welcome_screen.dart';
-import 'package:privacy_notes/l10n/app_localizations.dart';
+import 'package:leaflock/core/constants/app_colors.dart';
+import 'package:leaflock/core/database/database_recovery_screen.dart';
+import 'package:leaflock/core/theme/app_theme.dart';
+import 'package:leaflock/features/locked_notes/presentation/widgets/pattern_lock_widget.dart';
+import 'package:leaflock/features/locked_notes/presentation/widgets/pin_pad_widget.dart';
+import 'package:leaflock/features/settings/presentation/screens/about_screen.dart';
+import 'package:leaflock/features/welcome/presentation/screens/welcome_screen.dart';
+import 'package:leaflock/l10n/app_localizations.dart';
 
 Widget _buildTestApp({required Widget child, ThemeData? theme}) {
   return ProviderScope(

@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:privacy_notes/features/file_viewer/domain/file_decoder.dart';
-import 'package:privacy_notes/features/file_viewer/domain/opened_file.dart';
-import 'package:privacy_notes/features/file_viewer/services/file_intent_service.dart';
+import 'package:leaflock/features/file_viewer/domain/file_decoder.dart';
+import 'package:leaflock/features/file_viewer/domain/opened_file.dart';
+import 'package:leaflock/features/file_viewer/services/file_intent_service.dart';
 
 class MockGoRouter implements GoRouter {
   final List<String> pushedLocations = [];
@@ -31,7 +31,7 @@ void main() {
 
   setUp(() {
     mockRouter = MockGoRouter();
-    channel = const MethodChannel('com.privacynotes.app/security_test');
+    channel = const MethodChannel('com.leaflock.app/security_test');
     log.clear();
     initialFileResponse = null;
 
@@ -244,7 +244,7 @@ void main() {
       );
 
       await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .handlePlatformMessage('com.privacynotes.app/security_test', byteData, (_) {});
+          .handlePlatformMessage('com.leaflock.app/security_test', byteData, (_) {});
 
       expect(mockRouter.pushedLocations, contains('/file-viewer'));
       final opened = mockRouter.pushedExtras.first as OpenedFile;

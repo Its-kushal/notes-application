@@ -2,17 +2,17 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:privacy_notes/core/theme/app_theme.dart';
-import 'package:privacy_notes/core/widgets/app_snackbar.dart';
-import 'package:privacy_notes/features/notes/data/notes_repository.dart';
-import 'package:privacy_notes/features/notes/domain/folder.dart';
-import 'package:privacy_notes/features/notes/domain/note.dart';
-import 'package:privacy_notes/features/notes/domain/note_sort.dart';
-import 'package:privacy_notes/features/notes/presentation/controllers/notes_providers.dart';
-import 'package:privacy_notes/features/notes/presentation/screens/archive_screen.dart';
-import 'package:privacy_notes/features/notes/presentation/screens/note_editor_screen.dart';
-import 'package:privacy_notes/features/notes/presentation/screens/notes_list_screen.dart';
-import 'package:privacy_notes/features/notes/presentation/screens/trash_screen.dart';
+import 'package:leaflock/core/theme/app_theme.dart';
+import 'package:leaflock/core/widgets/app_snackbar.dart';
+import 'package:leaflock/features/notes/data/notes_repository.dart';
+import 'package:leaflock/features/notes/domain/folder.dart';
+import 'package:leaflock/features/notes/domain/note.dart';
+import 'package:leaflock/features/notes/domain/note_sort.dart';
+import 'package:leaflock/features/notes/presentation/controllers/notes_providers.dart';
+import 'package:leaflock/features/notes/presentation/screens/archive_screen.dart';
+import 'package:leaflock/features/notes/presentation/screens/note_editor_screen.dart';
+import 'package:leaflock/features/notes/presentation/screens/notes_list_screen.dart';
+import 'package:leaflock/features/notes/presentation/screens/trash_screen.dart';
 
 class InMemoryNotesRepository implements NotesRepository {
   final List<Note> notes = [];

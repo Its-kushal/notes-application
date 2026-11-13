@@ -4,14 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:privacy_notes/core/crypto/kdf_service.dart';
-import 'package:privacy_notes/core/crypto/recovery_key_service.dart';
-import 'package:privacy_notes/core/crypto/vault_service.dart';
-import 'package:privacy_notes/core/database/app_database.dart';
-import 'package:privacy_notes/features/backup/presentation/controllers/backup_provider.dart';
-import 'package:privacy_notes/features/backup/services/backup_service.dart';
-import 'package:privacy_notes/features/locked_notes/presentation/controllers/vault_providers.dart';
-import 'package:privacy_notes/l10n/app_localizations.dart';
+import 'package:leaflock/core/crypto/kdf_service.dart';
+import 'package:leaflock/core/crypto/recovery_key_service.dart';
+import 'package:leaflock/core/crypto/vault_service.dart';
+import 'package:leaflock/core/database/app_database.dart';
+import 'package:leaflock/features/backup/presentation/controllers/backup_provider.dart';
+import 'package:leaflock/features/backup/services/backup_service.dart';
+import 'package:leaflock/features/locked_notes/presentation/controllers/vault_providers.dart';
+import 'package:leaflock/l10n/app_localizations.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class MockGoRouter extends ChangeNotifier implements GoRouter {
@@ -79,7 +79,7 @@ void main() {
   setUpAll(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('com.privacynotes.app/security'),
+      const MethodChannel('com.leaflock.app/security'),
       (call) async {
         if (call.method == 'getElapsedRealtime') {
           return 500000;
@@ -92,7 +92,7 @@ void main() {
   tearDownAll(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('com.privacynotes.app/security'),
+      const MethodChannel('com.leaflock.app/security'),
       null,
     );
   });

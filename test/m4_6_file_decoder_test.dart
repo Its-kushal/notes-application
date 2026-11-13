@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:privacy_notes/features/file_viewer/domain/file_decoder.dart';
-import 'package:privacy_notes/features/notes/domain/note.dart';
+import 'package:leaflock/features/file_viewer/domain/file_decoder.dart';
+import 'package:leaflock/features/notes/domain/note.dart';
 
 void main() {
   group('FileDecoder - Encoding & Decoding', () {

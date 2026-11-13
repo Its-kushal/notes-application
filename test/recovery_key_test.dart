@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:privacy_notes/core/crypto/recovery_key_service.dart';
+import 'package:leaflock/core/crypto/recovery_key_service.dart';
 
 void main() {
   group('RecoveryKeyService Key Format & Checksum Tests', () {

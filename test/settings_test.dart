@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:privacy_notes/core/database/app_database.dart';
-import 'package:privacy_notes/core/theme/app_theme.dart';
-import 'package:privacy_notes/features/notes/data/notes_repository.dart';
-import 'package:privacy_notes/features/notes/domain/note.dart';
-import 'package:privacy_notes/features/notes/domain/note_sort.dart';
-import 'package:privacy_notes/features/notes/presentation/controllers/notes_providers.dart';
-import 'package:privacy_notes/features/notes/presentation/screens/trash_screen.dart';
-import 'package:privacy_notes/features/settings/data/settings_repository.dart';
-import 'package:privacy_notes/features/settings/domain/app_settings.dart';
-import 'package:privacy_notes/features/settings/presentation/controllers/settings_provider.dart';
-import 'package:privacy_notes/features/settings/presentation/screens/settings_screen.dart';
+import 'package:leaflock/core/database/app_database.dart';
+import 'package:leaflock/core/theme/app_theme.dart';
+import 'package:leaflock/features/notes/data/notes_repository.dart';
+import 'package:leaflock/features/notes/domain/note.dart';
+import 'package:leaflock/features/notes/domain/note_sort.dart';
+import 'package:leaflock/features/notes/presentation/controllers/notes_providers.dart';
+import 'package:leaflock/features/notes/presentation/screens/trash_screen.dart';
+import 'package:leaflock/features/settings/data/settings_repository.dart';
+import 'package:leaflock/features/settings/domain/app_settings.dart';
+import 'package:leaflock/features/settings/presentation/controllers/settings_provider.dart';
+import 'package:leaflock/features/settings/presentation/screens/settings_screen.dart';
 
 class FakeSettingsRepository implements SettingsRepository {
   AppSettings _settings;

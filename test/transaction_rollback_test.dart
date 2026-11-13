@@ -1,10 +1,10 @@
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:privacy_notes/core/crypto/kdf_service.dart';
-import 'package:privacy_notes/core/crypto/vault_service.dart';
-import 'package:privacy_notes/core/database/app_database.dart';
-import 'package:privacy_notes/features/notes/data/notes_repository.dart';
-import 'package:privacy_notes/features/notes/domain/note.dart';
+import 'package:leaflock/core/crypto/kdf_service.dart';
+import 'package:leaflock/core/crypto/vault_service.dart';
+import 'package:leaflock/core/database/app_database.dart';
+import 'package:leaflock/features/notes/data/notes_repository.dart';
+import 'package:leaflock/features/notes/domain/note.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {

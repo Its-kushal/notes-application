@@ -47,7 +47,7 @@ void main() {
         '-',
         ':',
         '/',
-        '1.0.0',
+        '0.9.0',
         '72h',
         'XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX',
         'monospace',
@@ -146,11 +146,11 @@ void main() {
         for (int i = 0; i < lines.length; i++) {
           final line = lines[i];
           final trimmed = line.trim();
-          // Exclude comments and package name imports (com.privacynotes.app)
+          // Exclude comments and package name imports (com.leaflock.app)
           if (trimmed.startsWith('//') || trimmed.startsWith('/*') || trimmed.startsWith('*')) {
             continue;
           }
-          if (line.contains('com.privacynotes.app') || line.contains('package:privacy_notes')) {
+          if (line.contains('com.leaflock.app') || line.contains('package:leaflock')) {
             continue;
           }
           if (line.toLowerCase().contains('privacy notes')) {
