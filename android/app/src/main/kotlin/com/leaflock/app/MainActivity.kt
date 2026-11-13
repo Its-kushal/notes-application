@@ -1,4 +1,4 @@
-package com.privacynotes.app
+package com.leaflock.app
 
 import android.content.Intent
 import android.net.Uri
@@ -12,7 +12,7 @@ import io.flutter.plugin.common.MethodChannel
 import java.io.ByteArrayOutputStream
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "com.privacynotes.app/security"
+    private val CHANNEL = "com.leaflock.app/security"
     private var methodChannel: MethodChannel? = null
     private var pendingFilePayload: Map<String, Any?>? = null
     private var isDartReady = false
@@ -214,4 +214,3 @@ class MainActivity : FlutterActivity() {
         }
     }
 }
-

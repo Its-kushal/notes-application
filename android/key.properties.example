@@ -1,0 +1,15 @@
+# Copy this file to android/key.properties and fill in your values.
+# NEVER commit android/key.properties, *.jks, or *.keystore files.
+#
+# IMPORTANT FOR PKCS12 KEYSTORES:
+# A PKCS12 keystore uses ONE password for both the keystore and the key alias.
+# When generating with keytool, press RETURN (Enter) when prompted for the key
+# password so it matches the keystore password, and set keyPassword equal to
+# storePassword below.
+#
+# Use forward slashes (/) or escaped backslashes (\\) for storeFile on Windows.
+
+storePassword=REPLACE_WITH_KEYSTORE_PASSWORD
+keyPassword=REPLACE_WITH_SAME_KEYSTORE_PASSWORD
+keyAlias=leaflock
+storeFile=C:/Users/YOUR_WINDOWS_USER/leaflock-release.jks
