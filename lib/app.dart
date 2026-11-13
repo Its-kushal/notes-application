@@ -1,0 +1,256 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'core/database/app_database.dart';
+import 'core/database/database_recovery_screen.dart';
+import 'core/theme/app_theme.dart';
+import 'core/theme/theme_cache_service.dart';
+import 'core/widgets/shared_widgets.dart';
+import 'features/file_viewer/domain/opened_file.dart';
+import 'features/file_viewer/presentation/screens/file_viewer_screen.dart';
+import 'features/file_viewer/services/file_intent_service.dart';
+import 'features/locked_notes/presentation/controllers/vault_providers.dart';
+import 'features/locked_notes/presentation/screens/locked_notes_list_screen.dart';
+import 'features/locked_notes/presentation/screens/vault_recovery_key_screen.dart';
+import 'features/locked_notes/presentation/screens/vault_recovery_screen.dart';
+import 'features/locked_notes/presentation/screens/vault_setup_screen.dart';
+import 'features/locked_notes/presentation/screens/vault_unlock_screen.dart';
+import 'features/backup/presentation/screens/backup_settings_screen.dart';
+import 'features/notes/domain/note.dart';
+import 'features/notes/presentation/controllers/notes_providers.dart';
+import 'features/notes/presentation/screens/archive_screen.dart';
+import 'features/notes/presentation/screens/note_editor_screen.dart';
+import 'features/notes/presentation/screens/notes_list_screen.dart';
+import 'features/notes/presentation/screens/trash_screen.dart';
+import 'features/settings/presentation/controllers/settings_provider.dart';
+import 'features/settings/presentation/screens/about_screen.dart';
+import 'features/settings/presentation/screens/settings_screen.dart';
+import 'features/welcome/presentation/screens/welcome_screen.dart';
+import 'l10n/app_localizations.dart';
+
+final databaseInitProvider = FutureProvider<DatabaseStatus>((ref) async {
+  final appDb = ref.watch(appDatabaseProvider);
+  final status = await appDb.initialize();
+  if (status == DatabaseStatus.ready) {
+    try {
+      final repo = ref.read(notesRepositoryProvider);
+      await repo.purgeEmptyNotes();
+      final settings = ref.read(settingsProvider).settings;
+      await repo.purgeExpiredTrash(retentionDays: settings.trashRetentionDays);
+    } catch (_) {}
+    try {
+      await ref.read(vaultProvider).loadVaultState();
+    } catch (_) {}
+  }
+  return status;
+});
+
+final appRouterProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    initialLocation: '/',
+    redirect: (context, state) {
+      final settings = ref.read(settingsProvider).settings;
+      if (!settings.firstRunDone) {
+        if (state.matchedLocation != '/welcome' && state.matchedLocation != '/file-viewer') {
+          return '/welcome';
+        }
+      } else if (state.matchedLocation == '/welcome') {
+        return '/';
+      }
+      return null;
+    },
+    routes: [
+      GoRoute(
+        path: '/welcome',
+        builder: (context, state) => const WelcomeScreen(),
+      ),
+      GoRoute(
+        path: '/',
+        builder: (context, state) => const NotesListScreen(),
+        routes: [
+          GoRoute(
+            path: 'note/:id',
+            builder: (context, state) {
+              final note = state.extra as Note? ??
+                  Note.create(id: state.pathParameters['id']);
+              return NoteEditorScreen(note: note);
+            },
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/archive',
+        builder: (context, state) => const ArchiveScreen(),
+      ),
+      GoRoute(
+        path: '/trash',
+        builder: (context, state) => const TrashScreen(),
+      ),
+      GoRoute(
+        path: '/setup',
+        builder: (context, state) {
+          final isChangingSecret = state.extra == true;
+          return VaultSetupScreen(isChangingSecret: isChangingSecret);
+        },
+      ),
+      GoRoute(
+        path: '/unlock',
+        builder: (context, state) {
+          final onUnlocked = state.extra as VoidCallback?;
+          return VaultUnlockScreen(onUnlocked: onUnlocked);
+        },
+      ),
+      GoRoute(
+        path: '/vault/recover',
+        builder: (context, state) => const VaultRecoveryScreen(),
+      ),
+      GoRoute(
+        path: '/vault/recovery-key',
+        builder: (context, state) {
+          final isRegenerating = state.extra == true;
+          return VaultRecoveryKeyScreen(isRegenerating: isRegenerating);
+        },
+      ),
+      GoRoute(
+        path: '/locked',
+        builder: (context, state) => const LockedNotesListScreen(),
+      ),
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: '/settings/backup',
+        builder: (context, state) => const BackupSettingsScreen(),
+      ),
+      GoRoute(
+        path: '/about',
+        builder: (context, state) => const AboutScreen(),
+      ),
+      GoRoute(
+        path: '/recovery',
+        builder: (context, state) => DatabaseRecoveryScreen(
+          onRetry: () => ref.refresh(databaseInitProvider),
+        ),
+      ),
+      GoRoute(
+        path: '/file-viewer',
+        builder: (context, state) {
+          final file = state.extra as OpenedFile;
+          return FileViewerScreen(file: file);
+        },
+      ),
+    ],
+  );
+});
+
+class LeafLockApp extends ConsumerStatefulWidget {
+  const LeafLockApp({super.key});
+
+  @override
+  ConsumerState<LeafLockApp> createState() => _LeafLockAppState();
+}
+
+class _LeafLockAppState extends ConsumerState<LeafLockApp>
+    with WidgetsBindingObserver {
+  FileIntentService? _fileIntentService;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final vaultNotifier = ref.read(vaultProvider);
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden) {
+      vaultNotifier.onAppPaused();
+    } else if (state == AppLifecycleState.resumed) {
+      vaultNotifier.onAppResumed();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dbInitAsync = ref.watch(databaseInitProvider);
+
+    return dbInitAsync.when(
+      data: (status) {
+        if (status == DatabaseStatus.recoveryNeeded) {
+          return MaterialApp(
+            onGenerateTitle: (context) => AppLocalizations.of(context)?.appTitle ?? 'LeafLock',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: ThemeCacheService.cachedTheme,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: DatabaseRecoveryScreen(
+              onRetry: () => ref.refresh(databaseInitProvider),
+            ),
+          );
+        }
+
+        if (status == DatabaseStatus.ready && _fileIntentService == null) {
+          final router = ref.read(appRouterProvider);
+          _fileIntentService = FileIntentService(router: router);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _fileIntentService?.startListening();
+          });
+        }
+
+        final router = ref.watch(appRouterProvider);
+        final settings = ref.watch(settingsProvider).settings;
+
+        return MaterialApp.router(
+          title: 'LeafLock',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: settings.themeMode,
+          routerConfig: router,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          builder: (context, child) {
+            final systemScaler = MediaQuery.textScalerOf(context);
+            final effectiveScale = systemScaler.scale(1.0) * settings.fontSizeMultiplier;
+            return MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: TextScaler.linear(effectiveScale),
+              ),
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
+        );
+      },
+      loading: () => MaterialApp(
+        title: 'LeafLock',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeCacheService.cachedTheme,
+        home: const Scaffold(
+          body: LoadingState(),
+        ),
+      ),
+      error: (error, stack) => MaterialApp(
+        title: 'LeafLock',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeCacheService.cachedTheme,
+        home: DatabaseRecoveryScreen(
+          onRetry: () => ref.refresh(databaseInitProvider),
+        ),
+      ),
+    );
+  }
+}
+

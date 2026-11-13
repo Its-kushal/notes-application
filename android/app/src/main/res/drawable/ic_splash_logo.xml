@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group>
+        <!-- Subtle Soft Drop Shadow -->
+        <path
+            android:fillColor="#094E48"
+            android:fillAlpha="0.35"
+            android:pathData="M39,32 H65 L74,41 V75 A4,4 0 0,1 70,79 H39 A4,4 0 0,1 35,75 V36 A4,4 0 0,1 39,32 Z" />
+
+        <!-- Crisp White Note Body (width 38dp, height 46dp, corner radius 4dp) -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M39,30 H65 L73,38 V74 A4,4 0 0,1 69,78 H39 A4,4 0 0,1 35,74 V34 A4,4 0 0,1 39,30 Z" />
+
+        <!-- Top-Right Folded Dog-Ear Flap -->
+        <path
+            android:fillColor="#E2E8F0"
+            android:pathData="M65,30 V36 A2,2 0 0,0 67,38 H73 Z" />
+
+        <!-- Note Text Accent Lines (Teal 30% opacity) -->
+        <path
+            android:strokeColor="#0D9488"
+            android:strokeAlpha="0.30"
+            android:strokeWidth="3.0"
+            android:strokeLineCap="round"
+            android:pathData="M42,44 H60" />
+        <path
+            android:strokeColor="#0D9488"
+            android:strokeAlpha="0.30"
+            android:strokeWidth="3.0"
+            android:strokeLineCap="round"
+            android:pathData="M42,52 H56" />
+        <path
+            android:strokeColor="#0D9488"
+            android:strokeAlpha="0.30"
+            android:strokeWidth="3.0"
+            android:strokeLineCap="round"
+            android:pathData="M42,60 H52" />
+
+        <!-- Lock Shackle (Arch) -->
+        <path
+            android:strokeColor="#0F766E"
+            android:strokeWidth="2.4"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000"
+            android:pathData="M61,65 V61 A5,5 0 0,1 71,61 V65" />
+
+        <!-- Lock Body (Rounded Rectangle) -->
+        <path
+            android:fillColor="#0D9488"
+            android:pathData="M60.5,65 H71.5 A2.5,2.5 0 0,1 74,67.5 V75.5 A2.5,2.5 0 0,1 71.5,78 H60.5 A2.5,2.5 0 0,1 58,75.5 V67.5 A2.5,2.5 0 0,1 60.5,65 Z" />
+
+        <!-- Lock Body Outer White Stroke (pops against note & shadow) -->
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="1.2"
+            android:fillColor="#00000000"
+            android:pathData="M60.5,65 H71.5 A2.5,2.5 0 0,1 74,67.5 V75.5 A2.5,2.5 0 0,1 71.5,78 H60.5 A2.5,2.5 0 0,1 58,75.5 V67.5 A2.5,2.5 0 0,1 60.5,65 Z" />
+
+        <!-- Lock Keyhole Cutout -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M66,69 A1.4,1.4 0 1,0 66,71.8 V74 H65 V71.8 A1.4,1.4 0 0,0 66,69 Z" />
+    </group>
+</vector>

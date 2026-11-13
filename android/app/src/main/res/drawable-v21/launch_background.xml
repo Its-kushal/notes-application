@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Native Splash Screen for API < 31 -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <color android:color="#0D9488" />
+    </item>
+    <item
+        android:gravity="center"
+        android:width="120dp"
+        android:height="120dp"
+        android:drawable="@drawable/ic_splash_logo" />
+</layer-list>
