@@ -23,7 +23,6 @@ dependencies:
 
   # Cryptography (Per-note AES-GCM and PBKDF2)
   cryptography: ^2.9.0
-  cryptography_flutter: ^2.3.4
 
   # File System, Export & Storage Access Framework
   share_plus: ^13.3.1

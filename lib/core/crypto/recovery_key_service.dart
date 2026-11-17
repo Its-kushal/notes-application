@@ -217,7 +217,7 @@ class RecoveryKeyService {
   static Future<Uint8List> deriveBackupSubkey(Uint8List recoveryKeyBytes) async {
     return deriveWrappingKey(
       recoveryKeyBytes: recoveryKeyBytes,
-      salt: Uint8List(0),
+      salt: Uint8List(32), // RFC 5869 default salt: HashLen zero bytes
       infoString: backupInfoString,
       keyLength: 32,
     );
